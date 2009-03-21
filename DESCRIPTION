@@ -1,0 +1,13 @@
+Package: highlight
+Type: Package
+Title: Syntax highlighter
+Version: 0.0-0
+Date: 2009-03-21
+Author: Romain Francois <francoisromain@free.fr>
+Maintainer: Romain Francois <francoisromain@free.fr>
+Description: Syntax highlighter for R code based 
+	on the results of the R parser and rendered in various 
+	formats: HTML, latex, ansi escape code, RTF, ...
+License: GPL version 3.0
+Depends: codetools
+
