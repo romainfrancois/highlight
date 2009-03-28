@@ -49,4 +49,19 @@ SEXP mkFalse(void){
     return s;
 }
 
+/**
+ * Makes a float (ScalarReal) from the string
+ */
+SEXP mkFloat(const char *s) {
+    return ScalarReal(R_atof(s));
+}
+
+/**
+ * Makes a int (ScalarInteger) from ths string
+ */
+SEXP mkInt(const char *s){
+    double f = R_atof(s);  /* or R_strtol? */
+    return ScalarInteger((int) f);
+}
+
 
