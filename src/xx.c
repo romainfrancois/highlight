@@ -145,7 +145,7 @@ static SEXP xxfirstformal1(SEXP sym, SEXP expr){
 }
 
 /**
- * Adds another formal argument name
+ * Adds another formal argument name without value
  * 
  * @param formlist the list of formal arguments so far
  * @param sym name of the new formal argument
@@ -167,21 +167,65 @@ static SEXP xxaddformal0(SEXP formlist, SEXP sym, YYLTYPE *lloc) {
     return ans;
 }
 
+/**
+ * Adds another formal argument, with the value
+ *
+ * @param formlist previously existing formal argument list
+ * @param sym name of the new argument to add
+ * @param expr expression to use as the value of the new argument
+ * @param lloc location information
+ * @return the formal argument list, with the new argument added
+ */
 static SEXP xxaddformal1(SEXP formlist, SEXP sym, SEXP expr, YYLTYPE *lloc)
 {
     SEXP ans;
     if (GenerateCode) {
-	CheckFormalArgs(formlist, sym, lloc);
-	PROTECT(ans = NextArg(formlist, expr, sym));
+		CheckFormalArgs(formlist, sym, lloc);
+		PROTECT(ans = NextArg(formlist, expr, sym));
     }
-    else
-	PROTECT(ans = R_NilValue);
+    else {
+		PROTECT(ans = R_NilValue);
+	}
     UNPROTECT_PTR(expr);
     UNPROTECT_PTR(sym);
     UNPROTECT_PTR(formlist);
     return ans;
 }
-/*}}}*/
+
+
+/**
+ * Creates a formals argument list
+ *
+ * @param s the expression to use as the value of the formal argument
+ * @param tag the name of the argument
+ * @return the newly built formals argument list
+ */
+static SEXP FirstArg(SEXP s, SEXP tag){
+    SEXP tmp;
+    PROTECT(s);
+    PROTECT(tag);
+    PROTECT(tmp = NewList());
+    tmp = GrowList(tmp, s);
+    SET_TAG(CAR(tmp), tag);
+    UNPROTECT(3);
+    return tmp;
+}
+
+/**
+ * Called to add a formal argument 
+ *
+ * @param l already existing formal argument list
+ * @param s value of the argument
+ * @param tag name of the arrgument
+ */
+static SEXP NextArg(SEXP l, SEXP s, SEXP tag) {
+    PROTECT(tag);
+    PROTECT(l);
+    l = GrowList(l, s);
+    SET_TAG(CAR(l), tag);
+    UNPROTECT(2);
+    return l;
+} /*}}}*/
 
 
 /**
@@ -189,7 +233,7 @@ static SEXP xxaddformal1(SEXP formlist, SEXP sym, SEXP expr, YYLTYPE *lloc)
  *
  * @param v 
  * @param k 
- * @param lloc
+ * @param lloc location information
  * @return 
  */        
 static int xxvalue(SEXP v, int k, YYLTYPE *lloc) {
@@ -203,38 +247,42 @@ static int xxvalue(SEXP v, int k, YYLTYPE *lloc) {
     return k;
 }
 
-
-static SEXP xxexprlist0(void)
-{
+/**
+ * Starts an expression list (after the left brace)
+ * Creates a new list using NewList
+ */
+static SEXP xxexprlist0(void) {
     SEXP ans;
     if (GenerateCode) {
-	PROTECT(ans = NewList());
-	if (SrcFile) {
-	    setAttrib(ans, R_SrcrefSymbol, SrcRefs);
-	    REPROTECT(SrcRefs = NewList(), srindex);
+		PROTECT(ans = NewList());
+		if (SrcFile) {
+		    setAttrib(ans, R_SrcrefSymbol, SrcRefs);
+		    REPROTECT(SrcRefs = NewList(), srindex);
+		}
+    } else {
+		PROTECT(ans = R_NilValue);
 	}
-    }
-    else
-	PROTECT(ans = R_NilValue);
     return ans;
 }
 
-static SEXP xxexprlist1(SEXP expr, YYLTYPE *lloc)
-{
+/**
+ * 
+ */
+static SEXP xxexprlist1(SEXP expr, YYLTYPE *lloc){
     SEXP ans,tmp;
     if (GenerateCode) {
-	PROTECT(tmp = NewList());
-	if (SrcFile) {
-	    setAttrib(tmp, R_SrcrefSymbol, SrcRefs);
-	    REPROTECT(SrcRefs = NewList(), srindex);
-	    REPROTECT(SrcRefs = GrowList(SrcRefs, makeSrcref(lloc, SrcFile)), srindex);
-	}
-	PROTECT(ans = GrowList(tmp, expr));
-	UNPROTECT_PTR(tmp);
+		PROTECT(tmp = NewList());
+		if (SrcFile) {
+		    setAttrib(tmp, R_SrcrefSymbol, SrcRefs);
+		    REPROTECT(SrcRefs = NewList(), srindex);
+		    REPROTECT(SrcRefs = GrowList(SrcRefs, makeSrcref(lloc, SrcFile)), srindex);
+		}
+		PROTECT(ans = GrowList(tmp, expr));
+		UNPROTECT_PTR(tmp);
+    } else {
+		PROTECT(ans = R_NilValue);
     }
-    else
-	PROTECT(ans = R_NilValue);
-    UNPROTECT_PTR(expr);
+	UNPROTECT_PTR(expr);
     return ans;
 }
 

@@ -39,37 +39,6 @@ static SEXP TagArg(SEXP arg, SEXP tag, YYLTYPE *lloc) {
 }
 
 
-/**
- * Creates a formals argument list
- *
- * @param s the expression to use as the value of the formal argument
- * @param tag the name of the argument
- * @return the newly built formals argument list
- */
-static SEXP FirstArg(SEXP s, SEXP tag){
-    SEXP tmp;
-    PROTECT(s);
-    PROTECT(tag);
-    PROTECT(tmp = NewList());
-    tmp = GrowList(tmp, s);
-    SET_TAG(CAR(tmp), tag);
-    UNPROTECT(3);
-    return tmp;
-}
-
-/**
- * TODO: add comment
- */
-static SEXP NextArg(SEXP l, SEXP s, SEXP tag)
-{
-    PROTECT(tag);
-    PROTECT(l);
-    l = GrowList(l, s);
-    SET_TAG(CAR(l), tag);
-    UNPROTECT(2);
-    return l;
-}
-
 /* Stretchy List Structures : Lists are created and grown using a special */
 /* dotted pair.  The CAR of the list points to the last cons-cell in the */
 /* list and the CDR points to the first.  The list can be extracted from */
