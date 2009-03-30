@@ -1,5 +1,4 @@
-#include "keywords.h"
-#include "makers.h"
+#include "highlight.h"
 #include <Rinternals.h>
 
 /**

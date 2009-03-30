@@ -20,6 +20,8 @@
  *  http://www.r-project.org/Licenses/
  */
 
+#include "highlight.h"
+ 
 extern0 int	R_ParseContextLast INI_as(0); /* last character in context buffer */
 #define YYERROR_VERBOSE 1
 

@@ -1,7 +1,4 @@
-#include "xx.h"
-
-/* :tabSize=4:indentSize=4:noTabs=false:folding=explicit:collapseFolds=1: */
-
+#include "highlight.h"
 /* set of functions used in the parsing process */
 
 /*{{{ Get the next or the previous character from the stream */
@@ -910,4 +907,6 @@ static int	xxlineno, xxbyteno, xxcolno,  xxlinesave, xxbytesave, xxcolsave;
 static SEXP     SrcFile = NULL;
 static SEXP	SrcRefs = NULL;
 static PROTECT_INDEX srindex;
+
+/* :tabSize=4:indentSize=4:noTabs=false:folding=explicit:collapseFolds=1: */
 

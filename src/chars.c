@@ -1,3 +1,5 @@
+#include "highlight.h"
+
 /* This is only called following ., so we only care if it is
    an ANSI digit or not */
 

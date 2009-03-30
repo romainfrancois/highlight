@@ -1,0 +1,7 @@
+* use only one header file if possible
+* extract out lexer code
+* replace GenerateCode by some sort of verbosity level: 
+  - 0 : completely silent (identical as !GenerateCode), only used to check 
+        that a file CAN be parsed
+  - 1 : normal parse
+  - 2 : verbose, lloc for all tokens, incl comments

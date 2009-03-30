@@ -1,4 +1,4 @@
-#include "if.h"
+#include "highlight.h"
 
 /* TODO: understand what these are about */ 
 

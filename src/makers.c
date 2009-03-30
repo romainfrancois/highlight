@@ -1,5 +1,4 @@
-#include <Rinternals.h>
-#include "makers.h"
+#include "highlight.h"
 
 /**
  * Makes a COMPLEX (CPLXSXP) from the character string
