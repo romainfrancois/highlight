@@ -689,7 +689,7 @@ static SEXP xxnxtbrk(SEXP keyword){
 }
 /*}}}*/
 
-/*{{{ Functions 
+/*{{{ Functions */
 /** 
  * function call
  * 

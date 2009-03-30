@@ -10,6 +10,23 @@ static int NumericValue(int)
 static void IfPush(void);
 static void ifpop(void); 
 
+extern0 int	R_ParseContextLast INI_as(0); /* last character in context buffer */
+#define YYERROR_VERBOSE 1
+
+static void yyerror(char *);
+static int yylex();
+int yyparse(void);
+
+
+/* Handle function source */
+
+#define MAXFUNSIZE 131072
+#define MAXNEST       265
+
+static unsigned char FunctionSource[MAXFUNSIZE];
+static unsigned char *FunctionStart[MAXNEST], *SourcePtr;
+static int FunctionLevel = 0;
+static int KeepSource;
 
 /* Special Symbols */
 /* Syntactic Keywords + Symbolic Constants */
@@ -167,3 +184,79 @@ typedef struct yyltype{
     while (YYID (0))
 
 #endif
+
+/*----------------------------------------------------------------------------*/
+
+static int (*ptr_getc)(void);
+
+/* Private pushback, since file ungetc only guarantees one byte.
+   We need up to one MBCS-worth */
+
+#define PUSHBACK_BUFSIZE 16
+static int pushback[PUSHBACK_BUFSIZE];
+static unsigned int npush = 0;
+
+static int prevpos = 0;
+static int prevlines[PUSHBACK_BUFSIZE];
+static int prevcols[PUSHBACK_BUFSIZE];
+static int prevbytes[PUSHBACK_BUFSIZE];
+
+
+
+
+
+/* This is used as the buffer for NumericValue, SpecialValue and
+   SymbolValue.  None of these could conceivably need 8192 bytes.
+
+   It has not been used as the buffer for input character strings
+   since Oct 2007 (released as 2.7.0), and for comments since 2.8.0
+ */
+static char yytext[MAXELTSIZE];
+
+#define DECLARE_YYTEXT_BUFP(bp) char *bp = yytext
+#define YYTEXT_PUSH(c, bp) do { \
+    if ((bp) - yytext >= sizeof(yytext) - 1) \
+	error(_("input buffer overflow at line %d"), xxlineno); \
+	*(bp)++ = (c); \
+} while(0)
+
+
+
+/* Strings may contain the standard ANSI escapes and octal */
+/* specifications of the form \o, \oo or \ooo, where 'o' */
+/* is an octal digit. */
+
+#define STEXT_PUSH(c) do {                  \
+	unsigned int nc = bp - stext;       \
+	if (nc >= nstext - 1) {             \
+	    char *old = stext;              \
+	    nstext *= 2;                    \
+	    stext = malloc(nstext);         \
+	    if(!stext) error(_("unable to allocate buffer for long string at line %d"), xxlineno);\
+	    memmove(stext, old, nc);        \
+	    if(old != st0) free(old);	    \
+	    bp = stext+nc; }		    \
+	*bp++ = (c);                        \
+} while(0)
+
+
+/* The idea here is that if a string contains \u escapes that are not
+   valid in the current locale, we should switch to UTF-8 for that
+   string.  Needs wide-char support.
+*/
+#ifdef SUPPORT_MBCS
+# ifdef Win32
+#  define USE_UTF8_IF_POSSIBLE
+# endif
+#endif
+
+
+#if defined(SUPPORT_MBCS)
+# include <R_ext/rlocale.h>
+#ifdef HAVE_LANGINFO_CODESET
+# include <langinfo.h>
+#endif
+static int mbcs_get_next(int, wchar_t) ;
+#endif 
+
+
