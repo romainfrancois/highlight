@@ -4,20 +4,6 @@
 
 #include "highlight.h"
 
-/* This is used as the buffer for NumericValue, SpecialValue and
-   SymbolValue.  None of these could conceivably need 8192 bytes.
-
-   It has not been used as the buffer for input character strings
-   since Oct 2007 (released as 2.7.0), and for comments since 2.8.0
- */
-static char yytext[MAXELTSIZE];
-
-#define YYERROR_VERBOSE 0
-
-static void yyerror(char *);
-static int yylex();
-int yyparse(void);
-
 #define yyconst const
 
 typedef struct yyltype{
@@ -65,11 +51,6 @@ static void ifpop(void);
 static SEXP	NextArg(SEXP, SEXP, SEXP);
 static SEXP	FirstArg(SEXP, SEXP);
 static int KeywordLookup(const char*);
-
-/* strecthy list */
-static SEXP	NewList(void);
-static SEXP	GrowList(SEXP, SEXP);
-static SEXP	Insert(SEXP, SEXP);
 
 static SEXP mkComplex(const char *);
 static SEXP mkFloat(const char *);
@@ -196,7 +177,7 @@ static int	xxvalue(SEXP, int, YYLTYPE *);
 %token		FOR IN IF ELSE WHILE NEXT BREAK REPEAT
 %token		GT GE LT LE EQ NE AND OR AND2 OR2
 %token		NS_GET NS_GET_INT
-%token		COMMENT
+%token		COMMENT SPACES
 /*}}}*/
 
 /*{{{ This is the precedence table, low to high */
@@ -479,7 +460,7 @@ static SEXP makeSrcref(YYLTYPE *lloc, SEXP srcfile) {
  * attach the srcref
  * TODO : get a better understanding of what this is doing
  */
-static SEXP attachSrcrefs(SEXP val, SEXP srcfile) {
+SEXP attachSrcrefs(SEXP val, SEXP srcfile) {
     SEXP t, srval;
     int n;
 
@@ -1726,61 +1707,11 @@ static SEXP TagArg(SEXP arg, SEXP tag, YYLTYPE *lloc) {
     	case SYMSXP:
 			return lang2(arg, tag);
     	default:
-			error(_("incorrect tag type at line %d"), lloc->first_line); return R_NilValue/* -Wall */;
+			error(_("incorrect tag type at line %d"), lloc->first_line); 
+			return R_NilValue/* -Wall */;
     }
 }
 /*}}}*/
-
-/*{{{ arg */
-/* Stretchy List Structures : Lists are created and grown using a special */
-/* dotted pair.  The CAR of the list points to the last cons-cell in the */
-/* list and the CDR points to the first.  The list can be extracted from */
-/* the pair by taking its CDR, while the CAR gives fast access to the end */
-/* of the list. */
-
-/**
- * Creates a stretchy-list dotted pair
- */ 
-static SEXP NewList(void) {
-    SEXP s = CONS(R_NilValue, R_NilValue);
-    SETCAR(s, s);
-    return s;
-}
-
-/**
- * Add a new element at the __end__ of a stretchy list
- * 
- * @param l stretchy list to expand
- * @param s element to add at the __end__ of the list
- * @return 
- */ 
-static SEXP GrowList(SEXP l, SEXP s) {
-    SEXP tmp;
-    PROTECT(s);
-    tmp = CONS(s, R_NilValue);
-    UNPROTECT(1);
-    SETCDR(CAR(l), tmp);
-    SETCAR(l, tmp);
-    return l;
-}
-
-/**
- * Insert a new element at the __head__ of a stretchy list
- * 
- * @param l stretchy list in which we want to insert s
- * @param s element to add to l
- * @return the stretchy list l appended by s
- */ 
-static SEXP Insert(SEXP l, SEXP s){
-    SEXP tmp;
-    PROTECT(s);
-    tmp = CONS(s, CDR(l));
-    UNPROTECT(1);
-    SETCDR(l, tmp);
-    return l;
-}
-
-/*}}} */
 
 /*{{{ lexer */
 
@@ -2308,7 +2239,7 @@ int isValidName(const char *name){
 }
 /*}}}*/
 
-/*{{{ SymbolValue */
+/*{{{ SpecialValue */
 /**
  * Content of an operator, like %op% 
  * 
@@ -2341,46 +2272,48 @@ static int SymbolValue(int c)
     DECLARE_YYTEXT_BUFP(yyp);
 #if defined(SUPPORT_MBCS)
     if(mbcslocale) {
-	wchar_t wc; int i, clen;
-	   /* We can't assume this is valid UTF-8 */
-	clen = /* utf8locale ? utf8clen(c) :*/ mbcs_get_next(c, &wc);
-	while(1) {
-	    /* at this point we have seen one char, so push its bytes
-	       and get one more */
-	    for(i = 0; i < clen; i++) {
-		YYTEXT_PUSH(c, yyp);
-		c = xxgetc();
-	    }
-	    if(c == R_EOF) break;
-	    if(c == '.' || c == '_') {
-		clen = 1;
-		continue;
-	    }
-	    clen = mbcs_get_next(c, &wc);
-	    if(!iswalnum(wc)) break;
-	}
+		wchar_t wc; int i, clen;
+		   /* We can't assume this is valid UTF-8 */
+		clen = /* utf8locale ? utf8clen(c) :*/ mbcs_get_next(c, &wc);
+		while(1) { 
+		    /* at this point we have seen one char, so push its bytes
+		       and get one more */
+		    for(i = 0; i < clen; i++) {
+				YYTEXT_PUSH(c, yyp);
+				c = xxgetc();
+		    }
+		    if(c == R_EOF) break;
+		    if(c == '.' || c == '_') {
+				clen = 1;
+				continue;
+		    }
+		    clen = mbcs_get_next(c, &wc);
+		    if(!iswalnum(wc)) break;
+		}
     } else
 #endif
-	do {
-	    YYTEXT_PUSH(c, yyp);
-	} while ((c = xxgetc()) != R_EOF &&
-		 (isalnum(c) || c == '.' || c == '_'));
-    xxungetc(c);
+	{
+		do {
+		    YYTEXT_PUSH(c, yyp);
+		} while ((c = xxgetc()) != R_EOF &&
+			 (isalnum(c) || c == '.' || c == '_'));
+    }
+	xxungetc(c);
     YYTEXT_PUSH('\0', yyp);
     if ((kw = KeywordLookup(yytext))) {
-	if ( kw == FUNCTION ) {
-	    if (FunctionLevel >= MAXNEST)
-		error(_("functions nested too deeply in source code at line %d"), xxlineno);
-	    if ( FunctionLevel++ == 0 && GenerateCode) {
-		strcpy((char *)FunctionSource, "function");
-		SourcePtr = FunctionSource + 8;
-	    }
-	    FunctionStart[FunctionLevel] = SourcePtr - 8;
+		if ( kw == FUNCTION ) {
+		    if (FunctionLevel >= MAXNEST)
+			error(_("functions nested too deeply in source code at line %d"), xxlineno);
+		    if ( FunctionLevel++ == 0 && GenerateCode) {
+				strcpy((char *)FunctionSource, "function");
+				SourcePtr = FunctionSource + 8;
+		    }
+		    FunctionStart[FunctionLevel] = SourcePtr - 8;
 #if 0
-	    printf("%d,%d\n", SourcePtr - FunctionSource, FunctionLevel);
+		    printf("%d,%d\n", SourcePtr - FunctionSource, FunctionLevel);
 #endif
-	}
-	return kw;
+		}
+		return kw;
     }
     PROTECT(yylval = install(yytext));
     return SYMBOL;
@@ -2881,14 +2814,14 @@ static int yylex(void){
 
 /*}}}*/
 
-
-/*{{{ Parsing exntry points */
-
 /*{{{ file_getc */
-static int file_getc(void){
+int file_getc(void){
     return R_fgetc(fp_parse);
 }
 /*}}}*/
+
+/*{{{ Parsing entry points */
+
 
 /*{{{ ParseContextInit */
 static void ParseContextInit(void) {
@@ -2917,8 +2850,6 @@ static void ParseInit(void) {
 static SEXP R_Parse1(ParseStatus *status) {
 	
 	int res = yyparse() ;
-	Rprintf( "result from yyparse: %d \n", res ) ; 
-	
 	switch(res) {
     	case 0:                     /* End of file */
 			*status = PARSE_EOF;
@@ -2969,7 +2900,6 @@ static SEXP R_Parse(int n, ParseStatus *status, SEXP srcfile){
 		if(n >= 0 && i >= n) break;
 		ParseInit();
 		rval = R_Parse1(status);
-		Rprintf( "step %d: %d \n", i, *status ) ;
 		
 		switch(*status) {
 			case PARSE_NULL:
@@ -3020,3 +2950,5 @@ SEXP R_ParseFile(FILE *fp, int n, ParseStatus *status, SEXP srcfile) {
 /*}}}*/
 
 /*}}}*/
+
+

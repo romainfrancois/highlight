@@ -8,6 +8,7 @@
 #include <Rinternals.h>
 #include <R_ext/libextern.h>
 
+
 #ifdef SUPPORT_MBCS
 # ifdef Win32
 #  define USE_UTF8_IF_POSSIBLE
@@ -28,12 +29,35 @@ static Rboolean known_to_be_latin1 = FALSE ;
 # define YYDEBUG 1
 # define YYERROR_VERBOSE 1
 
-/* File Handling */
-#define R_EOF   -1
-
 /* Used as a default for string buffer sizes,
 			   and occasionally as a limit. */
 #define MAXELTSIZE 8192 
+
+SEXP	NewList(void);
+SEXP	GrowList(SEXP, SEXP);
+SEXP	Insert(SEXP, SEXP);
+SEXP attachSrcrefs(SEXP, SEXP) ;
+
+/* This is used as the buffer for NumericValue, SpecialValue and
+   SymbolValue.  None of these could conceivably need 8192 bytes.
+
+   It has not been used as the buffer for input character strings
+   since Oct 2007 (released as 2.7.0), and for comments since 2.8.0
+ */
+static char yytext[MAXELTSIZE];
+
+static void yyerror(char *);
+static int yylex();
+int yyparse(void);
+
+
+
+/* strecthy list */
+
+
+/* File Handling */
+#define R_EOF   -1
+
 
 #ifdef __cplusplus
 extern "C" {
@@ -125,11 +149,19 @@ static SEXP	SavedLval;
 static char	contextstack[CONTEXTSTACK_SIZE], *contextp;
 
 int	R_fgetc(FILE*);
+int file_getc(void) ;
 FILE *	R_fopen(const char *filename, const char *mode);
 static FILE *fp_parse;
 static int (*ptr_getc)(void);
 
+/*{{{ Parsing entry points functions */
+/* function defined in parsing.c */
+static void ParseContextInit(void);
+static void ParseInit(void);
+static SEXP R_Parse1(ParseStatus *) ;
 static SEXP R_Parse(int, ParseStatus *, SEXP) ;
 attribute_hidden SEXP R_ParseFile(FILE *, int , ParseStatus *, SEXP) ;
+/*}}}*/
+
 
 #endif
