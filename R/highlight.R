@@ -1,5 +1,5 @@
 
-highlight <- function( x, detective, renderer,   ){
+highlight <- function( x, detective, renderer  ){
 	UseMethod( "highlight" )
 }
 
