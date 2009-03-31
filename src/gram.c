@@ -157,59 +157,7 @@
 /*{{{ Prologue */
 /* :tabSize=4:indentSize=4:noTabs=false:folding=explicit:collapseFolds=1: */
 
-#ifdef HAVE_CONFIG_H
-#include <config.h>
-#endif
-
-#include <stdlib.h>
-#include <stdio.h>
-#include <string.h> /* for strlen, strcmp */
-#include <ctype.h>
-#include <Rinternals.h>
-#include <R_ext/libextern.h>
-
-/* Objects Used In Parsing  */
-static SEXP	R_CommentSxp;	    /* Comments accumulate here */
-static int	R_ParseError = 0; /* Line where parse error occurred */
-static int	R_ParseErrorCol;    /* Column of start of token where parse error occurred */
-static SEXP	R_ParseErrorFile;   /* Source file where parse error was seen */
-#define PARSE_ERROR_SIZE 256	    /* Parse error messages saved here */
-static char	R_ParseErrorMsg[PARSE_ERROR_SIZE]=  "";
-#define PARSE_CONTEXT_SIZE 256	    /* Recent parse context kept in a circular buffer */
-static char	R_ParseContext[PARSE_CONTEXT_SIZE] = "";
-static int	R_ParseContextLast = 0 ; /* last character in context buffer */
-static int	R_ParseContextLine; /* Line in file of the above */
-static Rboolean known_to_be_utf8 = FALSE ;
-static Rboolean known_to_be_latin1 = FALSE ;
-static Rboolean R_WarnEscapes = TRUE ;   /* Warn on unrecognized escapes */
-
-LibExtern SEXP	R_CurrentExpr;	    /* Currently evaluating expression */
-
-# define yyparse		Rf_yyparse
-
-#ifdef ENABLE_NLS
-#include <libintl.h>
-#ifdef Win32
-#define _(String) libintl_gettext (String)
-#undef gettext /* needed for graphapp */
-#else
-#define _(String) gettext (String)
-#endif
-#define gettext_noop(String) String
-#define N_(String) gettext_noop (String)
-#define P_(StringS, StringP, N) ngettext (StringS, StringP, N)
-#else /* not NLS */
-#define _(String) (String)
-#define N_(String) String
-#define P_(String, StringP, N) (N > 1 ? StringP: String)
-#endif
-
-/* File Handling */
-#define R_EOF   -1
-
-/* Used as a default for string buffer sizes,
-			   and occasionally as a limit. */
-#define MAXELTSIZE 8192 
+#include "highlight.h"
 
 /* This is used as the buffer for NumericValue, SpecialValue and
    SymbolValue.  None of these could conceivably need 8192 bytes.
@@ -219,7 +167,7 @@ LibExtern SEXP	R_CurrentExpr;	    /* Currently evaluating expression */
  */
 static char yytext[MAXELTSIZE];
 
-#define YYERROR_VERBOSE 1
+#define YYERROR_VERBOSE 0
 
 static void yyerror(char *);
 static int yylex();
@@ -285,27 +233,13 @@ static SEXP mkNA(void);
 SEXP mkTrue(void);
 SEXP mkFalse(void);
 
-static int	EatLines = 0;
-static int	GenerateCode = 0;
-static int	EndOfFile = 0;
 static int	xxgetc();
 static int	xxungetc(int);
-static int	xxcharcount, xxcharsave;
-static int	xxlineno, xxbyteno, xxcolno,  xxlinesave, xxbytesave, xxcolsave;
-
-static SEXP     SrcFile = NULL;
-static SEXP	SrcRefs = NULL;
-static PROTECT_INDEX srindex;
 
 /* The idea here is that if a string contains \u escapes that are not
    valid in the current locale, we should switch to UTF-8 for that
    string.  Needs wide-char support.
 */
-#ifdef SUPPORT_MBCS
-# ifdef Win32
-#  define USE_UTF8_IF_POSSIBLE
-# endif
-#endif
 
 
 #if defined(SUPPORT_MBCS)
@@ -369,14 +303,6 @@ static int mbcs_get_next(int c, wchar_t *wc){
 #endif 
 
 /* Handle function source */
-
-#define MAXFUNSIZE 131072
-#define MAXNEST       265
-
-static unsigned char FunctionSource[MAXFUNSIZE];
-static unsigned char *FunctionStart[MAXNEST], *SourcePtr;
-static int FunctionLevel = 0;
-static int KeepSource;
 
 /*{{{ Routines used to build the parse tree */
 static SEXP	xxnullformal(void);
@@ -788,16 +714,16 @@ static const yytype_int8 yyrhs[] =
 /* YYRLINE[YYN] -- source line where rule number YYN was defined.  */
 static const yytype_uint16 yyrline[] =
 {
-       0,   303,   303,   304,   305,   306,   307,   310,   311,   314,
-     317,   318,   319,   320,   322,   323,   325,   326,   327,   328,
-     329,   331,   332,   333,   334,   335,   336,   337,   338,   339,
-     340,   341,   342,   343,   344,   345,   346,   347,   348,   349,
-     350,   352,   353,   354,   356,   357,   358,   359,   360,   361,
-     362,   363,   364,   365,   366,   367,   368,   369,   370,   371,
-     372,   373,   374,   375,   376,   377,   381,   384,   387,   391,
-     392,   393,   394,   395,   396,   399,   400,   403,   404,   405,
-     406,   407,   408,   409,   410,   413,   414,   415,   416,   417,
-     420
+       0,   229,   229,   230,   231,   232,   233,   236,   237,   240,
+     243,   244,   245,   246,   248,   249,   251,   252,   253,   254,
+     255,   257,   258,   259,   260,   261,   262,   263,   264,   265,
+     266,   267,   268,   269,   270,   271,   272,   273,   274,   275,
+     276,   278,   279,   280,   282,   283,   284,   285,   286,   287,
+     288,   289,   290,   291,   292,   293,   294,   295,   296,   297,
+     298,   299,   300,   301,   302,   303,   307,   310,   313,   317,
+     318,   319,   320,   321,   322,   325,   326,   329,   330,   331,
+     332,   333,   334,   335,   336,   339,   340,   341,   342,   343,
+     346
 };
 #endif
 
@@ -2613,44 +2539,8 @@ yyreturn:
 /*}}}*/
 /*}}}*/
 
-static int (*ptr_getc)(void);
-
 /* Private pushback, since file ungetc only guarantees one byte.
    We need up to one MBCS-worth */
-
-#define PUSHBACK_BUFSIZE 16
-static int pushback[PUSHBACK_BUFSIZE];
-static unsigned int npush = 0;
-
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-/* PARSE_NULL will not be returned by R_ParseVector */
-typedef enum {
-    PARSE_NULL,
-    PARSE_OK,
-    PARSE_INCOMPLETE,
-    PARSE_ERROR,
-    PARSE_EOF
-} ParseStatus;
-
-#ifdef __cplusplus
-}
-#endif
-
-
-static int prevpos = 0;
-static int prevlines[PUSHBACK_BUFSIZE];
-static int prevcols[PUSHBACK_BUFSIZE];
-static int prevbytes[PUSHBACK_BUFSIZE];
-
-/*{{{ Parsing entry points */
-#define CONTEXTSTACK_SIZE 50
-static int	SavedToken;
-static SEXP	SavedLval;
-static char	contextstack[CONTEXTSTACK_SIZE], *contextp;
-/*}}}*/
 
 #define DECLARE_YYTEXT_BUFP(bp) char *bp = yytext
 #define YYTEXT_PUSH(c, bp) do { \
@@ -4961,13 +4851,13 @@ static void setlastloc(void) {
  * 
  */
 static int yylex(void){
-    int tok;
-
+	int tok;
+	
 	again:
 
 		/* gets a token */
 		tok = token();
-    	
+		
     	/* Newlines must be handled in a context */
     	/* sensitive way.  The following block of */
     	/* deals directly with newlines in the */
@@ -5182,5 +5072,140 @@ static int yylex(void){
 /*}}}*/
 
 
+/*{{{ Parsing exntry points */
 
+/*{{{ file_getc */
+static int file_getc(void){
+    return R_fgetc(fp_parse);
+}
+/*}}}*/
+
+/*{{{ ParseContextInit */
+static void ParseContextInit(void) {
+    R_ParseContextLast = 0;
+    R_ParseContext[0] = '\0';
+}
+/*}}}*/
+           
+/*{{{ ParseInit */
+static void ParseInit(void) {
+    contextp = contextstack;
+    *contextp = ' ';
+    SavedToken = 0;
+    SavedLval = R_NilValue;
+    EatLines = 0;
+    EndOfFile = 0;
+    FunctionLevel=0;
+    SourcePtr = FunctionSource;
+    xxcharcount = 0;
+    KeepSource = *LOGICAL(GetOption(install("keep.source"), R_BaseEnv));
+    npush = 0;
+}
+/*}}}*/
+
+/*{{{ R_Parse1 */
+static SEXP R_Parse1(ParseStatus *status) {
+	
+	int res = yyparse() ;
+	switch(res) {
+    	case 0:                     /* End of file */
+			*status = PARSE_EOF;
+			if (EndOfFile == 2) {
+				*status = PARSE_INCOMPLETE;
+			}
+			break;
+    	case 1:                     /* Syntax error / incomplete */
+			*status = PARSE_ERROR;
+			if (EndOfFile) {
+				*status = PARSE_INCOMPLETE;
+			}
+			break;
+    	case 2:                     /* Empty Line */
+			*status = PARSE_NULL;
+			break;
+    	case 3:                     /* Valid expr '\n' terminated */
+    	case 4:                     /* Valid expr ';' terminated */
+			*status = PARSE_OK;
+			break;
+    }
+    return R_CurrentExpr;
+}
+/*}}}*/
+
+/*{{{ R_Parse */
+static SEXP R_Parse(int n, ParseStatus *status, SEXP srcfile){
+	
+    volatile int savestack;
+    int i;
+    SEXP t, rval;
+
+    ParseContextInit();
+    savestack = R_PPStackTop;
+    PROTECT(t = NewList());
+
+    xxlineno = 1;
+    xxcolno = 0;
+    xxbyteno = 0;
+    if (!isNull(srcfile)) {
+		SrcFile = srcfile;
+		PROTECT(SrcRefs = NewList() );
+    } else {
+		SrcFile = NULL;
+	}
+
+    for(i = 0; ; ) {
+		if(n >= 0 && i >= n) break;
+		ParseInit();
+		rval = R_Parse1(status);
+		Rprintf( "step %d: %d \n", i, *status ) ;
+		
+		switch(*status) {
+			case PARSE_NULL:
+			    break;
+			case PARSE_OK:
+			    t = GrowList(t, rval);
+			    i++;
+			    break;
+			case PARSE_INCOMPLETE:
+			case PARSE_ERROR:
+			    R_PPStackTop = savestack;
+			    SrcFile = NULL;
+			    return R_NilValue;
+			    break;
+			case PARSE_EOF:
+			    goto finish;
+			    break;
+		}
+    }
+
+finish:
+
+    t = CDR(t);
+    rval = allocVector(EXPRSXP, length(t));
+    for (n = 0 ; n < LENGTH(rval) ; n++, t = CDR(t)){
+		SET_VECTOR_ELT(rval, n, CAR(t));
+	}
+    if (SrcFile) {
+		rval = attachSrcrefs(rval, SrcFile);
+		SrcFile = NULL;
+    }
+    R_PPStackTop = savestack;
+    *status = PARSE_OK;
+	UNPROTECT(2) ;
+	
+    return rval;
+}
+/*}}}*/
+
+/*{{{ R_ParseFile */
+attribute_hidden 
+SEXP R_ParseFile(FILE *fp, int n, ParseStatus *status, SEXP srcfile) {
+    GenerateCode = 1;
+    fp_parse = fp;
+    ptr_getc = file_getc;
+    return R_Parse(n, status, srcfile);
+}
+/*}}}*/
+
+/*}}}*/
 

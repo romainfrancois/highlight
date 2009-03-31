@@ -11,3 +11,9 @@ highlight.connection <- function( x, detective, renderer ){
 	.NotYetImplemented()
 }
 
+
+.parse <- function( file, encoding = "unknown" ){
+	.External( "do_parse", file = file, encoding = encoding )
+}
+
+
