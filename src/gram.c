@@ -159,7 +159,11 @@
 /*{{{ Prologue */
 /* :tabSize=4:indentSize=4:noTabs=false:folding=explicit:collapseFolds=1: */
 
+
 #include "highlight.h"
+
+#define YYDEBUG 1
+#define YYERROR_VERBOSE 1
 
 #define yyconst const
 
@@ -173,28 +177,30 @@ typedef struct yyltype{
   int last_byte;
 } yyltype;
 
+#define YYPRINTF Rprintf
 # define YYLTYPE yyltype
 # define YYLLOC_DEFAULT(Current, Rhs, N)				\
-    do									\
-      if (YYID (N))							\
-	{								\
-	  (Current).first_line   = YYRHSLOC (Rhs, 1).first_line;	\
-	  (Current).first_column = YYRHSLOC (Rhs, 1).first_column;	\
-	  (Current).first_byte   = YYRHSLOC (Rhs, 1).first_byte;	\
-	  (Current).last_line    = YYRHSLOC (Rhs, N).last_line;		\
-	  (Current).last_column  = YYRHSLOC (Rhs, N).last_column;	\
-	  (Current).last_byte    = YYRHSLOC (Rhs, N).last_byte;		\
-	}								\
-      else								\
-	{								\
-	  (Current).first_line   = (Current).last_line   =		\
-	    YYRHSLOC (Rhs, 0).last_line;				\
-	  (Current).first_column = (Current).last_column =		\
-	    YYRHSLOC (Rhs, 0).last_column;				\
-	  (Current).first_byte   = (Current).last_byte =		\
-	    YYRHSLOC (Rhs, 0).last_byte;				\
-	}								\
-    while (YYID (0))
+	do	{ 								\
+		if (YYID (N)){								\
+		  (Current).first_line   = YYRHSLOC (Rhs, 1).first_line;	\
+		  (Current).first_column = YYRHSLOC (Rhs, 1).first_column;	\
+		  (Current).first_byte   = YYRHSLOC (Rhs, 1).first_byte;	\
+		  (Current).last_line    = YYRHSLOC (Rhs, N).last_line;		\
+		  (Current).last_column  = YYRHSLOC (Rhs, N).last_column;	\
+		  (Current).last_byte    = YYRHSLOC (Rhs, N).last_byte;		\
+		} else	{								\
+		  (Current).first_line   = (Current).last_line   =		\
+		    YYRHSLOC (Rhs, 0).last_line;				\
+		  (Current).first_column = (Current).last_column =		\
+		    YYRHSLOC (Rhs, 0).last_column;				\
+		  (Current).first_byte   = (Current).last_byte =		\
+		    YYRHSLOC (Rhs, 0).last_byte;				\
+		} 								\
+		record( \
+			(Current).first_line, (Current).first_column, (Current).first_byte, \
+			(Current).last_line, (Current).last_column, (Current).last_byte, \
+			yystate, yylen ) ; \ 
+	} while (YYID (0))
 
 #define LBRACE	'{'
 #define RBRACE	'}'
@@ -697,16 +703,16 @@ static const yytype_int8 yyrhs[] =
 /* YYRLINE[YYN] -- source line where rule number YYN was defined.  */
 static const yytype_uint16 yyrline[] =
 {
-       0,   210,   210,   211,   212,   213,   214,   217,   218,   221,
-     224,   225,   226,   227,   229,   230,   232,   233,   234,   235,
-     236,   238,   239,   240,   241,   242,   243,   244,   245,   246,
-     247,   248,   249,   250,   251,   252,   253,   254,   255,   256,
-     257,   259,   260,   261,   263,   264,   265,   266,   267,   268,
-     269,   270,   271,   272,   273,   274,   275,   276,   277,   278,
-     279,   280,   281,   282,   283,   284,   288,   291,   294,   298,
-     299,   300,   301,   302,   303,   306,   307,   310,   311,   312,
-     313,   314,   315,   316,   317,   320,   321,   322,   323,   324,
-     327
+       0,   216,   216,   217,   218,   219,   220,   223,   224,   227,
+     230,   231,   232,   233,   235,   236,   238,   239,   240,   241,
+     242,   244,   245,   246,   247,   248,   249,   250,   251,   252,
+     253,   254,   255,   256,   257,   258,   259,   260,   261,   262,
+     263,   265,   266,   267,   269,   270,   271,   272,   273,   274,
+     275,   276,   277,   278,   279,   280,   281,   282,   283,   284,
+     285,   286,   287,   288,   289,   290,   294,   297,   300,   304,
+     305,   306,   307,   308,   309,   312,   313,   316,   317,   318,
+     319,   320,   321,   322,   323,   326,   327,   328,   329,   330,
+     333
 };
 #endif
 
@@ -2684,6 +2690,7 @@ SEXP attachSrcrefs(SEXP val, SEXP srcfile) {
 static SEXP xxnullformal(){
     SEXP ans;
     PROTECT(ans = R_NilValue);
+	// // incrementId() ;
     return ans;
 }
 
@@ -2702,6 +2709,7 @@ static SEXP xxfirstformal0(SEXP sym){
     } else {
 		PROTECT(ans = R_NilValue);
     }
+	// // incrementId() ;
 	return ans;
 }
 
@@ -2722,6 +2730,7 @@ static SEXP xxfirstformal1(SEXP sym, SEXP expr){
 	}
     UNPROTECT_PTR(expr);
     UNPROTECT_PTR(sym);
+	// // incrementId() ;
     return ans;
 }
 
@@ -2745,6 +2754,7 @@ static SEXP xxaddformal0(SEXP formlist, SEXP sym, YYLTYPE *lloc) {
 	}
     UNPROTECT_PTR(sym);
     UNPROTECT_PTR(formlist);
+	// // incrementId() ;
     return ans;
 }
 
@@ -2770,6 +2780,7 @@ static SEXP xxaddformal1(SEXP formlist, SEXP sym, SEXP expr, YYLTYPE *lloc)
     UNPROTECT_PTR(expr);
     UNPROTECT_PTR(sym);
     UNPROTECT_PTR(formlist);
+	// // incrementId() ;
     return ans;
 }
 
@@ -2840,6 +2851,9 @@ static SEXP xxexprlist(SEXP a1, YYLTYPE *lloc, SEXP a2) {
 		PROTECT(ans = R_NilValue);
     }
 	UNPROTECT_PTR(a2);
+	
+	// // incrementId() ;
+	
     return ans;
 }
 
@@ -2862,6 +2876,7 @@ static SEXP xxexprlist0(void) {
     } else {
 		PROTECT(ans = R_NilValue);
 	}
+	/* // incrementId(); */
     return ans;
 }
 
@@ -2887,6 +2902,7 @@ static SEXP xxexprlist1(SEXP expr, YYLTYPE *lloc){
 		PROTECT(ans = R_NilValue);
     }
 	UNPROTECT_PTR(expr);
+	// incrementId() ;
     return ans;
 }
 
@@ -2910,6 +2926,7 @@ static SEXP xxexprlist2(SEXP exprlist, SEXP expr, YYLTYPE *lloc){
 	}
     UNPROTECT_PTR(expr);
     UNPROTECT_PTR(exprlist);
+	// incrementId() ;
     return ans;
 }
 /*}}}*/
@@ -2937,6 +2954,7 @@ static SEXP xxsubscript(SEXP a1, SEXP a2, SEXP a3){
 	}
     UNPROTECT_PTR(a3);
     UNPROTECT_PTR(a1);
+	/* // incrementId(); */
     return ans;
 }
 
@@ -2954,6 +2972,7 @@ static SEXP xxsub0(void){
     } else {
 		PROTECT(ans = R_NilValue);
 	}
+	// incrementId() ;
     return ans;
 }
 
@@ -2972,6 +2991,7 @@ static SEXP xxsub1(SEXP expr, YYLTYPE *lloc){
 		PROTECT(ans = R_NilValue);
     }
 	UNPROTECT_PTR(expr);
+	// incrementId() ;
     return ans;
 }
 
@@ -2995,6 +3015,7 @@ static SEXP xxsymsub0(SEXP sym, YYLTYPE *lloc){
 		PROTECT(ans = R_NilValue);
 	}
     UNPROTECT_PTR(sym);
+	/* // incrementId(); */
     return ans;
 }
 
@@ -3018,6 +3039,7 @@ static SEXP xxsymsub1(SEXP sym, SEXP expr, YYLTYPE *lloc){
 	}
     UNPROTECT_PTR(expr);
     UNPROTECT_PTR(sym);
+	// incrementId() ;
     return ans;
 }
 
@@ -3038,6 +3060,7 @@ static SEXP xxnullsub0(YYLTYPE *lloc){
     } else {
 		PROTECT(ans = R_NilValue);
 	}
+	// incrementId() ;
     return ans;
 }
 
@@ -3060,6 +3083,7 @@ static SEXP xxnullsub1(SEXP expr, YYLTYPE *lloc) {
 		PROTECT(ans = R_NilValue);
     }
 	UNPROTECT_PTR(expr);
+	// incrementId() ;
     return ans;
 }
 /*}}}*/
@@ -3079,6 +3103,7 @@ static SEXP xxsublist1(SEXP sub){
 		PROTECT(ans = R_NilValue);
 	}
     UNPROTECT_PTR(sub);
+	// incrementId() ;
     return ans;
 }
 
@@ -3098,6 +3123,7 @@ static SEXP xxsublist2(SEXP sublist, SEXP sub){
 	}
     UNPROTECT_PTR(sub);
     UNPROTECT_PTR(sublist);
+	// incrementId() ;
     return ans;
 }
 /*}}}*/
@@ -3116,6 +3142,7 @@ static SEXP xxsublist2(SEXP sublist, SEXP sub){
  */ 
 static SEXP xxcond(SEXP expr){
     EatLines = 1;
+	// incrementId() ;
     return expr;
 }
 
@@ -3130,6 +3157,7 @@ static SEXP xxcond(SEXP expr){
  */
 static SEXP xxifcond(SEXP expr){
     EatLines = 1;
+	// incrementId() ;
     return expr;
 }
 
@@ -3150,6 +3178,9 @@ static SEXP xxif(SEXP ifsym, SEXP cond, SEXP expr){
 	}
     UNPROTECT_PTR(expr);
     UNPROTECT_PTR(cond);
+	
+	// incrementId( ) ;
+	
     return ans;
 }
 
@@ -3172,6 +3203,9 @@ static SEXP xxifelse(SEXP ifsym, SEXP cond, SEXP ifexpr, SEXP elseexpr){
     UNPROTECT_PTR(elseexpr);
     UNPROTECT_PTR(ifexpr);
     UNPROTECT_PTR(cond);
+	
+	// incrementId() ;
+	
     return ans;
 }
 
@@ -3194,6 +3228,7 @@ static SEXP xxforcond(SEXP sym, SEXP expr){
 	PROTECT(ans = R_NilValue);
     UNPROTECT_PTR(expr);
     UNPROTECT_PTR(sym);
+	// incrementId() ;
     return ans;
 }
 /*}}}*/
@@ -3216,6 +3251,7 @@ static SEXP xxfor(SEXP forsym, SEXP forcond, SEXP body){
 	}
     UNPROTECT_PTR(body);
     UNPROTECT_PTR(forcond);
+	// incrementId() ;
     return ans;
 }
 
@@ -3236,6 +3272,7 @@ static SEXP xxwhile(SEXP whilesym, SEXP cond, SEXP body){
 	}
     UNPROTECT_PTR(body);
     UNPROTECT_PTR(cond);
+	/* // incrementId(); */
     return ans;
 }
 
@@ -3254,6 +3291,7 @@ static SEXP xxrepeat(SEXP repeatsym, SEXP body){
 		PROTECT(ans = R_NilValue);
 	}
     UNPROTECT_PTR(body);
+	/* // incrementId(); */
     return ans;
 }
 
@@ -3269,6 +3307,7 @@ static SEXP xxnxtbrk(SEXP keyword){
 	} else {
 		PROTECT(keyword = R_NilValue);
 	}
+	// incrementId() ;
     return keyword;
 }
 /*}}}*/
@@ -3300,6 +3339,9 @@ static SEXP xxfuncall(SEXP expr, SEXP args){
     }
     UNPROTECT_PTR(args);
     UNPROTECT_PTR(sav_expr);
+	
+	// incrementId( ) ;
+	
     return ans;
 }
 
@@ -3384,6 +3426,9 @@ static SEXP xxdefun(SEXP fname, SEXP formals, SEXP body){
     UNPROTECT_PTR(body);
     UNPROTECT_PTR(formals);
     FunctionLevel--;
+	
+	// incrementId() ;
+	
     return ans;
 }
 /*}}}*/
@@ -3404,7 +3449,10 @@ static SEXP xxunary(SEXP op, SEXP arg){
 		PROTECT(ans = R_NilValue);
 	}
     UNPROTECT_PTR(arg);
-    return ans;
+	
+	// incrementId() ;
+    
+	return ans;
 }
 
 /**
@@ -3424,6 +3472,8 @@ static SEXP xxbinary(SEXP n1, SEXP n2, SEXP n3){
 	}
     UNPROTECT_PTR(n2);
     UNPROTECT_PTR(n3);
+	
+	// incrementId() ;
     return ans;
 }
 /*}}}*/
@@ -3443,6 +3493,7 @@ static SEXP xxparen(SEXP n1, SEXP n2){
 		PROTECT(ans = R_NilValue);
 	}
     UNPROTECT_PTR(n2);
+	// incrementId() ;
     return ans;
 }
 
@@ -3461,7 +3512,11 @@ static int xxvalue(SEXP v, int k, YYLTYPE *lloc) {
 		}
 		UNPROTECT_PTR(v);
     }
-    R_CurrentExpr = v;
+	
+	/* increment the identifier */
+	// incrementId( ) ;
+	
+	R_CurrentExpr = v;
     return k;
 }
 
@@ -3551,11 +3606,20 @@ static int nextchar(int expect){
  */
 static int SkipComment(void){
     int c;
+	int _first_line = xxlineno ;
+	int _first_column = xxcolno ;
+	int _first_byte = xxbyteno ;
     while ((c = xxgetc()) != '\n' && c != R_EOF) ;
     if (c == R_EOF) {
 		EndOfFile = 2;
 	}
-    return c;
+	int _last_line = xxlineno ;
+	int _last_column = xxcolno ;
+	int _last_byte = xxbyteno ;
+	record( _first_line,  _first_column, _first_byte, 
+			_last_line, _last_column, _last_byte, 
+			COMMENT, 1 ) ;
+	return c ;
 }
 
 /**
@@ -3676,6 +3740,11 @@ static int NumericValue(int c) {
  */ 
 static int SkipSpace(void) {
     int c;
+	
+	int _first_line = xxlineno ;
+	int _first_column = xxcolno ;
+	int _first_byte = xxbyteno ;
+   
 
 #ifdef Win32
     if(!mbcslocale) { /* 0xa0 is NBSP in all 8-bit Windows locales */
@@ -3713,7 +3782,14 @@ static int SkipSpace(void) {
     } else
 #endif
 	while ((c = xxgetc()) == ' ' || c == '\t' || c == '\f') ;
-    return c;
+    
+	int _last_line = xxlineno ;
+	int _last_column = xxcolno ;
+	int _last_byte = xxbyteno ;
+	// TODO: do something with these numbers
+    
+	
+	return c;
 }
 /*}}}*/
 
@@ -4517,6 +4593,7 @@ static int SymbolValue(int c)
 /*}}} */
 
 /*{{{ token */
+
 /** 
  * Split the input stream into tokens.
  * This is the lowest of the parsing levels.
@@ -4544,12 +4621,10 @@ static int token(void) {
     xxcharsave = xxcharcount; 
 
 	/* eat any number of spaces */
-	/* TODO: keep this instead in VERBOSE mode */
-    c = SkipSpace();
+	c = SkipSpace();
 	
 	/* flush the comment */
-	/* TODO: keep the comment in VERBOSE mode */
-    if (c == '#') {
+	if (c == '#') {
 		c = SkipComment();
 	}
 
@@ -4747,6 +4822,23 @@ static int token(void) {
 			return c;
     }
 }
+
+/**
+ * Wrap around the token function. Returns the same result
+ * but increments the identifier, after a call to token_, 
+ * the identifier variable contains the id of the token
+ * just returned
+ *
+ * @return the same as token
+ */
+static int token_(void){
+	int res = token( ) ;
+	record(yylloc.first_line, yylloc.first_column, yylloc.first_byte, 
+			yylloc.last_line, yylloc.last_column, yylloc.last_byte, 
+			res, 1 ) ; 
+	return res; 
+}
+
 /*}}}*/
 
 /*{{{ setlastloc */
@@ -4795,7 +4887,7 @@ static int yylex(void){
 	again:
 
 		/* gets a token */
-		tok = token();
+		tok = token_();
 		
     	/* Newlines must be handled in a context */
     	/* sensitive way.  The following block of */
@@ -4816,7 +4908,7 @@ static int yylex(void){
 			    /* Find the next non-newline token */
     		
 			    while(tok == '\n'){
-					tok = token();
+					tok = token_();
 				}
     		
 			    /* If we encounter "}", ")" or "]" then */
@@ -5023,6 +5115,9 @@ int file_getc(void){
 static void ParseContextInit(void) {
     R_ParseContextLast = 0;
     R_ParseContext[0] = '\0';
+	
+	/* starts the identifier counter*/
+	initId();
 }
 /*}}}*/
            
@@ -5075,7 +5170,7 @@ static SEXP R_Parse1(ParseStatus *status) {
 static SEXP R_Parse(int n, ParseStatus *status, SEXP srcfile){
 	
     volatile int savestack;
-    int i;
+	int i;
     SEXP t, rval;
 
     ParseContextInit();
@@ -5129,7 +5224,6 @@ finish:
     }
     R_PPStackTop = savestack;
     *status = PARSE_OK;
-	UNPROTECT(2) ;
 	
     return rval;
 }
@@ -5147,5 +5241,27 @@ SEXP R_ParseFile(FILE *fp, int n, ParseStatus *status, SEXP srcfile) {
 
 /*}}}*/
 
+
+/**
+ * Increments the token/grouping counter
+ */
+static void incrementId(void){
+	identifier++; 
+}
+
+static void initId(void){
+	identifier = 0 ;
+}
+
+static void record( int first_line, int first_column, int first_byte, 
+	int last_line, int last_column, int last_byte, 
+	int type, int len ){
+
+	incrementId() ;
+	Rprintf("%d,%d,%d,%d,%d,%d,%d,%d,%d\n", 
+			first_line, first_column, first_byte, 
+			last_line, last_column, last_byte, 
+			type, identifier, len ) ; 
+}
 
 

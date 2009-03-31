@@ -8,6 +8,12 @@
 #include <Rinternals.h>
 #include <R_ext/libextern.h>
 
+static int identifier ;
+static void incrementId(void);
+static void initId(void);
+static void record( int, int, int, int, int, int, int, int ) ;
+
+static int yys ;
 
 #ifdef SUPPORT_MBCS
 # ifdef Win32
@@ -25,9 +31,6 @@
 
 static Rboolean known_to_be_utf8 = FALSE ;
 static Rboolean known_to_be_latin1 = FALSE ;
-
-# define YYDEBUG 1
-# define YYERROR_VERBOSE 1
 
 /* Used as a default for string buffer sizes,
 			   and occasionally as a limit. */
@@ -162,6 +165,7 @@ static SEXP R_Parse1(ParseStatus *) ;
 static SEXP R_Parse(int, ParseStatus *, SEXP) ;
 attribute_hidden SEXP R_ParseFile(FILE *, int , ParseStatus *, SEXP) ;
 /*}}}*/
+
 
 
 #endif
