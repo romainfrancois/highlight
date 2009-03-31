@@ -55,7 +55,6 @@ typedef enum {
 # define yychar			Rf_yychar
 # define yylval			Rf_yylval
 # define yynerrs		Rf_yynerrs
-# define yyparse		Rf_yyparse
 
 #define MAXFUNSIZE 131072
 #define MAXNEST       265

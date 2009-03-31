@@ -5107,6 +5107,8 @@ static void ParseInit(void) {
 static SEXP R_Parse1(ParseStatus *status) {
 	
 	int res = yyparse() ;
+	Rprintf( "result from yyparse: %d \n", res ) ; 
+	
 	switch(res) {
     	case 0:                     /* End of file */
 			*status = PARSE_EOF;
