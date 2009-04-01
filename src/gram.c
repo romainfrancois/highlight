@@ -199,7 +199,7 @@ typedef struct yyltype{
 		record( \
 			(Current).first_line, (Current).first_column, (Current).first_byte, \
 			(Current).last_line, (Current).last_column, (Current).last_byte, \
-			yystate, yylen ) ; \ 
+			yystate, yylen ) ; \
 	} while (YYID (0))
 
 #define LBRACE	'{'
@@ -2634,51 +2634,6 @@ static int xxungetc(int c) {
 
 /*}}}*/
 
-/*{{{ srcref */
-/**
- * extract information from the lloc location information and 
- * makes the srcref from it
- *
- * attach the srcfile as the "srcfile" attribute
- * set the class to "srcref"
- */
-static SEXP makeSrcref(YYLTYPE *lloc, SEXP srcfile) {
-    SEXP val;
-
-    PROTECT(val = allocVector(INTSXP, 6));
-    INTEGER(val)[0] = lloc->first_line;
-    INTEGER(val)[1] = lloc->first_byte;
-    INTEGER(val)[2] = lloc->last_line;
-    INTEGER(val)[3] = lloc->last_byte;
-    INTEGER(val)[4] = lloc->first_column;
-    INTEGER(val)[5] = lloc->last_column;
-    setAttrib(val, mkString("srcfile"), srcfile);
-    setAttrib(val, R_ClassSymbol, mkString("srcref"));
-    UNPROTECT(1);
-    return val;
-}
-
-/**
- * attach the srcref
- * TODO : get a better understanding of what this is doing
- */
-SEXP attachSrcrefs(SEXP val, SEXP srcfile) {
-    SEXP t, srval;
-    int n;
-
-    PROTECT(val);
-    t = CDR(SrcRefs);
-    srval = allocVector(VECSXP, length(t));
-    for (n = 0 ; n < LENGTH(srval) ; n++, t = CDR(t))
-	SET_VECTOR_ELT(srval, n, CAR(t));
-    setAttrib(val, mkString("srcref"), srval);
-    setAttrib(val, mkString("srcfile"), srcfile);
-    UNPROTECT(1);
-    SrcRefs = NULL;
-    return val;
-}
-/*}}} */
-
 /*{{{ Deal with formal arguments of functions*/
                
 /**
@@ -2690,8 +2645,7 @@ SEXP attachSrcrefs(SEXP val, SEXP srcfile) {
 static SEXP xxnullformal(){
     SEXP ans;
     PROTECT(ans = R_NilValue);
-	// // incrementId() ;
-    return ans;
+	return ans;
 }
 
 /**
@@ -2709,7 +2663,6 @@ static SEXP xxfirstformal0(SEXP sym){
     } else {
 		PROTECT(ans = R_NilValue);
     }
-	// // incrementId() ;
 	return ans;
 }
 
@@ -2730,8 +2683,7 @@ static SEXP xxfirstformal1(SEXP sym, SEXP expr){
 	}
     UNPROTECT_PTR(expr);
     UNPROTECT_PTR(sym);
-	// // incrementId() ;
-    return ans;
+   return ans;
 }
 
 /**
@@ -2754,7 +2706,6 @@ static SEXP xxaddformal0(SEXP formlist, SEXP sym, YYLTYPE *lloc) {
 	}
     UNPROTECT_PTR(sym);
     UNPROTECT_PTR(formlist);
-	// // incrementId() ;
     return ans;
 }
 
@@ -2780,7 +2731,6 @@ static SEXP xxaddformal1(SEXP formlist, SEXP sym, SEXP expr, YYLTYPE *lloc)
     UNPROTECT_PTR(expr);
     UNPROTECT_PTR(sym);
     UNPROTECT_PTR(formlist);
-	// // incrementId() ;
     return ans;
 }
 
@@ -2830,54 +2780,53 @@ static SEXP NextArg(SEXP l, SEXP s, SEXP tag) {
  */
 static SEXP xxexprlist(SEXP a1, YYLTYPE *lloc, SEXP a2) {
     SEXP ans;
-    SEXP prevSrcrefs;
+    // SEXP prevSrcrefs;
 
     EatLines = 0;
     if (GenerateCode) {
 		SET_TYPEOF(a2, LANGSXP);
 		SETCAR(a2, a1);
-		if (SrcFile) {
-		    PROTECT(prevSrcrefs = getAttrib(a2, mkString("srcref")));
-		    REPROTECT(SrcRefs = Insert(SrcRefs, makeSrcref(lloc, SrcFile)), srindex);
-		    PROTECT(ans = attachSrcrefs(a2, SrcFile));
-		    REPROTECT(SrcRefs = prevSrcrefs, srindex);
-		    /* SrcRefs got NAMED by being an attribute... */
-		    SET_NAMED(SrcRefs, 0);
-		    UNPROTECT_PTR(prevSrcrefs);
-		} else {
-		    PROTECT(ans = a2);
-		}
+		PROTECT(ans = a2);
+		setId( ans ) ;
+		
+		// if (SrcFile) {
+		//     PROTECT(prevSrcrefs = getAttrib(a2, mkString("srcref")));
+		//     REPROTECT(SrcRefs = Insert(SrcRefs, makeSrcref(lloc, SrcFile)), srindex);
+		//     PROTECT(ans = attachSrcrefs(a2, SrcFile));
+		//     REPROTECT(SrcRefs = prevSrcrefs, srindex);
+		//     /* SrcRefs got NAMED by being an attribute... */
+		//     SET_NAMED(SrcRefs, 0);
+		//     UNPROTECT_PTR(prevSrcrefs);
+		// } else {
+		//     PROTECT(ans = a2);
+		// }
+		
     } else {
 		PROTECT(ans = R_NilValue);
     }
 	UNPROTECT_PTR(a2);
-	
-	// // incrementId() ;
-	
-    return ans;
+	return ans;
 }
 
 /**
  * Starts an expression list (after the left brace)
  * Creates a new list using NewList. 
  *
- * srcref records are added to the expression list
- *
  * @return the newly created expression list
  */
 static SEXP xxexprlist0(void) {
     SEXP ans;
     if (GenerateCode) {
-		PROTECT(ans = NewList());
-		if (SrcFile) {
-		    setAttrib(ans, mkString("srcref"), SrcRefs);
-		    REPROTECT(SrcRefs = NewList(), srindex);
-		}
+		PROTECT(ans = NewList()); 
+		setId( ans ) ;
+//		if (SrcFile) {
+//		    setAttrib(ans, mkString("srcref"), SrcRefs);
+//		    REPROTECT(SrcRefs = NewList(), srindex);
+//		}
     } else {
 		PROTECT(ans = R_NilValue);
 	}
-	/* // incrementId(); */
-    return ans;
+	return ans;
 }
 
 /**
@@ -2891,18 +2840,18 @@ static SEXP xxexprlist1(SEXP expr, YYLTYPE *lloc){
     SEXP ans,tmp;
     if (GenerateCode) {
 		PROTECT(tmp = NewList());
-		if (SrcFile) {
-		    setAttrib(tmp, mkString("srcref"), SrcRefs);
-		    REPROTECT(SrcRefs = NewList(), srindex);
-		    REPROTECT(SrcRefs = GrowList(SrcRefs, makeSrcref(lloc, SrcFile)), srindex);
-		}
+//		if (SrcFile) {
+//		    setAttrib(tmp, mkString("srcref"), SrcRefs);
+//		    REPROTECT(SrcRefs = NewList(), srindex);
+//		    REPROTECT(SrcRefs = GrowList(SrcRefs, makeSrcref(lloc, SrcFile)), srindex);
+//		}
 		PROTECT(ans = GrowList(tmp, expr));
 		UNPROTECT_PTR(tmp);
+		setId( ans ) ;
     } else {
 		PROTECT(ans = R_NilValue);
     }
 	UNPROTECT_PTR(expr);
-	// incrementId() ;
     return ans;
 }
 
@@ -2917,16 +2866,16 @@ static SEXP xxexprlist1(SEXP expr, YYLTYPE *lloc){
 static SEXP xxexprlist2(SEXP exprlist, SEXP expr, YYLTYPE *lloc){
     SEXP ans;
     if (GenerateCode) {
-		if (SrcFile){
-			REPROTECT(SrcRefs = GrowList(SrcRefs, makeSrcref(lloc, SrcFile)), srindex);
-		}
+//		if (SrcFile){
+//			REPROTECT(SrcRefs = GrowList(SrcRefs, makeSrcref(lloc, SrcFile)), srindex);
+//		}
 		PROTECT(ans = GrowList(exprlist, expr));
+		setId( ans ) ;
     } else {
 		PROTECT(ans = R_NilValue);
 	}
     UNPROTECT_PTR(expr);
     UNPROTECT_PTR(exprlist);
-	// incrementId() ;
     return ans;
 }
 /*}}}*/
@@ -2954,7 +2903,6 @@ static SEXP xxsubscript(SEXP a1, SEXP a2, SEXP a3){
 	}
     UNPROTECT_PTR(a3);
     UNPROTECT_PTR(a1);
-	/* // incrementId(); */
     return ans;
 }
 
@@ -2972,7 +2920,6 @@ static SEXP xxsub0(void){
     } else {
 		PROTECT(ans = R_NilValue);
 	}
-	// incrementId() ;
     return ans;
 }
 
@@ -2991,7 +2938,6 @@ static SEXP xxsub1(SEXP expr, YYLTYPE *lloc){
 		PROTECT(ans = R_NilValue);
     }
 	UNPROTECT_PTR(expr);
-	// incrementId() ;
     return ans;
 }
 
@@ -3015,7 +2961,6 @@ static SEXP xxsymsub0(SEXP sym, YYLTYPE *lloc){
 		PROTECT(ans = R_NilValue);
 	}
     UNPROTECT_PTR(sym);
-	/* // incrementId(); */
     return ans;
 }
 
@@ -3039,7 +2984,6 @@ static SEXP xxsymsub1(SEXP sym, SEXP expr, YYLTYPE *lloc){
 	}
     UNPROTECT_PTR(expr);
     UNPROTECT_PTR(sym);
-	// incrementId() ;
     return ans;
 }
 
@@ -3060,7 +3004,6 @@ static SEXP xxnullsub0(YYLTYPE *lloc){
     } else {
 		PROTECT(ans = R_NilValue);
 	}
-	// incrementId() ;
     return ans;
 }
 
@@ -3083,7 +3026,6 @@ static SEXP xxnullsub1(SEXP expr, YYLTYPE *lloc) {
 		PROTECT(ans = R_NilValue);
     }
 	UNPROTECT_PTR(expr);
-	// incrementId() ;
     return ans;
 }
 /*}}}*/
@@ -3103,7 +3045,6 @@ static SEXP xxsublist1(SEXP sub){
 		PROTECT(ans = R_NilValue);
 	}
     UNPROTECT_PTR(sub);
-	// incrementId() ;
     return ans;
 }
 
@@ -3123,7 +3064,6 @@ static SEXP xxsublist2(SEXP sublist, SEXP sub){
 	}
     UNPROTECT_PTR(sub);
     UNPROTECT_PTR(sublist);
-	// incrementId() ;
     return ans;
 }
 /*}}}*/
@@ -3142,7 +3082,6 @@ static SEXP xxsublist2(SEXP sublist, SEXP sub){
  */ 
 static SEXP xxcond(SEXP expr){
     EatLines = 1;
-	// incrementId() ;
     return expr;
 }
 
@@ -3157,7 +3096,6 @@ static SEXP xxcond(SEXP expr){
  */
 static SEXP xxifcond(SEXP expr){
     EatLines = 1;
-	// incrementId() ;
     return expr;
 }
 
@@ -3178,8 +3116,6 @@ static SEXP xxif(SEXP ifsym, SEXP cond, SEXP expr){
 	}
     UNPROTECT_PTR(expr);
     UNPROTECT_PTR(cond);
-	
-	// incrementId( ) ;
 	
     return ans;
 }
@@ -3204,8 +3140,6 @@ static SEXP xxifelse(SEXP ifsym, SEXP cond, SEXP ifexpr, SEXP elseexpr){
     UNPROTECT_PTR(ifexpr);
     UNPROTECT_PTR(cond);
 	
-	// incrementId() ;
-	
     return ans;
 }
 
@@ -3228,7 +3162,6 @@ static SEXP xxforcond(SEXP sym, SEXP expr){
 	PROTECT(ans = R_NilValue);
     UNPROTECT_PTR(expr);
     UNPROTECT_PTR(sym);
-	// incrementId() ;
     return ans;
 }
 /*}}}*/
@@ -3251,8 +3184,7 @@ static SEXP xxfor(SEXP forsym, SEXP forcond, SEXP body){
 	}
     UNPROTECT_PTR(body);
     UNPROTECT_PTR(forcond);
-	// incrementId() ;
-    return ans;
+   return ans;
 }
 
 /**
@@ -3272,7 +3204,6 @@ static SEXP xxwhile(SEXP whilesym, SEXP cond, SEXP body){
 	}
     UNPROTECT_PTR(body);
     UNPROTECT_PTR(cond);
-	/* // incrementId(); */
     return ans;
 }
 
@@ -3291,7 +3222,6 @@ static SEXP xxrepeat(SEXP repeatsym, SEXP body){
 		PROTECT(ans = R_NilValue);
 	}
     UNPROTECT_PTR(body);
-	/* // incrementId(); */
     return ans;
 }
 
@@ -3307,7 +3237,6 @@ static SEXP xxnxtbrk(SEXP keyword){
 	} else {
 		PROTECT(keyword = R_NilValue);
 	}
-	// incrementId() ;
     return keyword;
 }
 /*}}}*/
@@ -3339,8 +3268,6 @@ static SEXP xxfuncall(SEXP expr, SEXP args){
     }
     UNPROTECT_PTR(args);
     UNPROTECT_PTR(sav_expr);
-	
-	// incrementId( ) ;
 	
     return ans;
 }
@@ -3427,8 +3354,6 @@ static SEXP xxdefun(SEXP fname, SEXP formals, SEXP body){
     UNPROTECT_PTR(formals);
     FunctionLevel--;
 	
-	// incrementId() ;
-	
     return ans;
 }
 /*}}}*/
@@ -3449,8 +3374,6 @@ static SEXP xxunary(SEXP op, SEXP arg){
 		PROTECT(ans = R_NilValue);
 	}
     UNPROTECT_PTR(arg);
-	
-	// incrementId() ;
     
 	return ans;
 }
@@ -3473,8 +3396,7 @@ static SEXP xxbinary(SEXP n1, SEXP n2, SEXP n3){
     UNPROTECT_PTR(n2);
     UNPROTECT_PTR(n3);
 	
-	// incrementId() ;
-    return ans;
+   return ans;
 }
 /*}}}*/
 
@@ -3493,7 +3415,6 @@ static SEXP xxparen(SEXP n1, SEXP n2){
 		PROTECT(ans = R_NilValue);
 	}
     UNPROTECT_PTR(n2);
-	// incrementId() ;
     return ans;
 }
 
@@ -3507,14 +3428,12 @@ static SEXP xxparen(SEXP n1, SEXP n2){
  */        
 static int xxvalue(SEXP v, int k, YYLTYPE *lloc) {
     if (k > 2) {
-		if (SrcFile){
-		    REPROTECT(SrcRefs = GrowList(SrcRefs, makeSrcref(lloc, SrcFile)), srindex);
-		}
+//		if (SrcFile){
+//		    REPROTECT(SrcRefs = GrowList(SrcRefs, makeSrcref(lloc, SrcFile)), srindex);
+//		}
+		setId( v ) ;
 		UNPROTECT_PTR(v);
     }
-	
-	/* increment the identifier */
-	// incrementId( ) ;
 	
 	R_CurrentExpr = v;
     return k;
@@ -4055,7 +3974,7 @@ static void yyerror(char *s) {
 
     R_ParseError     = yylloc.first_line;
     R_ParseErrorCol  = yylloc.first_column;
-    R_ParseErrorFile = SrcFile;
+    // R_ParseErrorFile = SrcFile;
 
     if (!strncmp(s, yyunexpected, sizeof yyunexpected -1)) {
 		int i;
@@ -5180,13 +5099,7 @@ static SEXP R_Parse(int n, ParseStatus *status, SEXP srcfile){
     xxlineno = 1;
     xxcolno = 0;
     xxbyteno = 0;
-    if (!isNull(srcfile)) {
-		SrcFile = srcfile;
-		PROTECT(SrcRefs = NewList() );
-    } else {
-		SrcFile = NULL;
-	}
-
+    
     for(i = 0; ; ) {
 		if(n >= 0 && i >= n) break;
 		ParseInit();
@@ -5202,7 +5115,6 @@ static SEXP R_Parse(int n, ParseStatus *status, SEXP srcfile){
 			case PARSE_INCOMPLETE:
 			case PARSE_ERROR:
 			    R_PPStackTop = savestack;
-			    SrcFile = NULL;
 			    return R_NilValue;
 			    break;
 			case PARSE_EOF:
@@ -5218,10 +5130,12 @@ finish:
     for (n = 0 ; n < LENGTH(rval) ; n++, t = CDR(t)){
 		SET_VECTOR_ELT(rval, n, CAR(t));
 	}
-    if (SrcFile) {
-		rval = attachSrcrefs(rval, SrcFile);
-		SrcFile = NULL;
-    }
+	UNPROTECT(1) ;
+	
+    // if (SrcFile) {
+	// 		rval = attachSrcrefs(rval, SrcFile);
+	// 		SrcFile = NULL;
+    // }
     R_PPStackTop = savestack;
     *status = PARSE_OK;
 	
@@ -5241,7 +5155,7 @@ SEXP R_ParseFile(FILE *fp, int n, ParseStatus *status, SEXP srcfile) {
 
 /*}}}*/
 
-
+/*{{{ Keeping track of the id */
 /**
  * Increments the token/grouping counter
  */
@@ -5251,6 +5165,22 @@ static void incrementId(void){
 
 static void initId(void){
 	identifier = 0 ;
+}
+             
+/**
+ * Sets the "id" attribute for the SEXP x
+ *
+ * @param x a SEXP to which we want to attach an ID
+ * @todo is there a better way of doing this (using the internals)
+ * @todo build the mkString just once
+ */
+static void setId(SEXP x ){
+	SEXP ids ;
+	PROTECT( ids = allocVector( INTSXP, 1) ) ;
+	INTEGER( ids)[0] = identifier ;
+	PROTECT( x ) ;
+	setAttrib( x , mkString( "id" ) , ids);
+	UNPROTECT( 2 ) ;
 }
 
 static void record( int first_line, int first_column, int first_byte, 
@@ -5263,5 +5193,7 @@ static void record( int first_line, int first_column, int first_byte,
 			last_line, last_column, last_byte, 
 			type, identifier, len ) ; 
 }
+/*}}}*/
+
 
 

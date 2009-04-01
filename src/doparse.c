@@ -48,9 +48,9 @@ SEXP attribute_hidden do_parse(SEXP args){
 	result = PROTECT(R_ParseFile(fp, -1, &status, filename));
 	if (status != PARSE_OK) {
 		/* TODO : use the parseError function (in source.c) */
-		// error(_("parsing error"), 0);
+		error(_("parsing error"), 0);
 	}
-	UNPROTECT( 3 ) ;
+	UNPROTECT( 1 ) ;
     /*}}}*/
 	
 	/*{{{ reset encodings flags  */

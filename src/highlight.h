@@ -133,9 +133,9 @@ static int	EndOfFile = 0;
 static int	xxcharcount, xxcharsave;
 static int	xxlineno, xxbyteno, xxcolno,  xxlinesave, xxbytesave, xxcolsave;
 
-static SEXP     SrcFile = NULL;
-static SEXP	SrcRefs = NULL;
-static PROTECT_INDEX srindex;
+// static SEXP     SrcFile = NULL;
+// static SEXP	SrcRefs = NULL;
+// static PROTECT_INDEX srindex;
 
 #define PUSHBACK_BUFSIZE 16
 static int pushback[PUSHBACK_BUFSIZE];
@@ -163,7 +163,8 @@ static void ParseContextInit(void);
 static void ParseInit(void);
 static SEXP R_Parse1(ParseStatus *) ;
 static SEXP R_Parse(int, ParseStatus *, SEXP) ;
-attribute_hidden SEXP R_ParseFile(FILE *, int , ParseStatus *, SEXP) ;
+attribute_hidden SEXP R_ParseFile(FILE *, int , ParseStatus *, SEXP) ;    
+static void setId(SEXP) ;
 /*}}}*/
 
 
