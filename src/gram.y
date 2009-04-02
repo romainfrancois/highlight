@@ -1471,11 +1471,7 @@ static int NumericValue(int c) {
 static int SkipSpace(void) {
     int c;
 	
-	int _first_line = xxlineno ;
-	int _first_column = xxcolno ;
-	int _first_byte = xxbyteno ;
-   
-
+	
 #ifdef Win32
     if(!mbcslocale) { /* 0xa0 is NBSP in all 8-bit Windows locales */
 		while ((c = xxgetc()) == ' ' || c == '\t' || c == '\f' || (unsigned int) c == 0xa0) ;
@@ -1513,12 +1509,6 @@ static int SkipSpace(void) {
 #endif
 	while ((c = xxgetc()) == ' ' || c == '\t' || c == '\f') ;
     
-	int _last_line = xxlineno ;
-	int _last_column = xxcolno ;
-	int _last_byte = xxbyteno ;
-	// TODO: do something with these numbers
-    
-	
 	return c;
 }
 /*}}}*/
@@ -2357,7 +2347,13 @@ static int token(void) {
     xxcharsave = xxcharcount; 
 
 	/* eat any number of spaces */
+	int _space_first_line = xxlineno ;
+	int _space_first_col = xxcolno ;
+	int _space_first_byte = xxbyteno ;
 	c = SkipSpace();
+	record( _space_first_line, _space_first_col, _space_first_byte, 
+		xxlineno, xxcolno, xxbyteno, 
+		SPACES, 1 ) ;
 	
 	/* flush the comment */
 	if (c == '#') {
@@ -2566,7 +2562,7 @@ static int token(void) {
  * just returned
  *
  * @return the same as token
- */
+ */     
 static int token_(void){
 	// capture the position before retrieving the token
 	int _first_line = xxlineno ;
