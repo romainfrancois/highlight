@@ -1,11 +1,16 @@
 #include <Rinternals.h>
 #include "highlight.h"
 
-/* 
-	highlight:::.parse( file, encoding = "unknown" )
-*/
+/*{{{ do_parse */
+/** 
+ * R interface : 
+ *  highlight:::.parse( file, encoding = "unknown" )
+ *
+ * Calls the R_ParseFile function from gram.y -> gram.c
+ */
 SEXP attribute_hidden do_parse(SEXP args){
 	
+	/*{{{ declarations */
 	SEXP result ;
     Rboolean old_latin1=known_to_be_latin1,
 	old_utf8=known_to_be_utf8, allKnown = TRUE;
@@ -13,6 +18,7 @@ SEXP attribute_hidden do_parse(SEXP args){
 	SEXP filename ;
     ParseStatus status;
 	FILE *fp;
+	/*}}}
 
 	/*{{{ process arguments */
     
@@ -60,6 +66,6 @@ SEXP attribute_hidden do_parse(SEXP args){
 	
     return result;
 }
-
+/*}}}*/
 /* :tabSize=4:indentSize=4:noTabs=false:folding=explicit:collapseFolds=1: */
 

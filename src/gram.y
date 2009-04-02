@@ -5,9 +5,6 @@
 
 #include "highlight.h"
 
-#define YYDEBUG 1
-#define YYERROR_VERBOSE 1
-
 #define yyconst const
 
 typedef struct yyltype{
@@ -20,7 +17,14 @@ typedef struct yyltype{
   int last_byte;
 } yyltype;
 
-#define YYPRINTF Rprintf
+/* This is used as the buffer for NumericValue, SpecialValue and
+   SymbolValue.  None of these could conceivably need 8192 bytes.
+
+   It has not been used as the buffer for input character strings
+   since Oct 2007 (released as 2.7.0), and for comments since 2.8.0
+ */
+static char yytext_[MAXELTSIZE];
+
 # define YYLTYPE yyltype
 # define YYLLOC_DEFAULT(Current, Rhs, N)				\
 	do	{ 								\
@@ -47,6 +51,43 @@ typedef struct yyltype{
 
 #define LBRACE	'{'
 #define RBRACE	'}'
+
+/*{{{ Routines used to build the parse tree */
+static SEXP	xxnullformal(void);
+static SEXP	xxfirstformal0(SEXP);
+static SEXP	xxfirstformal1(SEXP, SEXP);
+static SEXP	xxaddformal0(SEXP, SEXP, YYLTYPE *);
+static SEXP	xxaddformal1(SEXP, SEXP, SEXP, YYLTYPE *);
+static SEXP	xxexprlist0();
+static SEXP	xxexprlist1(SEXP, YYLTYPE *);
+static SEXP	xxexprlist2(SEXP, SEXP, YYLTYPE *);
+static SEXP	xxsub0(void);
+static SEXP	xxsub1(SEXP, YYLTYPE *);
+static SEXP	xxsymsub0(SEXP, YYLTYPE *);
+static SEXP	xxsymsub1(SEXP, SEXP, YYLTYPE *);
+static SEXP	xxnullsub0(YYLTYPE *);
+static SEXP	xxnullsub1(SEXP, YYLTYPE *);
+static SEXP	xxsublist1(SEXP);
+static SEXP	xxsublist2(SEXP, SEXP);
+static SEXP	xxcond(SEXP);
+static SEXP	xxifcond(SEXP);
+static SEXP	xxif(SEXP, SEXP, SEXP);
+static SEXP	xxifelse(SEXP, SEXP, SEXP, SEXP);
+static SEXP	xxforcond(SEXP, SEXP);
+static SEXP	xxfor(SEXP, SEXP, SEXP);
+static SEXP	xxwhile(SEXP, SEXP, SEXP);
+static SEXP	xxrepeat(SEXP, SEXP);
+static SEXP	xxnxtbrk(SEXP);
+static SEXP	xxfuncall(SEXP, SEXP);
+static SEXP	xxdefun(SEXP, SEXP, SEXP);
+static SEXP	xxunary(SEXP, SEXP);
+static SEXP	xxbinary(SEXP, SEXP, SEXP);
+static SEXP	xxparen(SEXP, SEXP);
+static SEXP	xxsubscript(SEXP, SEXP, SEXP);
+static SEXP	xxexprlist(SEXP, YYLTYPE *, SEXP);
+static int	xxvalue(SEXP, int, YYLTYPE *);
+/*}}}*/ 
+
 
 /* Functions used in the parsing process */
 
@@ -136,41 +177,6 @@ static int mbcs_get_next(int c, wchar_t *wc){
 
 /* Handle function source */
 
-/*{{{ Routines used to build the parse tree */
-static SEXP	xxnullformal(void);
-static SEXP	xxfirstformal0(SEXP);
-static SEXP	xxfirstformal1(SEXP, SEXP);
-static SEXP	xxaddformal0(SEXP, SEXP, YYLTYPE *);
-static SEXP	xxaddformal1(SEXP, SEXP, SEXP, YYLTYPE *);
-static SEXP	xxexprlist0();
-static SEXP	xxexprlist1(SEXP, YYLTYPE *);
-static SEXP	xxexprlist2(SEXP, SEXP, YYLTYPE *);
-static SEXP	xxsub0(void);
-static SEXP	xxsub1(SEXP, YYLTYPE *);
-static SEXP	xxsymsub0(SEXP, YYLTYPE *);
-static SEXP	xxsymsub1(SEXP, SEXP, YYLTYPE *);
-static SEXP	xxnullsub0(YYLTYPE *);
-static SEXP	xxnullsub1(SEXP, YYLTYPE *);
-static SEXP	xxsublist1(SEXP);
-static SEXP	xxsublist2(SEXP, SEXP);
-static SEXP	xxcond(SEXP);
-static SEXP	xxifcond(SEXP);
-static SEXP	xxif(SEXP, SEXP, SEXP);
-static SEXP	xxifelse(SEXP, SEXP, SEXP, SEXP);
-static SEXP	xxforcond(SEXP, SEXP);
-static SEXP	xxfor(SEXP, SEXP, SEXP);
-static SEXP	xxwhile(SEXP, SEXP, SEXP);
-static SEXP	xxrepeat(SEXP, SEXP);
-static SEXP	xxnxtbrk(SEXP);
-static SEXP	xxfuncall(SEXP, SEXP);
-static SEXP	xxdefun(SEXP, SEXP, SEXP);
-static SEXP	xxunary(SEXP, SEXP);
-static SEXP	xxbinary(SEXP, SEXP, SEXP);
-static SEXP	xxparen(SEXP, SEXP);
-static SEXP	xxsubscript(SEXP, SEXP, SEXP);
-static SEXP	xxexprlist(SEXP, YYLTYPE *, SEXP);
-static int	xxvalue(SEXP, int, YYLTYPE *);
-/*}}}*/ 
 
 #define YYSTYPE		SEXP
 /*}}} Prologue */
@@ -339,12 +345,13 @@ cr	:					{ EatLines = 1; }
 /* Private pushback, since file ungetc only guarantees one byte.
    We need up to one MBCS-worth */
 
-#define DECLARE_YYTEXT_BUFP(bp) char *bp = yytext
+#define DECLARE_YYTEXT_BUFP(bp) char *bp = yytext_ ;
 #define YYTEXT_PUSH(c, bp) do { \
-    if ((bp) - yytext >= sizeof(yytext) - 1) \
-	error(_("input buffer overflow at line %d"), xxlineno); \
+    if ((bp) - yytext_ >= sizeof(yytext_) - 1){ \
+		error(_("input buffer overflow at line %d"), xxlineno); \
+	} \
 	*(bp)++ = (c); \
-} while(0)
+} while(0) ;
 
 
 
@@ -1414,7 +1421,7 @@ static int NumericValue(int c) {
     YYTEXT_PUSH('\0', yyp);
     /* Make certain that things are okay. */
     if(c == 'L') {
-		double a = R_atof(yytext);
+		double a = R_atof(yytext_);
 		int b = (int) a;
 		/* We are asked to create an integer via the L, so we check that the
 		   double and int values are the same. If not, this is a problem and we
@@ -1423,9 +1430,9 @@ static int NumericValue(int c) {
 		if(a != (double) b) {
 		    if(GenerateCode) {
 				if(seendot == 1 && seenexp == 0){
-				    warning(_("integer literal %sL contains decimal; using numeric value"), yytext);
+				    warning(_("integer literal %sL contains decimal; using numeric value"), yytext_);
 				} else {
-				    warning(_("non-integer value %s qualified with L; using numeric value"), yytext);
+				    warning(_("non-integer value %s qualified with L; using numeric value"), yytext_);
 				}
 		    }
 		    asNumeric = 1;
@@ -1434,24 +1441,24 @@ static int NumericValue(int c) {
     }
 
     if(c == 'i') {
-		yylval = GenerateCode ? mkComplex(yytext) : R_NilValue;
+		yylval = GenerateCode ? mkComplex(yytext_) : R_NilValue;
     } else if(c == 'L' && asNumeric == 0) {
 		if(GenerateCode && seendot == 1 && seenexp == 0)
-		    warning(_("integer literal %sL contains unnecessary decimal point"), yytext);
-		yylval = GenerateCode ? mkInt(yytext) : R_NilValue;
+		    warning(_("integer literal %sL contains unnecessary decimal point"), yytext_);
+		yylval = GenerateCode ? mkInt(yytext_) : R_NilValue;
 #if 0  /* do this to make 123 integer not double */
     } else if(!(seendot || seenexp)) {
 		if(c != 'L') xxungetc(c);
 		if (GenerateCode) {
-		    double a = R_atof(yytext);
+		    double a = R_atof(yytext_);
 		    int b = (int) a;
-		    yylval = (a != (double) b) ? mkFloat(yytext) : mkInt(yytext);
+		    yylval = (a != (double) b) ? mkFloat(yytext_) : mkInt(yytext_);
 		} else yylval = R_NilValue;
 #endif
     } else {
 		if(c != 'L')
 		    xxungetc(c);
-		yylval = GenerateCode ? mkFloat(yytext) : R_NilValue;
+		yylval = GenerateCode ? mkFloat(yytext_) : R_NilValue;
     }
 
     PROTECT(yylval);
@@ -2242,20 +2249,26 @@ int isValidName(const char *name){
  * @return  
  */
 static int SpecialValue(int c) {
-    DECLARE_YYTEXT_BUFP(yyp);
-    YYTEXT_PUSH(c, yyp);
-    while ((c = xxgetc()) != R_EOF && c != '%') {
+	
+	// DECLARE_YYTEXT_BUFP(yyp);
+    // YYTEXT_PUSH(c, yyp);
+	char *p = yytext_ ;
+	*p='%';
+	while ((c = xxgetc()) != R_EOF && c != '%') {
 		if (c == '\n') {
 		    xxungetc(c);
 		    return ERROR;
 		}
-		YYTEXT_PUSH(c, yyp);
+		// YYTEXT_PUSH(c, yyp);
+		*(p)++ = c ;
     }
     if (c == '%') {
-		YYTEXT_PUSH(c, yyp);
+		// YYTEXT_PUSH(c, yyp);
+		*(p)++ = '%' ;
 	}
-    YYTEXT_PUSH('\0', yyp);
-    yylval = install(yytext);
+	*(p)++ = '\0' ;
+	// YYTEXT_PUSH('\0', yyp);
+    yylval = install(yytext_);
     return SPECIAL;
 }
 /*}}}*/
@@ -2295,7 +2308,7 @@ static int SymbolValue(int c)
     }
 	xxungetc(c);
     YYTEXT_PUSH('\0', yyp);
-    if ((kw = KeywordLookup(yytext))) {
+    if ((kw = KeywordLookup(yytext_))) {
 		if ( kw == FUNCTION ) {
 		    if (FunctionLevel >= MAXNEST)
 			error(_("functions nested too deeply in source code at line %d"), xxlineno);
@@ -2310,7 +2323,7 @@ static int SymbolValue(int c)
 		}
 		return kw;
     }
-    PROTECT(yylval = install(yytext));
+    PROTECT(yylval = install(yytext_));
     return SYMBOL;
 }
 /*}}} */
@@ -2516,8 +2529,8 @@ static int token(void) {
     	case ']':
 			return c;
     	case '?':
-			strcpy(yytext, "?");
-			yylval = install(yytext);
+			strcpy(yytext_, "?");
+			yylval = install(yytext_);
 			return c;
     	case '*':
 			/* Replace ** by ^.  This has been here since 1998, but is
@@ -2527,9 +2540,9 @@ static int token(void) {
 			   presumably it was for compatibility with S. */
 			if (nextchar('*'))
 			    c='^';
-			yytext[0] = c;
-			yytext[1] = '\0';
-			yylval = install(yytext);
+			yytext_[0] = c;
+			yytext_[1] = '\0';
+			yylval = install(yytext_);
 			return c;
     	case '+':
     	case '/':
@@ -2537,9 +2550,9 @@ static int token(void) {
     	case '~':
     	case '$':
     	case '@':
-			yytext[0] = c;
-			yytext[1] = '\0';
-			yylval = install(yytext);
+			yytext_[0] = c;
+			yytext_[1] = '\0';
+			yylval = install(yytext_);
 			return c;
     	default:
 			return c;
@@ -2555,10 +2568,20 @@ static int token(void) {
  * @return the same as token
  */
 static int token_(void){
+	int _first_line = xxlineno ;
+	int _first_col = xxcolno ;
+	int _first_byte = xxbyteno ;
+	
 	int res = token( ) ;
-	record(yylloc.first_line, yylloc.first_column, yylloc.first_byte, 
-			yylloc.last_line, yylloc.last_column, yylloc.last_byte, 
-			res, 1 ) ; 
+	
+	int _last_line = xxlineno ;
+	int _last_col  = xxcolno ;
+	int _last_byte = xxbyteno ;
+	
+	record(_first_line, _first_col, _first_byte, 
+			_last_line, _last_col, _last_byte, 
+			res, 1 ) ;
+	
 	return res; 
 }
 
@@ -2569,7 +2592,7 @@ static int token_(void){
  * fills the yyloc structure
  */
 static void setlastloc(void) {
-    yylloc.last_line = xxlineno;
+	yylloc.last_line = xxlineno;
     yylloc.last_column = xxcolno;
     yylloc.last_byte = xxbyteno;
 }
@@ -2990,7 +3013,10 @@ static void setId(SEXP x ){
 static void record( int first_line, int first_column, int first_byte, 
 	int last_line, int last_column, int last_byte, 
 	int type, int len ){
-
+       
+	// don't care about zero sized things
+	if( first_line == last_line && first_byte == last_byte ) return ;
+	
 	incrementId() ;
 	Rprintf("%d,%d,%d,%d,%d,%d,%d,%d,%d\n", 
 			first_line, first_column, first_byte, 

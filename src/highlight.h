@@ -41,14 +41,6 @@ SEXP	GrowList(SEXP, SEXP);
 SEXP	Insert(SEXP, SEXP);
 SEXP attachSrcrefs(SEXP, SEXP) ;
 
-/* This is used as the buffer for NumericValue, SpecialValue and
-   SymbolValue.  None of these could conceivably need 8192 bytes.
-
-   It has not been used as the buffer for input character strings
-   since Oct 2007 (released as 2.7.0), and for comments since 2.8.0
- */
-static char yytext[MAXELTSIZE];
-
 static void yyerror(char *);
 static int yylex();
 int yyparse(void);
@@ -156,6 +148,8 @@ int file_getc(void) ;
 FILE *	R_fopen(const char *filename, const char *mode);
 static FILE *fp_parse;
 static int (*ptr_getc)(void);
+
+
 
 /*{{{ Parsing entry points functions */
 /* function defined in parsing.c */
