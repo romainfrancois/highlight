@@ -2568,16 +2568,20 @@ static int token(void) {
  * @return the same as token
  */
 static int token_(void){
+	// capture the position before retrieving the token
 	int _first_line = xxlineno ;
 	int _first_col = xxcolno ;
 	int _first_byte = xxbyteno ;
 	
+	// get the token
 	int res = token( ) ;
 	
+	// capture the position after
 	int _last_line = xxlineno ;
 	int _last_col  = xxcolno ;
 	int _last_byte = xxbyteno ;
 	
+	// record the position
 	record(_first_line, _first_col, _first_byte, 
 			_last_line, _last_col, _last_byte, 
 			res, 1 ) ;
