@@ -46,7 +46,7 @@ static char yytext_[MAXELTSIZE];
 		record( \
 			(Current).first_line, (Current).first_column, (Current).first_byte, \
 			(Current).last_line, (Current).last_column, (Current).last_byte, \
-			yystate, yylen ) ; \
+			yyn ) ; \
 	} while (YYID (0))
 
 #define LBRACE	'{'
@@ -1339,16 +1339,21 @@ static int SkipComment(void){
 	int _first_line = xxlineno ;
 	int _first_column = xxcolno ;
 	int _first_byte = xxbyteno ;
-    while ((c = xxgetc()) != '\n' && c != R_EOF) ;
+	
+	int _last_line ;
+	int _last_column  ;
+	int _last_byte ;
+	while ((c = xxgetc()) != '\n' && c != R_EOF){
+		_last_line = xxlineno ;
+		_last_column = xxcolno ;
+		_last_byte = xxbyteno ;
+	}
     if (c == R_EOF) {
 		EndOfFile = 2;
 	}
-	int _last_line = xxlineno ;
-	int _last_column = xxcolno ;
-	int _last_byte = xxbyteno ;
 	record( _first_line,  _first_column, _first_byte, 
 			_last_line, _last_column, _last_byte, 
-			COMMENT, 1 ) ;
+			COMMENT ) ;
 	return c ;
 }
 
@@ -1466,27 +1471,42 @@ static int NumericValue(int c) {
 }
 
 /**
- * Skips a space
+ * Goes to the next character that is not a space
  */ 
+static int _space_last_line ;
+static int _space_last_col  ;
+static int _space_last_byte ;
+
+static void trackspaces( ){
+	_space_last_line = xxlineno ;
+	_space_last_col  = xxcolno ;
+	_space_last_byte = xxbyteno ;    
+}
+
 static int SkipSpace(void) {
     int c;
-	
+	trackspaces() ;
 	
 #ifdef Win32
     if(!mbcslocale) { /* 0xa0 is NBSP in all 8-bit Windows locales */
-		while ((c = xxgetc()) == ' ' || c == '\t' || c == '\f' || (unsigned int) c == 0xa0) ;
+		while ((c = xxgetc()) == ' ' || c == '\t' || c == '\f' || (unsigned int) c == 0xa0){
+			trackspaces() ;
+		}
 		return c;
     } else {
 		int i, clen;
 		wchar_t wc;
 		while (1) {
 		    c = xxgetc();
-		    if (c == ' ' || c == '\t' || c == '\f') continue;
+			if (c == ' ' || c == '\t' || c == '\f') continue;
 		    if (c == '\n' || c == R_EOF) break;
 		    if ((unsigned int) c < 0x80) break;
 		    clen = mbcs_get_next(c, &wc);  /* always 2 */
 		    if(! Ri18n_iswctype(wc, Ri18n_wctype("blank")) ) break;
-		    for(i = 1; i < clen; i++) c = xxgetc();
+		    for(i = 1; i < clen; i++) {
+				c = xxgetc();
+			}
+			trackspaces() ;
 		}
 		return c;
     }
@@ -1497,21 +1517,60 @@ static int SkipSpace(void) {
 		int i, clen;
 		wchar_t wc;
 		while (1) {
-		    c = xxgetc();
+		    c = xxgetc();  
 		    if (c == ' ' || c == '\t' || c == '\f') continue;
 		    if (c == '\n' || c == R_EOF) break;
 		    if ((unsigned int) c < 0x80) break;
 		    clen = mbcs_get_next(c, &wc);
 		    if(! Ri18n_iswctype(wc, Ri18n_wctype("blank")) ) break;
-		    for(i = 1; i < clen; i++) c = xxgetc();
+		    for(i = 1; i < clen; i++) {
+				c = xxgetc();
+			}
+			trackspaces() ;
 		}
     } else
 #endif
-	while ((c = xxgetc()) == ' ' || c == '\t' || c == '\f') ;
-    
+		{
+			while ((c = xxgetc()) == ' ' || c == '\t' || c == '\f'){
+				trackspaces() ;
+			}
+		}   
 	return c;
 }
 /*}}}*/
+	
+/**
+ * Wrapper around SkipSpace
+ */
+static int _token_first_line  ;
+static int _token_first_col  ;
+static int _token_first_byte ;
+
+static int SkipSpace_(void){
+	int c ;
+	int _space_first_line = xxlineno ;
+	int _space_first_col = xxcolno ;
+	int _space_first_byte = xxbyteno ;
+	c = SkipSpace();
+	
+	// if we moved only one character, it means it was not a space
+	if( _space_first_line == _space_last_line & _space_first_byte == _space_last_byte ){
+		// no change needed
+	} else {
+		// record( 
+		// 	_space_first_line, _space_first_col, _space_first_byte, 
+		// 	_space_last_line, _space_last_col, _space_last_byte,  
+		// 	SPACES ) ;
+		_token_first_line = _space_last_line ;
+		_token_first_col  = _space_last_col ;
+		_token_first_byte = _space_last_byte ;
+	}
+	
+	return c ;
+	
+}
+
+
 
 /*{{{ Special Symbols */
 /* Syntactic Keywords + Symbolic Constants */
@@ -2326,6 +2385,7 @@ static int SymbolValue(int c)
  * 
  * @return the token type once characters are consumed
  */
+static int _space_count = 0 ;
 static int token(void) {
 	
     int c;
@@ -2347,13 +2407,7 @@ static int token(void) {
     xxcharsave = xxcharcount; 
 
 	/* eat any number of spaces */
-	int _space_first_line = xxlineno ;
-	int _space_first_col = xxcolno ;
-	int _space_first_byte = xxbyteno ;
-	c = SkipSpace();
-	record( _space_first_line, _space_first_col, _space_first_byte, 
-		xxlineno, xxcolno, xxbyteno, 
-		SPACES, 1 ) ;
+	c = SkipSpace_();
 	
 	/* flush the comment */
 	if (c == '#') {
@@ -2562,12 +2616,14 @@ static int token(void) {
  * just returned
  *
  * @return the same as token
- */     
+ */
+
 static int token_(void){
 	// capture the position before retrieving the token
-	int _first_line = xxlineno ;
-	int _first_col = xxcolno ;
-	int _first_byte = xxbyteno ;
+	
+	_token_first_line = xxlineno ;
+	_token_first_col = xxcolno ;
+	_token_first_byte = xxbyteno ;
 	
 	// get the token
 	int res = token( ) ;
@@ -2578,9 +2634,9 @@ static int token_(void){
 	int _last_byte = xxbyteno ;
 	
 	// record the position
-	record(_first_line, _first_col, _first_byte, 
+	record( _token_first_line, _token_first_col, _token_first_byte, 
 			_last_line, _last_col, _last_byte, 
-			res, 1 ) ;
+			res ) ;
 	
 	return res; 
 }
@@ -3012,16 +3068,16 @@ static void setId(SEXP x ){
 
 static void record( int first_line, int first_column, int first_byte, 
 	int last_line, int last_column, int last_byte, 
-	int type, int len ){
+	int type ){
        
 	// don't care about zero sized things
 	if( first_line == last_line && first_byte == last_byte ) return ;
 	
 	incrementId() ;
-	Rprintf("%d,%d,%d,%d,%d,%d,%d,%d,%d\n", 
+	Rprintf("%d,%d,%d,%d,%d,%d,%d,%d\n", 
 			first_line, first_column, first_byte, 
 			last_line, last_column, last_byte, 
-			type, identifier, len ) ; 
+			type, identifier ) ; 
 }
 /*}}}*/
 
