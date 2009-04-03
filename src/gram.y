@@ -5,8 +5,9 @@
 
 #include "highlight.h"
 
-#define yyconst const
+#define YYERROR_VERBOSE 1
 
+#define yyconst const
 typedef struct yyltype{
   int first_line;
   int first_column;
@@ -25,6 +26,40 @@ typedef struct yyltype{
  */
 static char yytext_[MAXELTSIZE];
 
+/**
+ * These two are set in the YYLLOC_DEFAULT macro (before each reduce)
+ * and used to keep track of the rule that is used
+ * to make the expression, and the token type associated with that 
+ * rule, this is always the token type of the non terminal symbol 'expr'
+ * but I can't see any other way to get this number
+ */
+static int _current_token ;
+static int _current_rule ;
+
+/**
+ * Records an expression (non terminal symbol 'expr') and gives it an id
+ *
+ * @param expr expression we want to record and flag with the next id
+ * @param loc the location of the expression
+ */   
+static SEXP idSXP ;
+static void setId( SEXP expr, yyltype loc){
+	
+	if( expr != R_NilValue ){
+		record( (loc).first_line, (loc).first_column, (loc).first_byte, 
+			(loc).last_line, (loc).last_column, (loc).last_byte, 
+			_current_token, _current_rule ) ;
+	
+		SEXP ids ;
+		PROTECT( ids = allocVector( INTSXP, 1) ) ;
+		INTEGER( ids)[0] = identifier ;
+		PROTECT( expr ) ;
+		setAttrib( expr , idSXP , ids);
+		UNPROTECT( 2 ) ;
+	}
+	
+}
+
 # define YYLTYPE yyltype
 # define YYLLOC_DEFAULT(Current, Rhs, N)				\
 	do	{ 								\
@@ -42,15 +77,15 @@ static char yytext_[MAXELTSIZE];
 		    YYRHSLOC (Rhs, 0).last_column;				\
 		  (Current).first_byte   = (Current).last_byte =		\
 		    YYRHSLOC (Rhs, 0).last_byte;				\
-		} 								\
-		record( \
-			(Current).first_line, (Current).first_column, (Current).first_byte, \
-			(Current).last_line, (Current).last_column, (Current).last_byte, \
-			yyn ) ; \
+		} \
+		_current_token = yyr1[yyn] ; \
+		_current_rule = yyn ; \
 	} while (YYID (0))
 
 #define LBRACE	'{'
 #define RBRACE	'}'
+
+#define YYDEBUG 1
 
 /*{{{ Routines used to build the parse tree */
 static SEXP	xxnullformal(void);
@@ -59,8 +94,8 @@ static SEXP	xxfirstformal1(SEXP, SEXP);
 static SEXP	xxaddformal0(SEXP, SEXP, YYLTYPE *);
 static SEXP	xxaddformal1(SEXP, SEXP, SEXP, YYLTYPE *);
 static SEXP	xxexprlist0();
-static SEXP	xxexprlist1(SEXP, YYLTYPE *);
-static SEXP	xxexprlist2(SEXP, SEXP, YYLTYPE *);
+static SEXP	xxexprlist1(SEXP);
+static SEXP	xxexprlist2(SEXP, SEXP);
 static SEXP	xxsub0(void);
 static SEXP	xxsub1(SEXP, YYLTYPE *);
 static SEXP	xxsymsub0(SEXP, YYLTYPE *);
@@ -84,8 +119,8 @@ static SEXP	xxunary(SEXP, SEXP);
 static SEXP	xxbinary(SEXP, SEXP, SEXP);
 static SEXP	xxparen(SEXP, SEXP);
 static SEXP	xxsubscript(SEXP, SEXP, SEXP);
-static SEXP	xxexprlist(SEXP, YYLTYPE *, SEXP);
-static int	xxvalue(SEXP, int, YYLTYPE *);
+static SEXP	xxexprlist(SEXP, SEXP);
+static int	xxvalue(SEXP, int);
 /*}}}*/ 
 
 
@@ -176,11 +211,11 @@ static int mbcs_get_next(int c, wchar_t *wc){
 #endif 
 
 /* Handle function source */
-
-
 #define YYSTYPE		SEXP
+
+
 /*}}} Prologue */
-%}
+%}                                                                                      
 /*{{{ Grammar */
 /*{{{ Tokens */
 %token		END_OF_INPUT ERROR
@@ -189,7 +224,7 @@ static int mbcs_get_next(int c, wchar_t *wc){
 %token		FOR IN IF ELSE WHILE NEXT BREAK REPEAT
 %token		GT GE LT LE EQ NE AND OR AND2 OR2
 %token		NS_GET NS_GET_INT
-%token		COMMENT SPACES
+%token		COMMENT SPACES ROXYGEN_COMMENT
 /*}}}*/
 
 /*{{{ This is the precedence table, low to high */
@@ -220,9 +255,9 @@ static int mbcs_get_next(int c, wchar_t *wc){
 %%
 
 prog	:	END_OF_INPUT			{ return 0; }
-	|	'\n'				{ return xxvalue(NULL,2,NULL); }
-	|	expr_or_assign '\n'			{ return xxvalue($1,3,&@1); }
-	|	expr_or_assign ';'			{ return xxvalue($1,4,&@1); }
+	|	'\n'				{ return xxvalue(NULL,2); }
+	|	expr_or_assign '\n'			{ return xxvalue($1,3); }
+	|	expr_or_assign ';'			{ return xxvalue($1,4); }
 	|	error	 			{ YYABORT; }
 	;
 
@@ -233,67 +268,70 @@ expr_or_assign  :    expr                       { $$ = $1; }
 equal_assign    :    expr EQ_ASSIGN expr_or_assign              { $$ = xxbinary($2,$1,$3); }
                 ;
 
-expr	: 	NUM_CONST			{ $$ = $1; }
-	|	STR_CONST			{ $$ = $1; }
-	|	NULL_CONST			{ $$ = $1; }
-	|	SYMBOL				{ $$ = $1; }
+expr	:	sexpr { $$ = $1; setId( $$, @$);  } 
+		;                       
 
-	|	'{' exprlist '}'		{ $$ = xxexprlist($1,&@1,$2); }
-	|	'(' expr_or_assign ')'			{ $$ = xxparen($1,$2); }
+sexpr	: 	NUM_CONST			{ $$ = $1; }
+	|	STR_CONST			{ $$ = $1;  }
+	|	NULL_CONST			{ $$ = $1;  }          
+	|	SYMBOL				{ $$ = $1;  }
 
-	|	'-' expr %prec UMINUS		{ $$ = xxunary($1,$2); }
-	|	'+' expr %prec UMINUS		{ $$ = xxunary($1,$2); }
-	|	'!' expr %prec UNOT		{ $$ = xxunary($1,$2); }
-	|	'~' expr %prec TILDE		{ $$ = xxunary($1,$2); }
-	|	'?' expr			{ $$ = xxunary($1,$2); }
+	|	'{' exprlist '}'		{ $$ = xxexprlist($1,$2);  }
+	|	'(' expr_or_assign ')'			{ $$ = xxparen($1,$2);  }
 
-	|	expr ':'  expr			{ $$ = xxbinary($2,$1,$3); }
-	|	expr '+'  expr			{ $$ = xxbinary($2,$1,$3); }
-	|	expr '-' expr			{ $$ = xxbinary($2,$1,$3); }
-	|	expr '*' expr			{ $$ = xxbinary($2,$1,$3); }
-	|	expr '/' expr			{ $$ = xxbinary($2,$1,$3); }
-	|	expr '^' expr 			{ $$ = xxbinary($2,$1,$3); }
-	|	expr SPECIAL expr		{ $$ = xxbinary($2,$1,$3); }
-	|	expr '%' expr			{ $$ = xxbinary($2,$1,$3); }
-	|	expr '~' expr			{ $$ = xxbinary($2,$1,$3); }
-	|	expr '?' expr			{ $$ = xxbinary($2,$1,$3); }
-	|	expr LT expr			{ $$ = xxbinary($2,$1,$3); }
-	|	expr LE expr			{ $$ = xxbinary($2,$1,$3); }
-	|	expr EQ expr			{ $$ = xxbinary($2,$1,$3); }
-	|	expr NE expr			{ $$ = xxbinary($2,$1,$3); }
-	|	expr GE expr			{ $$ = xxbinary($2,$1,$3); }
-	|	expr GT expr			{ $$ = xxbinary($2,$1,$3); }
-	|	expr AND expr			{ $$ = xxbinary($2,$1,$3); }
-	|	expr OR expr			{ $$ = xxbinary($2,$1,$3); }
-	|	expr AND2 expr			{ $$ = xxbinary($2,$1,$3); }
-	|	expr OR2 expr			{ $$ = xxbinary($2,$1,$3); }
+	|	'-' expr %prec UMINUS		{ $$ = xxunary($1,$2);  }
+	|	'+' expr %prec UMINUS		{ $$ = xxunary($1,$2);  }
+	|	'!' expr %prec UNOT		{ $$ = xxunary($1,$2);  }
+	|	'~' expr %prec TILDE		{ $$ = xxunary($1,$2);  }
+	|	'?' expr			{ $$ = xxunary($1,$2);  }
 
-	|	expr LEFT_ASSIGN expr 		{ $$ = xxbinary($2,$1,$3); }
-	|	expr RIGHT_ASSIGN expr 		{ $$ = xxbinary($2,$3,$1); }
+	|	expr ':'  expr			{ $$ = xxbinary($2,$1,$3);  }
+	|	expr '+'  expr			{ $$ = xxbinary($2,$1,$3);  }
+	|	expr '-' expr			{ $$ = xxbinary($2,$1,$3);  }
+	|	expr '*' expr			{ $$ = xxbinary($2,$1,$3);  }
+	|	expr '/' expr			{ $$ = xxbinary($2,$1,$3);  }
+	|	expr '^' expr 			{ $$ = xxbinary($2,$1,$3);  }
+	|	expr SPECIAL expr		{ $$ = xxbinary($2,$1,$3);  }
+	|	expr '%' expr			{ $$ = xxbinary($2,$1,$3);  }
+	|	expr '~' expr			{ $$ = xxbinary($2,$1,$3);  }
+	|	expr '?' expr			{ $$ = xxbinary($2,$1,$3);  }
+	|	expr LT expr			{ $$ = xxbinary($2,$1,$3);  }
+	|	expr LE expr			{ $$ = xxbinary($2,$1,$3);  }
+	|	expr EQ expr			{ $$ = xxbinary($2,$1,$3);  }
+	|	expr NE expr			{ $$ = xxbinary($2,$1,$3);  }
+	|	expr GE expr			{ $$ = xxbinary($2,$1,$3);  }
+	|	expr GT expr			{ $$ = xxbinary($2,$1,$3);  }
+	|	expr AND expr			{ $$ = xxbinary($2,$1,$3);  }
+	|	expr OR expr			{ $$ = xxbinary($2,$1,$3);  }
+	|	expr AND2 expr			{ $$ = xxbinary($2,$1,$3);  }
+	|	expr OR2 expr			{ $$ = xxbinary($2,$1,$3);  }
+
+	|	expr LEFT_ASSIGN expr 		{ $$ = xxbinary($2,$1,$3);  }
+	|	expr RIGHT_ASSIGN expr 		{ $$ = xxbinary($2,$3,$1);  }
 	|	FUNCTION '(' formlist ')' cr expr_or_assign %prec LOW
-						{ $$ = xxdefun($1,$3,$6); }
-	|	expr '(' sublist ')'		{ $$ = xxfuncall($1,$3); }
-	|	IF ifcond expr_or_assign 			{ $$ = xxif($1,$2,$3); }
-	|	IF ifcond expr_or_assign ELSE expr_or_assign	{ $$ = xxifelse($1,$2,$3,$5); }
-	|	FOR forcond expr_or_assign %prec FOR 	{ $$ = xxfor($1,$2,$3); }
-	|	WHILE cond expr_or_assign			{ $$ = xxwhile($1,$2,$3); }
-	|	REPEAT expr_or_assign			{ $$ = xxrepeat($1,$2); }
-	|	expr LBB sublist ']' ']'	{ $$ = xxsubscript($1,$2,$3); }
-	|	expr '[' sublist ']'		{ $$ = xxsubscript($1,$2,$3); }
-	|	SYMBOL NS_GET SYMBOL		{ $$ = xxbinary($2,$1,$3); }
-	|	SYMBOL NS_GET STR_CONST		{ $$ = xxbinary($2,$1,$3); }
-	|	STR_CONST NS_GET SYMBOL		{ $$ = xxbinary($2,$1,$3); }
-	|	STR_CONST NS_GET STR_CONST	{ $$ = xxbinary($2,$1,$3); }
-	|	SYMBOL NS_GET_INT SYMBOL	{ $$ = xxbinary($2,$1,$3); }
-	|	SYMBOL NS_GET_INT STR_CONST	{ $$ = xxbinary($2,$1,$3); }
-	|	STR_CONST NS_GET_INT SYMBOL	{ $$ = xxbinary($2,$1,$3); }
-	|	STR_CONST NS_GET_INT STR_CONST	{ $$ = xxbinary($2,$1,$3); }
-	|	expr '$' SYMBOL			{ $$ = xxbinary($2,$1,$3); }
-	|	expr '$' STR_CONST		{ $$ = xxbinary($2,$1,$3); }
-	|	expr '@' SYMBOL			{ $$ = xxbinary($2,$1,$3); }
-	|	expr '@' STR_CONST		{ $$ = xxbinary($2,$1,$3); }
-	|	NEXT				{ $$ = xxnxtbrk($1); }
-	|	BREAK				{ $$ = xxnxtbrk($1); }
+						{ $$ = xxdefun($1,$3,$6);  }
+	|	expr '(' sublist ')'		{ $$ = xxfuncall($1,$3);  }
+	|	IF ifcond expr_or_assign 			{ $$ = xxif($1,$2,$3);  }
+	|	IF ifcond expr_or_assign ELSE expr_or_assign	{ $$ = xxifelse($1,$2,$3,$5);  }
+	|	FOR forcond expr_or_assign %prec FOR 	{ $$ = xxfor($1,$2,$3);  }
+	|	WHILE cond expr_or_assign			{ $$ = xxwhile($1,$2,$3);  }
+	|	REPEAT expr_or_assign			{ $$ = xxrepeat($1,$2);  }
+	|	expr LBB sublist ']' ']'	{ $$ = xxsubscript($1,$2,$3);  }
+	|	expr '[' sublist ']'		{ $$ = xxsubscript($1,$2,$3);  }
+	|	SYMBOL NS_GET SYMBOL		{ $$ = xxbinary($2,$1,$3);  }
+	|	SYMBOL NS_GET STR_CONST		{ $$ = xxbinary($2,$1,$3);  }
+	|	STR_CONST NS_GET SYMBOL		{ $$ = xxbinary($2,$1,$3);  }
+	|	STR_CONST NS_GET STR_CONST	{ $$ = xxbinary($2,$1,$3);  }
+	|	SYMBOL NS_GET_INT SYMBOL	{ $$ = xxbinary($2,$1,$3);  }
+	|	SYMBOL NS_GET_INT STR_CONST	{ $$ = xxbinary($2,$1,$3);  }
+	|	STR_CONST NS_GET_INT SYMBOL	{ $$ = xxbinary($2,$1,$3);  }
+	|	STR_CONST NS_GET_INT STR_CONST	{ $$ = xxbinary($2,$1,$3);  }
+	|	expr '$' SYMBOL			{ $$ = xxbinary($2,$1,$3);  }
+	|	expr '$' STR_CONST		{ $$ = xxbinary($2,$1,$3);  }
+	|	expr '@' SYMBOL			{ $$ = xxbinary($2,$1,$3);  }
+	|	expr '@' STR_CONST		{ $$ = xxbinary($2,$1,$3);  }
+	|	NEXT				{ $$ = xxnxtbrk($1);  }
+	|	BREAK				{ $$ = xxnxtbrk($1);  }
 	;
 
 
@@ -308,10 +346,10 @@ forcond :	'(' SYMBOL IN expr ')' 		{ $$ = xxforcond($2,$4); }
 
 
 exprlist:					{ $$ = xxexprlist0(); }
-	|	expr_or_assign			{ $$ = xxexprlist1($1, &@1); }
-	|	exprlist ';' expr_or_assign	{ $$ = xxexprlist2($1, $3, &@3); }
+	|	expr_or_assign			{ $$ = xxexprlist1($1); }
+	|	exprlist ';' expr_or_assign	{ $$ = xxexprlist2($1, $3); }
 	|	exprlist ';'			{ $$ = $1; }
-	|	exprlist '\n' expr_or_assign	{ $$ = xxexprlist2($1, $3, &@3); }
+	|	exprlist '\n' expr_or_assign	{ $$ = xxexprlist2($1, $3); }
 	|	exprlist '\n'			{ $$ = $1;}
 	;
 
@@ -345,6 +383,7 @@ cr	:					{ EatLines = 1; }
 /* Private pushback, since file ungetc only guarantees one byte.
    We need up to one MBCS-worth */
 
+   
 #define DECLARE_YYTEXT_BUFP(bp) char *bp = yytext_ ;
 #define YYTEXT_PUSH(c, bp) do { \
     if ((bp) - yytext_ >= sizeof(yytext_) - 1){ \
@@ -352,9 +391,7 @@ cr	:					{ EatLines = 1; }
 	} \
 	*(bp)++ = (c); \
 } while(0) ;
-
-
-
+	
 /*{{{ set of functions used in the parsing process */
 
 /*{{{ Get the next or the previous character from the stream */
@@ -589,29 +626,13 @@ static SEXP NextArg(SEXP l, SEXP s, SEXP tag) {
  * @param lloc location information for ??
  * @param a2 the expression list
  */
-static SEXP xxexprlist(SEXP a1, YYLTYPE *lloc, SEXP a2) {
+static SEXP xxexprlist(SEXP a1, SEXP a2) {
     SEXP ans;
-    // SEXP prevSrcrefs;
-
     EatLines = 0;
     if (GenerateCode) {
 		SET_TYPEOF(a2, LANGSXP);
 		SETCAR(a2, a1);
 		PROTECT(ans = a2);
-		setId( ans ) ;
-		
-		// if (SrcFile) {
-		//     PROTECT(prevSrcrefs = getAttrib(a2, mkString("srcref")));
-		//     REPROTECT(SrcRefs = Insert(SrcRefs, makeSrcref(lloc, SrcFile)), srindex);
-		//     PROTECT(ans = attachSrcrefs(a2, SrcFile));
-		//     REPROTECT(SrcRefs = prevSrcrefs, srindex);
-		//     /* SrcRefs got NAMED by being an attribute... */
-		//     SET_NAMED(SrcRefs, 0);
-		//     UNPROTECT_PTR(prevSrcrefs);
-		// } else {
-		//     PROTECT(ans = a2);
-		// }
-		
     } else {
 		PROTECT(ans = R_NilValue);
     }
@@ -629,11 +650,6 @@ static SEXP xxexprlist0(void) {
     SEXP ans;
     if (GenerateCode) {
 		PROTECT(ans = NewList()); 
-		setId( ans ) ;
-//		if (SrcFile) {
-//		    setAttrib(ans, mkString("srcref"), SrcRefs);
-//		    REPROTECT(SrcRefs = NewList(), srindex);
-//		}
     } else {
 		PROTECT(ans = R_NilValue);
 	}
@@ -644,21 +660,14 @@ static SEXP xxexprlist0(void) {
  * Creates the first expression in an expression list
  * 
  * @param expr the first expression
- * @param lloc location information
  * @return an expression list with one expression (given by expr)
  */
-static SEXP xxexprlist1(SEXP expr, YYLTYPE *lloc){
+static SEXP xxexprlist1(SEXP expr){
     SEXP ans,tmp;
     if (GenerateCode) {
 		PROTECT(tmp = NewList());
-//		if (SrcFile) {
-//		    setAttrib(tmp, mkString("srcref"), SrcRefs);
-//		    REPROTECT(SrcRefs = NewList(), srindex);
-//		    REPROTECT(SrcRefs = GrowList(SrcRefs, makeSrcref(lloc, SrcFile)), srindex);
-//		}
 		PROTECT(ans = GrowList(tmp, expr));
 		UNPROTECT_PTR(tmp);
-		setId( ans ) ;
     } else {
 		PROTECT(ans = R_NilValue);
     }
@@ -671,17 +680,12 @@ static SEXP xxexprlist1(SEXP expr, YYLTYPE *lloc){
  *
  * @param exprlist the current expression list
  * @param expr the expression to add
- * @param lloc location information for the new expression
  * @return the modified expression list
  */
-static SEXP xxexprlist2(SEXP exprlist, SEXP expr, YYLTYPE *lloc){
+static SEXP xxexprlist2(SEXP exprlist, SEXP expr){
     SEXP ans;
     if (GenerateCode) {
-//		if (SrcFile){
-//			REPROTECT(SrcRefs = GrowList(SrcRefs, makeSrcref(lloc, SrcFile)), srindex);
-//		}
 		PROTECT(ans = GrowList(exprlist, expr));
-		setId( ans ) ;
     } else {
 		PROTECT(ans = R_NilValue);
 	}
@@ -1237,12 +1241,8 @@ static SEXP xxparen(SEXP n1, SEXP n2){
  * @param lloc location information
  * @return 
  */        
-static int xxvalue(SEXP v, int k, YYLTYPE *lloc) {
+static int xxvalue(SEXP v, int k) {
     if (k > 2) {
-//		if (SrcFile){
-//		    REPROTECT(SrcRefs = GrowList(SrcRefs, makeSrcref(lloc, SrcFile)), srindex);
-//		}
-		setId( v ) ;
 		UNPROTECT_PTR(v);
     }
 	
@@ -1343,17 +1343,23 @@ static int SkipComment(void){
 	int _last_line ;
 	int _last_column  ;
 	int _last_byte ;
+	int type = COMMENT ;
+	int i=0;
 	while ((c = xxgetc()) != '\n' && c != R_EOF){
+		if( i==0 && c == '\'' ){
+			type = ROXYGEN_COMMENT ;
+		}
 		_last_line = xxlineno ;
 		_last_column = xxcolno ;
 		_last_byte = xxbyteno ;
+		i++;
 	}
     if (c == R_EOF) {
 		EndOfFile = 2;
 	}
 	record( _first_line,  _first_column, _first_byte, 
 			_last_line, _last_column, _last_byte, 
-			COMMENT ) ;
+			type, -1 ) ;
 	return c ;
 }
 
@@ -1557,10 +1563,10 @@ static int SkipSpace_(void){
 	if( _space_first_line == _space_last_line & _space_first_byte == _space_last_byte ){
 		// no change needed
 	} else {
-		// record( 
-		// 	_space_first_line, _space_first_col, _space_first_byte, 
-		// 	_space_last_line, _space_last_col, _space_last_byte,  
-		// 	SPACES ) ;
+		record( 
+			_space_first_line, _space_first_col, _space_first_byte, 
+			_space_last_line, _space_last_col, _space_last_byte,  
+			SPACES, -1 ) ;
 		_token_first_line = _space_last_line ;
 		_token_first_col  = _space_last_col ;
 		_token_first_byte = _space_last_byte ;
@@ -2636,7 +2642,7 @@ static int token_(void){
 	// record the position
 	record( _token_first_line, _token_first_col, _token_first_byte, 
 			_last_line, _last_col, _last_byte, 
-			res ) ;
+			res, -1 ) ;
 	
 	return res; 
 }
@@ -2917,6 +2923,7 @@ int file_getc(void){
 static void ParseContextInit(void) {
     R_ParseContextLast = 0;
     R_ParseContext[0] = '\0';
+	idSXP = mkString( "id" ) ;
 	
 	/* starts the identifier counter*/
 	initId();
@@ -3032,6 +3039,7 @@ SEXP R_ParseFile(FILE *fp, int n, ParseStatus *status, SEXP srcfile) {
     GenerateCode = 1;
     fp_parse = fp;
     ptr_getc = file_getc;
+	// yydebug = 1 ;
     return R_Parse(n, status, srcfile);
 }
 /*}}}*/
@@ -3050,35 +3058,18 @@ static void initId(void){
 	identifier = 0 ;
 }
              
-/**
- * Sets the "id" attribute for the SEXP x
- *
- * @param x a SEXP to which we want to attach an ID
- * @todo is there a better way of doing this (using the internals)
- * @todo build the mkString just once
- */
-static void setId(SEXP x ){
-	SEXP ids ;
-	PROTECT( ids = allocVector( INTSXP, 1) ) ;
-	INTEGER( ids)[0] = identifier ;
-	PROTECT( x ) ;
-	setAttrib( x , mkString( "id" ) , ids);
-	UNPROTECT( 2 ) ;
-}
-
 static void record( int first_line, int first_column, int first_byte, 
 	int last_line, int last_column, int last_byte, 
-	int type ){
+	int token, int rule ){
        
 	// don't care about zero sized things
 	if( first_line == last_line && first_byte == last_byte ) return ;
 	
 	incrementId() ;
-	Rprintf("%d,%d,%d,%d,%d,%d,%d,%d\n", 
+	Rprintf("%d,%d,%d,%d,%d,%d,%d,%d,%d\n", 
 			first_line, first_column, first_byte, 
 			last_line, last_column, last_byte, 
-			type, identifier ) ; 
+			token, rule, identifier ) ; 
 }
 /*}}}*/
-
 

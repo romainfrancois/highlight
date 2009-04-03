@@ -18,10 +18,13 @@ highlight.connection <- function( x, detective, renderer ){
 	p <- .External( "do_parse", file = file, encoding = encoding )
 	sink( ) 
 	data <- read.csv( tf, header = FALSE, stringsAsFactors = FALSE )
-	names( data ) <- c("line1", "col1", "byte1", "line2", "col2", "byte2", "type", "id" )
+	names( data ) <- c(
+		"line1", "col1", "byte1", 
+		"line2", "col2", "byte2", 
+		"token", "rule", "id" )
 	grammar <- gram.output()
-	data$token <- grammar$token [ match( data$type, grammar$type ) ]
-	data$token[ is.na( data$token ) ] <- ""
+	data$token.desc <- grammar$desc [ match( data$token, grammar$token ) ]
+	# data$token.desc[ is.na( data$token ) ] <- ""
 	attr( p, "data" ) <- data
 	p
 }
@@ -34,8 +37,9 @@ gram.output <- function(  ){
 	rl <- rl[ start:end ]
 	rl <- grep( "\\(\\d+\\)", rl, perl = T, value = T )
 	rx <- "(^.*) \\((\\d+)\\).*"
-	token <- gsub( rx, "\\1", rl, perl = TRUE )
-	type  <- gsub( rx, "\\2", rl, perl = TRUE )
-	data.frame( token = token, type = type, stringsAsFactors = FALSE )
+	desc   <- gsub( rx, "\\1", rl, perl = TRUE )
+	token  <- as.integer( gsub( rx, "\\2", rl, perl = TRUE ) )
+	toks   <- data.frame( desc = desc, token = token, stringsAsFactors = FALSE )
+	toks
 }
 

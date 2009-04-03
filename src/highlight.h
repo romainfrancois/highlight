@@ -11,7 +11,7 @@
 static int identifier ;
 static void incrementId(void);
 static void initId(void);
-static void record( int, int, int, int, int, int, int ) ;
+static void record( int, int, int, int, int, int, int, int ) ;
 
 static int yys ;
 
@@ -158,7 +158,6 @@ static void ParseInit(void);
 static SEXP R_Parse1(ParseStatus *) ;
 static SEXP R_Parse(int, ParseStatus *, SEXP) ;
 attribute_hidden SEXP R_ParseFile(FILE *, int , ParseStatus *, SEXP) ;    
-static void setId(SEXP) ;
 /*}}}*/
 
 
