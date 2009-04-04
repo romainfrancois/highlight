@@ -3543,9 +3543,10 @@ static int nextchar(int expect){
  */
 static int SkipComment(void){
     int c;
-	int _first_line = xxlineno ;
-	int _first_column = xxcolno ;
-	int _first_byte = xxbyteno ;
+	/* locations before the # character was read */
+	int _first_line   = yylloc.first_line   ;
+	int _first_column = yylloc.first_column ;
+	int _first_byte   = yylloc.first_byte   ;
 	
 	int _last_line ;
 	int _last_column  ;
@@ -4874,9 +4875,9 @@ static void setlastloc(void) {
  * information
  */
 static void setfirstloc( int line, int column, int byte ){
-	yylloc.first_line = line;
+	yylloc.first_line   = line;
     yylloc.first_column = column;
-    yylloc.first_byte = byte;
+    yylloc.first_byte   = byte;
 }
 
 /*}}}*/ 
