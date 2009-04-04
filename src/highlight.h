@@ -11,7 +11,7 @@
 static int identifier ;
 static void incrementId(void);
 static void initId(void);
-static void record( int, int, int, int, int, int, int, int ) ;
+static void record( int, int, int, int, int, int, int ) ;
 
 static int yys ;
 
@@ -37,6 +37,8 @@ static Rboolean known_to_be_latin1 = FALSE ;
 #define MAXELTSIZE 8192 
 
 SEXP	NewList(void);
+SEXP	NewList_(SEXP);
+
 SEXP	GrowList(SEXP, SEXP);
 SEXP	Insert(SEXP, SEXP);
 SEXP attachSrcrefs(SEXP, SEXP) ;

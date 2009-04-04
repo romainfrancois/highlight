@@ -7,6 +7,8 @@
 
 #define YYERROR_VERBOSE 1
 
+static PROTECT_INDEX LOC_INDEX ;
+
 #define yyconst const
 typedef struct yyltype{
   int first_line;
@@ -17,6 +19,9 @@ typedef struct yyltype{
   int last_column;
   int last_byte;
 } yyltype;
+
+static void setfirstloc( int, int, int ) ;
+static SEXP locations ;
 
 /* This is used as the buffer for NumericValue, SpecialValue and
    SymbolValue.  None of these could conceivably need 8192 bytes.
@@ -48,7 +53,7 @@ static void setId( SEXP expr, yyltype loc){
 	if( expr != R_NilValue ){
 		record( (loc).first_line, (loc).first_column, (loc).first_byte, 
 			(loc).last_line, (loc).last_column, (loc).last_byte, 
-			_current_token, _current_rule ) ;
+			_current_token ) ;
 	
 		SEXP ids ;
 		PROTECT( ids = allocVector( INTSXP, 1) ) ;
@@ -383,7 +388,6 @@ cr	:					{ EatLines = 1; }
 /* Private pushback, since file ungetc only guarantees one byte.
    We need up to one MBCS-worth */
 
-   
 #define DECLARE_YYTEXT_BUFP(bp) char *bp = yytext_ ;
 #define YYTEXT_PUSH(c, bp) do { \
     if ((bp) - yytext_ >= sizeof(yytext_) - 1){ \
@@ -1065,7 +1069,7 @@ static SEXP xxnxtbrk(SEXP keyword){
  * @return the whole function call
  */
 static SEXP xxfuncall(SEXP expr, SEXP args){
-    SEXP ans, sav_expr = expr;
+	SEXP ans, sav_expr = expr;
     if(GenerateCode) {
 		if (isString(expr)){
 		    expr = install(CHAR(STRING_ELT(expr, 0)));
@@ -1359,7 +1363,7 @@ static int SkipComment(void){
 	}
 	record( _first_line,  _first_column, _first_byte, 
 			_last_line, _last_column, _last_byte, 
-			type, -1 ) ;
+			type ) ;
 	return c ;
 }
 
@@ -1563,13 +1567,15 @@ static int SkipSpace_(void){
 	if( _space_first_line == _space_last_line & _space_first_byte == _space_last_byte ){
 		// no change needed
 	} else {
-		record( 
-			_space_first_line, _space_first_col, _space_first_byte, 
-			_space_last_line, _space_last_col, _space_last_byte,  
-			SPACES, -1 ) ;
+		// record( 
+		// 	_space_first_line, _space_first_col, _space_first_byte, 
+		// 	_space_last_line, _space_last_col, _space_last_byte,  
+		// 	SPACES ) ;
 		_token_first_line = _space_last_line ;
 		_token_first_col  = _space_last_col ;
 		_token_first_byte = _space_last_byte ;
+		
+		setfirstloc( _space_last_line, _space_last_col, _space_last_byte );
 	}
 	
 	return c ;
@@ -2404,26 +2410,25 @@ static int token(void) {
 		yylval = SavedLval;
 		SavedLval = R_NilValue;
 		SavedToken = 0;
-		yylloc.first_line = xxlinesave;
-		yylloc.first_column = xxcolsave;
-		yylloc.first_byte = xxbytesave;
+		setfirstloc( xxlinesave, xxcolsave, xxbytesave) ;
 		return c;
     }
 	/* want to be able to go back one token */
     xxcharsave = xxcharcount; 
 
+	/* Setting the yyloc to where we are before skipping spaces */ 
+	setfirstloc( xxlineno, xxcolno, xxbyteno) ;
+
 	/* eat any number of spaces */
+	/* if we actually skip spaces, then yyloc will be altered */
 	c = SkipSpace_();
 	
 	/* flush the comment */
 	if (c == '#') {
 		c = SkipComment();
+		setfirstloc( xxlineno, xxcolno, xxbyteno) ;
 	}
-
-    yylloc.first_line = xxlineno;
-    yylloc.first_column = xxcolno;
-    yylloc.first_byte = xxbyteno;
-
+    
     if (c == R_EOF) {
 		return END_OF_INPUT;
 	}
@@ -2633,31 +2638,44 @@ static int token_(void){
 	
 	// get the token
 	int res = token( ) ;
-	
+	                       
 	// capture the position after
 	int _last_line = xxlineno ;
 	int _last_col  = xxcolno ;
 	int _last_byte = xxbyteno ;
 	
 	// record the position
-	record( _token_first_line, _token_first_col, _token_first_byte, 
-			_last_line, _last_col, _last_byte, 
-			res, -1 ) ;
+	if( res != '\n' ){
+		record( _token_first_line, _token_first_col, _token_first_byte, 
+				_last_line, _last_col, _last_byte, 
+				res ) ;
+	}
 	
 	return res; 
 }
 
 /*}}}*/
 
-/*{{{ setlastloc */
+/*{{{ setlastloc, setfirstloc */
 /**
- * fills the yyloc structure
+ * Sets the last elements of the yyloc structure with current 
+ * information
  */
 static void setlastloc(void) {
 	yylloc.last_line = xxlineno;
     yylloc.last_column = xxcolno;
     yylloc.last_byte = xxbyteno;
 }
+/**
+ * Sets the first elements of the yyloc structure with current 
+ * information
+ */
+static void setfirstloc( int line, int column, int byte ){
+	yylloc.first_line = line;
+    yylloc.first_column = column;
+    yylloc.first_byte = byte;
+}
+
 /*}}}*/ 
 
 /*{{{ yylex */
@@ -2927,6 +2945,7 @@ static void ParseContextInit(void) {
 	
 	/* starts the identifier counter*/
 	initId();
+	PROTECT_WITH_INDEX( locations = NewList(), &LOC_INDEX ) ;
 }
 /*}}}*/
            
@@ -2985,6 +3004,7 @@ static SEXP R_Parse(int n, ParseStatus *status, SEXP srcfile){
     ParseContextInit();
     savestack = R_PPStackTop;
     PROTECT(t = NewList());
+	
 
     xxlineno = 1;
     xxcolno = 0;
@@ -3020,12 +3040,9 @@ finish:
     for (n = 0 ; n < LENGTH(rval) ; n++, t = CDR(t)){
 		SET_VECTOR_ELT(rval, n, CAR(t));
 	}
-	UNPROTECT(1) ;
+    setAttrib( rval, mkString( "data" ), CDR(locations) ) ;
+	UNPROTECT(2) ; // t and locations
 	
-    // if (SrcFile) {
-	// 		rval = attachSrcrefs(rval, SrcFile);
-	// 		SrcFile = NULL;
-    // }
     R_PPStackTop = savestack;
     *status = PARSE_OK;
 	
@@ -3060,16 +3077,31 @@ static void initId(void){
              
 static void record( int first_line, int first_column, int first_byte, 
 	int last_line, int last_column, int last_byte, 
-	int token, int rule ){
+	int token ){
        
 	// don't care about zero sized things
 	if( first_line == last_line && first_byte == last_byte ) return ;
 	
 	incrementId() ;
-	Rprintf("%d,%d,%d,%d,%d,%d,%d,%d,%d\n", 
-			first_line, first_column, first_byte, 
-			last_line, last_column, last_byte, 
-			token, rule, identifier ) ; 
+	//Rprintf("%d,%d,%d,%d,%d,%d,%d,%d,%d\n", 
+	//		first_line, first_column, first_byte, 
+	//		last_line, last_column, last_byte, 
+	//		token, rule, identifier ) ;
+	SEXP new_ ;
+	
+	PROTECT(new_ = allocVector(INTSXP, 8));
+    INTEGER(new_)[0] = first_line ;
+    INTEGER(new_)[1] = first_column;
+	INTEGER(new_)[2] = first_byte;
+	INTEGER(new_)[3] = last_line;
+	INTEGER(new_)[4] = last_column;
+	INTEGER(new_)[5] = last_byte;
+	INTEGER(new_)[6] = token;
+	INTEGER(new_)[7] = identifier ;
+	REPROTECT( locations = GrowList(locations, new_) , LOC_INDEX );
+	UNPROTECT( 1 ) ; // new_
+	
 }
 /*}}}*/
+
 
