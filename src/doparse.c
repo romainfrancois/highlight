@@ -4,11 +4,11 @@
 /*{{{ do_parse */
 /** 
  * R interface : 
- *  highlight:::.parse( file, encoding = "unknown" )
+ *  highlight:::parser( file, encoding = "unknown" )
  *
  * Calls the R_ParseFile function from gram.y -> gram.c
  */
-SEXP attribute_hidden do_parse(SEXP args){
+SEXP attribute_hidden do_parser(SEXP args){
 	
 	/*{{{ declarations */
 	SEXP result ;

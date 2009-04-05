@@ -11,7 +11,7 @@
 static int identifier ;
 static void incrementId(void);
 static void initId(void);
-static void record( int, int, int, int, int, int, int ) ;
+static void record_( int, int, int, int, int, int, int, int ) ;
 
 static int yys ;
 

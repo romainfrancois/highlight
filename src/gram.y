@@ -8,6 +8,7 @@
 #define YYERROR_VERBOSE 1
 
 static PROTECT_INDEX LOC_INDEX ;
+static PROTECT_INDEX PARENTS_INDEX ;
 
 #define yyconst const
 typedef struct yyltype{
@@ -18,10 +19,20 @@ typedef struct yyltype{
   int last_line;
   int last_column;
   int last_byte;
+  
+  unsigned int id ;
 } yyltype;
 
 static void setfirstloc( int, int, int ) ;
+
+static SEXP makeMatrix( ) ;
 static SEXP locations ;
+static SEXP parents ;
+static void recordParents( int, yyltype*, int) ;
+/* called when the SEXP parent is made of the token */
+/* static void recordChild1_token( SEXP, yyltype, yyltype ) ; */
+/* called when the SEXP parent is made of a unary operator and a child SEXP */
+/* static void recordChilds2( SEXP, yyltype, yyltype, yyltype) ; */
 
 /* This is used as the buffer for NumericValue, SpecialValue and
    SymbolValue.  None of these could conceivably need 8192 bytes.
@@ -31,15 +42,8 @@ static SEXP locations ;
  */
 static char yytext_[MAXELTSIZE];
 
-/**
- * These two are set in the YYLLOC_DEFAULT macro (before each reduce)
- * and used to keep track of the rule that is used
- * to make the expression, and the token type associated with that 
- * rule, this is always the token type of the non terminal symbol 'expr'
- * but I can't see any other way to get this number
- */
+static SEXP idSXP ; // "id" 
 static int _current_token ;
-static int _current_rule ;
 
 /**
  * Records an expression (non terminal symbol 'expr') and gives it an id
@@ -47,17 +51,16 @@ static int _current_rule ;
  * @param expr expression we want to record and flag with the next id
  * @param loc the location of the expression
  */   
-static SEXP idSXP ;
 static void setId( SEXP expr, yyltype loc){
-	
+	                                                                                                     
 	if( expr != R_NilValue ){
-		record( (loc).first_line, (loc).first_column, (loc).first_byte, 
+		record_( (loc).first_line, (loc).first_column, (loc).first_byte, 
 			(loc).last_line, (loc).last_column, (loc).last_byte, 
-			_current_token ) ;
+			_current_token, (loc).id ) ;
 	
 		SEXP ids ;
 		PROTECT( ids = allocVector( INTSXP, 1) ) ;
-		INTEGER( ids)[0] = identifier ;
+		INTEGER( ids)[0] = (loc).id ;
 		PROTECT( expr ) ;
 		setAttrib( expr , idSXP , ids);
 		UNPROTECT( 2 ) ;
@@ -75,6 +78,15 @@ static void setId( SEXP expr, yyltype loc){
 		  (Current).last_line    = YYRHSLOC (Rhs, N).last_line;		\
 		  (Current).last_column  = YYRHSLOC (Rhs, N).last_column;	\
 		  (Current).last_byte    = YYRHSLOC (Rhs, N).last_byte;		\
+		  incrementId( ) ; \
+		  (Current).id = identifier ; \
+		  _current_token = yyr1[yyn] ; \
+		  yyltype childs[N] ; \
+		  int ii = 0; \
+		  for( ii=0; ii<N; ii++){ \
+			  childs[ii] = YYRHSLOC (Rhs, (ii+1) ) ; \
+		  } \
+		  recordParents( identifier, childs, N) ; \
 		} else	{								\
 		  (Current).first_line   = (Current).last_line   =		\
 		    YYRHSLOC (Rhs, 0).last_line;				\
@@ -83,10 +95,16 @@ static void setId( SEXP expr, yyltype loc){
 		  (Current).first_byte   = (Current).last_byte =		\
 		    YYRHSLOC (Rhs, 0).last_byte;				\
 		} \
-		_current_token = yyr1[yyn] ; \
-		_current_rule = yyn ; \
 	} while (YYID (0))
 
+		
+# define YY_LOCATION_PRINT(File, Loc)			\
+ fprintf ( stderr, "%d.%d.%d-%d.%d.%d (%d)",			\
+      (Loc).first_line, (Loc).first_column,	(Loc).first_byte, \
+      (Loc).last_line,  (Loc).last_column, (Loc).last_byte, \
+	  (Loc).id ) \
+
+		
 #define LBRACE	'{'
 #define RBRACE	'}'
 
@@ -221,7 +239,7 @@ static int mbcs_get_next(int c, wchar_t *wc){
 
 /*}}} Prologue */
 %}                                                                                      
-/*{{{ Grammar */
+/*{{{ Grammar */                                                                                
 /*{{{ Tokens */
 %token		END_OF_INPUT ERROR
 %token		STR_CONST NUM_CONST NULL_CONST SYMBOL FUNCTION 
@@ -266,77 +284,74 @@ prog	:	END_OF_INPUT			{ return 0; }
 	|	error	 			{ YYABORT; }
 	;
 
-expr_or_assign  :    expr                       { $$ = $1; }
-                |    equal_assign               { $$ = $1; }
+expr_or_assign  :    expr                       { $$ = $1; /* setId( $$, @$ ) ; */ }
+                |    equal_assign               { $$ = $1; /* setId( $$, @$ ) ; */ }
                 ;
 
-equal_assign    :    expr EQ_ASSIGN expr_or_assign              { $$ = xxbinary($2,$1,$3); }
+equal_assign    :    expr EQ_ASSIGN expr_or_assign  { $$ = xxbinary($2,$1,$3); setId( $$, @$ ) ; }
                 ;
 
-expr	:	sexpr { $$ = $1; setId( $$, @$);  } 
-		;                       
+expr	: 	NUM_CONST		{ $$ = $1;  setId( $$, @$); /* recordChild1_token( $$, @$, @1 ); */ }
+	|	STR_CONST			{ $$ = $1;  setId( $$, @$); /* recordChild1_token( $$, @$, @1 ); */ }
+	|	NULL_CONST			{ $$ = $1;  setId( $$, @$); /* recordChild1_token( $$, @$, @1 ); */ }          
+	|	SYMBOL				{ $$ = $1;  setId( $$, @$); /* recordChild1_token( $$, @$, @1 ); */ }
 
-sexpr	: 	NUM_CONST			{ $$ = $1; }
-	|	STR_CONST			{ $$ = $1;  }
-	|	NULL_CONST			{ $$ = $1;  }          
-	|	SYMBOL				{ $$ = $1;  }
+	|	'{' exprlist '}'		{ $$ = xxexprlist($1,$2);  setId( $$, @$); }
+	|	'(' expr_or_assign ')'	{ $$ = xxparen($1,$2);		setId( $$, @$); }
 
-	|	'{' exprlist '}'		{ $$ = xxexprlist($1,$2);  }
-	|	'(' expr_or_assign ')'			{ $$ = xxparen($1,$2);  }
+	|	'-' expr %prec UMINUS	{ $$ = xxunary($1,$2);     setId( $$, @$); /* recordChilds2( $$, @$, @1, @2) ; */ }
+	|	'+' expr %prec UMINUS	{ $$ = xxunary($1,$2);     setId( $$, @$); /* recordChilds2( $$, @$, @1, @2) ; */ }
+	|	'!' expr %prec UNOT		{ $$ = xxunary($1,$2);     setId( $$, @$); /* recordChilds2( $$, @$, @1, @2) ; */ }
+	|	'~' expr %prec TILDE	{ $$ = xxunary($1,$2);     setId( $$, @$); /* recordChilds2( $$, @$, @1, @2) ; */ }
+	|	'?' expr				{ $$ = xxunary($1,$2);     setId( $$, @$); /* recordChilds2( $$, @$, @1, @2) ; */ }
 
-	|	'-' expr %prec UMINUS		{ $$ = xxunary($1,$2);  }
-	|	'+' expr %prec UMINUS		{ $$ = xxunary($1,$2);  }
-	|	'!' expr %prec UNOT		{ $$ = xxunary($1,$2);  }
-	|	'~' expr %prec TILDE		{ $$ = xxunary($1,$2);  }
-	|	'?' expr			{ $$ = xxunary($1,$2);  }
+	|	expr ':'  expr			{ $$ = xxbinary($2,$1,$3);     setId( $$, @$); }
+	|	expr '+'  expr			{ $$ = xxbinary($2,$1,$3);     setId( $$, @$); }
+	|	expr '-' expr			{ $$ = xxbinary($2,$1,$3);     setId( $$, @$); }
+	|	expr '*' expr			{ $$ = xxbinary($2,$1,$3);     setId( $$, @$); }
+	|	expr '/' expr			{ $$ = xxbinary($2,$1,$3);     setId( $$, @$); }
+	|	expr '^' expr 			{ $$ = xxbinary($2,$1,$3);     setId( $$, @$); }
+	|	expr SPECIAL expr		{ $$ = xxbinary($2,$1,$3);     setId( $$, @$); }
+	|	expr '%' expr			{ $$ = xxbinary($2,$1,$3);     setId( $$, @$); }
+	|	expr '~' expr			{ $$ = xxbinary($2,$1,$3);     setId( $$, @$); }
+	|	expr '?' expr			{ $$ = xxbinary($2,$1,$3);     setId( $$, @$); }
+	|	expr LT expr			{ $$ = xxbinary($2,$1,$3);     setId( $$, @$); }
+	|	expr LE expr			{ $$ = xxbinary($2,$1,$3);     setId( $$, @$); }
+	|	expr EQ expr			{ $$ = xxbinary($2,$1,$3);     setId( $$, @$); }
+	|	expr NE expr			{ $$ = xxbinary($2,$1,$3);     setId( $$, @$); }
+	|	expr GE expr			{ $$ = xxbinary($2,$1,$3);     setId( $$, @$); }
+	|	expr GT expr			{ $$ = xxbinary($2,$1,$3);     setId( $$, @$); }
+	|	expr AND expr			{ $$ = xxbinary($2,$1,$3);     setId( $$, @$); }
+	|	expr OR expr			{ $$ = xxbinary($2,$1,$3);     setId( $$, @$); }
+	|	expr AND2 expr			{ $$ = xxbinary($2,$1,$3);     setId( $$, @$); }
+	|	expr OR2 expr			{ $$ = xxbinary($2,$1,$3);     setId( $$, @$); }
 
-	|	expr ':'  expr			{ $$ = xxbinary($2,$1,$3);  }
-	|	expr '+'  expr			{ $$ = xxbinary($2,$1,$3);  }
-	|	expr '-' expr			{ $$ = xxbinary($2,$1,$3);  }
-	|	expr '*' expr			{ $$ = xxbinary($2,$1,$3);  }
-	|	expr '/' expr			{ $$ = xxbinary($2,$1,$3);  }
-	|	expr '^' expr 			{ $$ = xxbinary($2,$1,$3);  }
-	|	expr SPECIAL expr		{ $$ = xxbinary($2,$1,$3);  }
-	|	expr '%' expr			{ $$ = xxbinary($2,$1,$3);  }
-	|	expr '~' expr			{ $$ = xxbinary($2,$1,$3);  }
-	|	expr '?' expr			{ $$ = xxbinary($2,$1,$3);  }
-	|	expr LT expr			{ $$ = xxbinary($2,$1,$3);  }
-	|	expr LE expr			{ $$ = xxbinary($2,$1,$3);  }
-	|	expr EQ expr			{ $$ = xxbinary($2,$1,$3);  }
-	|	expr NE expr			{ $$ = xxbinary($2,$1,$3);  }
-	|	expr GE expr			{ $$ = xxbinary($2,$1,$3);  }
-	|	expr GT expr			{ $$ = xxbinary($2,$1,$3);  }
-	|	expr AND expr			{ $$ = xxbinary($2,$1,$3);  }
-	|	expr OR expr			{ $$ = xxbinary($2,$1,$3);  }
-	|	expr AND2 expr			{ $$ = xxbinary($2,$1,$3);  }
-	|	expr OR2 expr			{ $$ = xxbinary($2,$1,$3);  }
-
-	|	expr LEFT_ASSIGN expr 		{ $$ = xxbinary($2,$1,$3);  }
-	|	expr RIGHT_ASSIGN expr 		{ $$ = xxbinary($2,$3,$1);  }
+	|	expr LEFT_ASSIGN expr 		{ $$ = xxbinary($2,$1,$3); setId( $$, @$); }
+	|	expr RIGHT_ASSIGN expr 	{ $$ = xxbinary($2,$3,$1); setId( $$, @$); }
 	|	FUNCTION '(' formlist ')' cr expr_or_assign %prec LOW
-						{ $$ = xxdefun($1,$3,$6);  }
-	|	expr '(' sublist ')'		{ $$ = xxfuncall($1,$3);  }
-	|	IF ifcond expr_or_assign 			{ $$ = xxif($1,$2,$3);  }
-	|	IF ifcond expr_or_assign ELSE expr_or_assign	{ $$ = xxifelse($1,$2,$3,$5);  }
-	|	FOR forcond expr_or_assign %prec FOR 	{ $$ = xxfor($1,$2,$3);  }
-	|	WHILE cond expr_or_assign			{ $$ = xxwhile($1,$2,$3);  }
-	|	REPEAT expr_or_assign			{ $$ = xxrepeat($1,$2);  }
-	|	expr LBB sublist ']' ']'	{ $$ = xxsubscript($1,$2,$3);  }
-	|	expr '[' sublist ']'		{ $$ = xxsubscript($1,$2,$3);  }
-	|	SYMBOL NS_GET SYMBOL		{ $$ = xxbinary($2,$1,$3);  }
-	|	SYMBOL NS_GET STR_CONST		{ $$ = xxbinary($2,$1,$3);  }
-	|	STR_CONST NS_GET SYMBOL		{ $$ = xxbinary($2,$1,$3);  }
-	|	STR_CONST NS_GET STR_CONST	{ $$ = xxbinary($2,$1,$3);  }
-	|	SYMBOL NS_GET_INT SYMBOL	{ $$ = xxbinary($2,$1,$3);  }
-	|	SYMBOL NS_GET_INT STR_CONST	{ $$ = xxbinary($2,$1,$3);  }
-	|	STR_CONST NS_GET_INT SYMBOL	{ $$ = xxbinary($2,$1,$3);  }
-	|	STR_CONST NS_GET_INT STR_CONST	{ $$ = xxbinary($2,$1,$3);  }
-	|	expr '$' SYMBOL			{ $$ = xxbinary($2,$1,$3);  }
-	|	expr '$' STR_CONST		{ $$ = xxbinary($2,$1,$3);  }
-	|	expr '@' SYMBOL			{ $$ = xxbinary($2,$1,$3);  }
-	|	expr '@' STR_CONST		{ $$ = xxbinary($2,$1,$3);  }
-	|	NEXT				{ $$ = xxnxtbrk($1);  }
-	|	BREAK				{ $$ = xxnxtbrk($1);  }
+						{ $$ = xxdefun($1,$3,$6);             setId( $$, @$); }
+	|	expr '(' sublist ')'		{ $$ = xxfuncall($1,$3);  setId( $$, @$);}
+	|	IF ifcond expr_or_assign 	{ $$ = xxif($1,$2,$3);    setId( $$, @$); }
+	|	IF ifcond expr_or_assign ELSE expr_or_assign	{ $$ = xxifelse($1,$2,$3,$5); setId( $$, @$); }
+	|	FOR forcond expr_or_assign %prec FOR 	{ $$ = xxfor($1,$2,$3); setId( $$, @$); }
+	|	WHILE cond expr_or_assign			{ $$ = xxwhile($1,$2,$3);   setId( $$, @$); }
+	|	REPEAT expr_or_assign			{ $$ = xxrepeat($1,$2);         setId( $$, @$);}
+	|	expr LBB sublist ']' ']'	{ $$ = xxsubscript($1,$2,$3);       setId( $$, @$); }
+	|	expr '[' sublist ']'		{ $$ = xxsubscript($1,$2,$3);       setId( $$, @$); }
+	|	SYMBOL NS_GET SYMBOL		{ $$ = xxbinary($2,$1,$3);      	 setId( $$, @$); }
+	|	SYMBOL NS_GET STR_CONST		{ $$ = xxbinary($2,$1,$3);      setId( $$, @$); }
+	|	STR_CONST NS_GET SYMBOL		{ $$ = xxbinary($2,$1,$3);      setId( $$, @$); }
+	|	STR_CONST NS_GET STR_CONST	{ $$ = xxbinary($2,$1,$3);          setId( $$, @$); }
+	|	SYMBOL NS_GET_INT SYMBOL	{ $$ = xxbinary($2,$1,$3);          setId( $$, @$); }
+	|	SYMBOL NS_GET_INT STR_CONST	{ $$ = xxbinary($2,$1,$3);      setId( $$, @$); }
+	|	STR_CONST NS_GET_INT SYMBOL	{ $$ = xxbinary($2,$1,$3);      setId( $$, @$); }
+	|	STR_CONST NS_GET_INT STR_CONST	{ $$ = xxbinary($2,$1,$3 );     setId( $$, @$);}
+	|	expr '$' SYMBOL			{ $$ = xxbinary($2,$1,$3);              setId( $$, @$); }
+	|	expr '$' STR_CONST		{ $$ = xxbinary($2,$1,$3);              setId( $$, @$); }
+	|	expr '@' SYMBOL			{ $$ = xxbinary($2,$1,$3);              setId( $$, @$); }
+	|	expr '@' STR_CONST		{ $$ = xxbinary($2,$1,$3);              setId( $$, @$); }
+	|	NEXT				{ $$ = xxnxtbrk($1);                       setId( $$, @$); }
+	|	BREAK				{ $$ = xxnxtbrk($1);                       setId( $$, @$); }
 	;
 
 
@@ -401,7 +416,8 @@ cr	:					{ EatLines = 1; }
 /*{{{ Get the next or the previous character from the stream */
 
 /** 
- * Gets the next character
+ * Gets the next character and update the trackers xxlineno, 
+ * xxcolno, xxbyteno, ...
  * 
  * @return the next character
  */
@@ -1345,26 +1361,38 @@ static int SkipComment(void){
 	int _first_column = yylloc.first_column ;
 	int _first_byte   = yylloc.first_byte   ;
 	
-	int _last_line ;
-	int _last_column  ;
-	int _last_byte ;
+	// we want to track down the character
+	// __before__ the new line character
+	int _last_line    = xxlineno ;
+	int _last_column  = xxcolno ;
+	int _last_byte    = xxbyteno ;
 	int type = COMMENT ;
-	int i=0;
-	while ((c = xxgetc()) != '\n' && c != R_EOF){
-		if( i==0 && c == '\'' ){
-			type = ROXYGEN_COMMENT ;
-		}
+	
+	// get first character of the comment so that we can check if this 
+	// is a Roxygen comment
+	c = xxgetc() ;
+	if( c != '\n' && c != R_EOF ){
 		_last_line = xxlineno ;
 		_last_column = xxcolno ;
 		_last_byte = xxbyteno ;
-		i++;
+		if( c == '\'' ){
+			type = ROXYGEN_COMMENT ;
+		}
+		while ((c = xxgetc()) != '\n' && c != R_EOF){
+			_last_line = xxlineno ;
+			_last_column = xxcolno ;
+			_last_byte = xxbyteno ;
+		}
 	}
-    if (c == R_EOF) {
+	
+	
+	if (c == R_EOF) {
 		EndOfFile = 2;
 	}
-	record( _first_line,  _first_column, _first_byte, 
+	incrementId( ) ;
+	record_( _first_line,  _first_column, _first_byte, 
 			_last_line, _last_column, _last_byte, 
-			type ) ;
+			type, identifier ) ;
 	return c ;
 }
 
@@ -1553,9 +1581,6 @@ static int SkipSpace(void) {
 /**
  * Wrapper around SkipSpace
  */
-static int _token_first_line  ;
-static int _token_first_col  ;
-static int _token_first_byte ;
 
 static int SkipSpace_(void){
 	int c ;
@@ -1565,16 +1590,16 @@ static int SkipSpace_(void){
 	c = SkipSpace();
 	
 	// if we moved only one character, it means it was not a space
-	if( _space_first_line == _space_last_line & _space_first_byte == _space_last_byte ){
+	if( _space_first_line == _space_last_line && _space_first_byte == _space_last_byte ){
 		// no change needed
 	} else {
-		// record( 
+		
+		/* so that the SPACES consumes an identifier */
+		incrementId( ) ;
+		// record_( 
 		// 	_space_first_line, _space_first_col, _space_first_byte, 
 		// 	_space_last_line, _space_last_col, _space_last_byte,  
-		// 	SPACES ) ;
-		_token_first_line = _space_last_line ;
-		_token_first_col  = _space_last_col ;
-		_token_first_byte = _space_last_byte ;
+		// 	SPACES, identifier ) ;
 		
 		setfirstloc( _space_last_line, _space_last_col, _space_last_byte );
 	}
@@ -2632,10 +2657,7 @@ static int token(void) {
 
 static int token_(void){
 	// capture the position before retrieving the token
-	
-	_token_first_line = xxlineno ;
-	_token_first_col = xxcolno ;
-	_token_first_byte = xxbyteno ;
+	setfirstloc( xxlineno, xxcolno, xxbyteno ) ;
 	
 	// get the token
 	int res = token( ) ;
@@ -2645,11 +2667,16 @@ static int token_(void){
 	int _last_col  = xxcolno ;
 	int _last_byte = xxbyteno ;
 	
+	_current_token = res ;
+	incrementId( ) ;
+	yylloc.id = identifier ;
+	
 	// record the position
 	if( res != '\n' ){
-		record( _token_first_line, _token_first_col, _token_first_byte, 
+		record_( yylloc.first_line, yylloc.first_column, yylloc.first_byte, 
 				_last_line, _last_col, _last_byte, 
-				res ) ;
+				res, identifier ) ;
+		
 	}
 	
 	return res; 
@@ -2947,6 +2974,8 @@ static void ParseContextInit(void) {
 	/* starts the identifier counter*/
 	initId();
 	PROTECT_WITH_INDEX( locations = NewList(), &LOC_INDEX ) ;
+	PROTECT_WITH_INDEX( parents = NewList(), &PARENTS_INDEX ) ;
+
 }
 /*}}}*/
            
@@ -3041,8 +3070,10 @@ finish:
     for (n = 0 ; n < LENGTH(rval) ; n++, t = CDR(t)){
 		SET_VECTOR_ELT(rval, n, CAR(t));
 	}
-    setAttrib( rval, mkString( "data" ), CDR(locations) ) ;
-	UNPROTECT(2) ; // t and locations
+	setAttrib( rval, mkString( "data" ), makeMatrix( ) ) ;
+    // setAttrib( rval, mkString( "data" ), CDR(locations) ) ;
+	setAttrib( rval, mkString( "parents" ), CDR(parents) ) ;
+	UNPROTECT(3) ; // t, locations, parents
 	
     R_PPStackTop = savestack;
     *status = PARSE_OK;
@@ -3075,21 +3106,21 @@ static void incrementId(void){
 static void initId(void){
 	identifier = 0 ;
 }
-             
-static void record( int first_line, int first_column, int first_byte, 
+
+/*}}}*/
+
+static void record_( int first_line, int first_column, int first_byte,                                    
 	int last_line, int last_column, int last_byte, 
-	int token ){
+	int token, int id ){
        
 	// don't care about zero sized things
 	if( first_line == last_line && first_byte == last_byte ) return ;
 	
-	incrementId() ;
-	//Rprintf("%d,%d,%d,%d,%d,%d,%d,%d,%d\n", 
-	//		first_line, first_column, first_byte, 
-	//		last_line, last_column, last_byte, 
-	//		token, rule, identifier ) ;
+	// Rprintf("%d,%d,%d,%d,%d,%d,%d,%d,%d\n", 
+	// 		first_line, first_column, first_byte, 
+	// 		last_line, last_column, last_byte, 
+	// 		token, id, parent ) ;
 	SEXP new_ ;
-	
 	PROTECT(new_ = allocVector(INTSXP, 8));
     INTEGER(new_)[0] = first_line ;
     INTEGER(new_)[1] = first_column;
@@ -3098,11 +3129,73 @@ static void record( int first_line, int first_column, int first_byte,
 	INTEGER(new_)[4] = last_column;
 	INTEGER(new_)[5] = last_byte;
 	INTEGER(new_)[6] = token;
-	INTEGER(new_)[7] = identifier ;
+	INTEGER(new_)[7] = id ;
 	REPROTECT( locations = GrowList(locations, new_) , LOC_INDEX );
 	UNPROTECT( 1 ) ; // new_
 	
 }
-/*}}}*/
 
 
+static void recordParents( int parent, yyltype * childs, int nchilds){
+	SEXP new_ ;
+	
+	/* some of the childs might be the fake token cr 
+	   which we do not want to track */
+	int ii = 0; 
+	int cr = -1 ;
+	yyltype loc ;
+	int size = nchilds + 1 ;
+	for( ii=0; ii<nchilds; ii++){
+		loc = childs[ii] ;
+		if( loc.first_line == loc.last_line && loc.first_byte == loc.last_byte ){
+			cr = ii;
+			size-- ;
+			break ;
+		}
+	}
+	
+	PROTECT( new_ = allocVector( INTSXP, size ) ) ;
+	INTEGER(new_)[0] = parent ;
+	
+	int jj; 
+    for( ii=0, jj=0; ii<nchilds; ii++){
+		if( ii != cr) {
+			jj++ ;
+			INTEGER(new_)[jj] = (childs[ii]).id ;
+		}
+    }
+	REPROTECT( parents = GrowList(parents, new_) , PARENTS_INDEX );
+	UNPROTECT( 1 ) ; // new_
+}
+
+
+static int getParent( int ) ;
+static SEXP makeMatrix( ){
+	
+	SEXP mat ;
+	int nr = length( CDR( locations ) ) ;
+	PROTECT( mat = allocVector( INTSXP, nr * 9) ) ;
+	int ii;
+	int jj;
+	for( ii=0; ii<nr; ii++){
+		locations = CDR( locations ) ;
+		for( jj=0; jj<8; jj++){
+			INTEGER( mat )[ii + nr * jj] = INTEGER(CAR(locations))[jj] ;
+		}
+		jj = 8 ;
+		INTEGER( mat )[ii + nr * jj] = getParent( INTEGER(CAR(locations))[7] ) ;
+	}
+	
+	SEXP dims ;
+	PROTECT( dims = allocVector( INTSXP, 2 ) ) ;
+	INTEGER(dims)[0] = nr ;
+	INTEGER(dims)[1] = 9 ;
+	setAttrib( mat, mkString( "dim" ), dims ) ;
+	UNPROTECT(2) ; // mat, dims
+	
+	return( mat ) ;
+	
+}
+static int getParent( int id ){
+	return 0 ;
+}
