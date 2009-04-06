@@ -3,4 +3,4 @@ useDynLib( highlight )
 import( codetools )
 
 export( highlight )
-
+export( parser )

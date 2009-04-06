@@ -29,10 +29,7 @@ static SEXP makeMatrix( ) ;
 static SEXP locations ;
 static SEXP parents ;
 static void recordParents( int, yyltype*, int) ;
-/* called when the SEXP parent is made of the token */
-/* static void recordChild1_token( SEXP, yyltype, yyltype ) ; */
-/* called when the SEXP parent is made of a unary operator and a child SEXP */
-/* static void recordChilds2( SEXP, yyltype, yyltype, yyltype) ; */
+static SEXP mat ;
 
 /* This is used as the buffer for NumericValue, SpecialValue and
    SymbolValue.  None of these could conceivably need 8192 bytes.
@@ -54,7 +51,8 @@ static int _current_token ;
 static void setId( SEXP expr, yyltype loc){
 	                                                                                                     
 	if( expr != R_NilValue ){
-		record_( (loc).first_line, (loc).first_column, (loc).first_byte, 
+		record_( 
+			(loc).first_line, (loc).first_column, (loc).first_byte, 
 			(loc).last_line, (loc).last_column, (loc).last_byte, 
 			_current_token, (loc).id ) ;
 	
@@ -3035,7 +3033,6 @@ static SEXP R_Parse(int n, ParseStatus *status, SEXP srcfile){
     savestack = R_PPStackTop;
     PROTECT(t = NewList());
 	
-
     xxlineno = 1;
     xxcolno = 0;
     xxbyteno = 0;
@@ -3070,10 +3067,11 @@ finish:
     for (n = 0 ; n < LENGTH(rval) ; n++, t = CDR(t)){
 		SET_VECTOR_ELT(rval, n, CAR(t));
 	}
-	setAttrib( rval, mkString( "data" ), makeMatrix( ) ) ;
-    // setAttrib( rval, mkString( "data" ), CDR(locations) ) ;
-	setAttrib( rval, mkString( "parents" ), CDR(parents) ) ;
-	UNPROTECT(3) ; // t, locations, parents
+	PROTECT( mat = makeMatrix( ) ); 
+	setAttrib( rval, mkString( "data" ), mat ) ;
+	// setAttrib( rval, mkString( "data" ), CDR(locations) ) ;
+	// setAttrib( rval, mkString( "parents" ), CDR(parents) ) ;
+	UNPROTECT(4) ; // t, locations, parents, mat, parentsVector, idVector
 	
     R_PPStackTop = savestack;
     *status = PARSE_OK;
@@ -3168,34 +3166,93 @@ static void recordParents( int parent, yyltype * childs, int nchilds){
 	UNPROTECT( 1 ) ; // new_
 }
 
+static int nloc ;
+#define _FIRST_LINE( i )   INTEGER( mat )[ i            ]
+#define _FIRST_COLUMN( i ) INTEGER( mat )[ i +     nloc ]
+#define _FIRST_BYTE( i )   INTEGER( mat )[ i + 2 * nloc ]
+#define _LAST_LINE( i )    INTEGER( mat )[ i + 3 * nloc ]
+#define _LAST_COLUMN( i )  INTEGER( mat )[ i + 4 * nloc ]
+#define _LAST_BYTE( i )    INTEGER( mat )[ i + 5 * nloc ]
+#define _TOKEN( i )        INTEGER( mat )[ i + 6 * nloc ]
+#define _ID( i )           INTEGER( mat )[ i + 7 * nloc ]
+#define _PARENT(i)         INTEGER( mat )[ i + 8 * nloc ]
 
-static int getParent( int ) ;
+#define ACTUAL_PARENT( i ) INTEGER( parentsVector )[ i ]
+#define ACTUAL_ID( i ) INTEGER( idVector )[ i ]
+
 static SEXP makeMatrix( ){
 	
-	SEXP mat ;
-	int nr = length( CDR( locations ) ) ;
-	PROTECT( mat = allocVector( INTSXP, nr * 9) ) ;
+	nloc = length( CDR( locations ) ) ;
+	mat = allocVector( INTSXP, nloc * 9) ;
 	int ii;
 	int jj;
-	for( ii=0; ii<nr; ii++){
+	for( ii=0; ii<nloc; ii++){
 		locations = CDR( locations ) ;
 		for( jj=0; jj<8; jj++){
-			INTEGER( mat )[ii + nr * jj] = INTEGER(CAR(locations))[jj] ;
+			INTEGER( mat )[ii + nloc * jj] = INTEGER(CAR(locations))[jj] ;
 		}
-		jj = 8 ;
-		INTEGER( mat )[ii + nr * jj] = getParent( INTEGER(CAR(locations))[7] ) ;
+		INTEGER( mat )[ii + nloc * 8] = 0 ;
 	}
 	
 	SEXP dims ;
 	PROTECT( dims = allocVector( INTSXP, 2 ) ) ;
-	INTEGER(dims)[0] = nr ;
+	INTEGER(dims)[0] = nloc ;
 	INTEGER(dims)[1] = 9 ;
 	setAttrib( mat, mkString( "dim" ), dims ) ;
-	UNPROTECT(2) ; // mat, dims
+	UNPROTECT(1) ; // dims
 	
-	return( mat ) ;
 	
+	int maxId = _ID(nloc-1) ;
+	int parentsVector[ maxId + 1] ;
+	int idsVector[ maxId + 1] ;
+	
+	int np = length(CDR(parents)) ;
+	int i, j, n, id ;
+	int parent ; 
+	for( i=0; i<= maxId; i++){
+		parentsVector[ i ] = 0 ;
+		idsVector[i] = 0 ;
+	}
+	for( i=0; i<np; i++){
+		parents = CDR( parents ) ;
+		parent = INTEGER(CAR(parents))[0] ;
+		if( parent > maxId ){
+			break ;
+		}
+		n = length(CAR(parents)) ;
+		for(j=1; j<n; j++){
+			id = INTEGER(CAR(parents))[j] ;
+			parentsVector[ id ] = parent ;
+		}
+	}
+	for( i=0; i< nloc; i++){
+		idsVector[ _ID(i) ] = 1;
+	}
+
+
+	int idp ; 
+	
+	for( i=0; i<nloc; i++){
+		id = _ID(i);
+		parent = parentsVector[id] ;
+		if( parent == 0 ){
+			_PARENT(i)=0;
+			continue;
+		}
+		while( 1 ){
+			idp = idsVector[ parent ] ;
+			if( idp == 1 ) break ;
+			if( parent == 0 ){
+				break ;
+			}
+			parent = parentsVector[parent];
+		}
+		_PARENT(i) = parent ;
+	}
+
+	return mat ;
 }
-static int getParent( int id ){
-	return 0 ;
-}
+
+
+
+
