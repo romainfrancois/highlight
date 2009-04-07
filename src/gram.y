@@ -3247,7 +3247,7 @@ static SEXP makeMatrix( ){
 				if( comment_line == this_first_line & comment_first_byte < this_first_byte ) continue ;
 				
 				/* the current symbol must finish after the comment */
-				if( this_last_line <= comment_line ) continue ; /* the current symbol finishes before the comment starts */
+				if( this_last_line <= comment_line ) continue ; 
 				
 				/* we have a match, record the parent and stop looking */
 				parentsVector[ _ID(i) ] = _ID(j) ;
@@ -3255,7 +3255,7 @@ static SEXP makeMatrix( ){
 				break ;
 			}
 			if(orphan){
-				parentsVector[ _ID(i) ] = -1 ;
+				parentsVector[ _ID(i) ] = 0 ;
 			}
 		}
 	}
@@ -3267,7 +3267,7 @@ static SEXP makeMatrix( ){
 	for( i=0; i<nloc; i++){
 		id = _ID(i);
 		parent = parentsVector[id] ;
-		if( parent == 0 || parent == -1){
+		if( parent == 0 ){
 			_PARENT(i)=parent;
 			continue;
 		}
@@ -3280,6 +3280,24 @@ static SEXP makeMatrix( ){
 			parent = parentsVector[parent];
 		}
 		_PARENT(i) = parent ;
+	}
+	
+	/* now rework the parents of comments, we try to attach 
+	comments that are not already attached (parent=0) to the next
+	enclosing top-level expression */ 
+	
+	int token, token_j ;
+	for( i=0; i<nloc; i++){
+		token = _TOKEN(i); 
+		if( ( token == COMMENT || token == ROXYGEN_COMMENT ) && _PARENT(i) == 0 ){
+			for( j=i; j<nloc; j++){
+				token_j = _TOKEN(j); 
+				if( token_j == COMMENT || token_j == ROXYGEN_COMMENT ) continue ;
+				if( _PARENT(j) != 0 ) continue ;
+				_PARENT(i) = - _ID(j) ;
+				break ;
+			}
+		}
 	}
 	
 	UNPROTECT(1) ;
