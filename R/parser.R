@@ -1,6 +1,4 @@
 parser <- function( file, encoding = "unknown", text ){
-	# tf <- tempfile( ); on.exit( unlink( tf ) )
-	# sink( tf )
 	if( !missing( text ) ){
 		tf <- tempfile( ); on.exit( unlink( tf ) )
 		cat( text , file = tf, sep = "\n" )

@@ -188,7 +188,6 @@ static SEXP makeMatrix( ) ;
 static SEXP locations ;
 static SEXP parents ;
 static void recordParents( int, yyltype*, int) ;
-static SEXP mat ;
 
 /* This is used as the buffer for NumericValue, SpecialValue and
    SymbolValue.  None of these could conceivably need 8192 bytes.
@@ -440,7 +439,7 @@ typedef struct YYLTYPE
 
 
 /* Line 216 of yacc.c.  */
-#line 444 "highlight/src/gram.c"
+#line 443 "highlight/src/gram.c"
 
 #ifdef short
 # undef short
@@ -767,16 +766,16 @@ static const yytype_int8 yyrhs[] =
 /* YYRLINE[YYN] -- source line where rule number YYN was defined.  */
 static const yytype_uint16 yyrline[] =
 {
-       0,   278,   278,   279,   280,   281,   282,   285,   286,   289,
-     292,   293,   294,   295,   297,   298,   300,   301,   302,   303,
-     304,   306,   307,   308,   309,   310,   311,   312,   313,   314,
-     315,   316,   317,   318,   319,   320,   321,   322,   323,   324,
-     325,   327,   328,   329,   331,   332,   333,   334,   335,   336,
-     337,   338,   339,   340,   341,   342,   343,   344,   345,   346,
-     347,   348,   349,   350,   351,   352,   356,   359,   362,   366,
-     367,   368,   369,   370,   371,   374,   375,   378,   379,   380,
-     381,   382,   383,   384,   385,   388,   389,   390,   391,   392,
-     395
+       0,   277,   277,   278,   279,   280,   281,   284,   285,   288,
+     291,   292,   293,   294,   296,   297,   299,   300,   301,   302,
+     303,   305,   306,   307,   308,   309,   310,   311,   312,   313,
+     314,   315,   316,   317,   318,   319,   320,   321,   322,   323,
+     324,   326,   327,   328,   330,   331,   332,   333,   334,   335,
+     336,   337,   338,   339,   340,   341,   342,   343,   344,   345,
+     346,   347,   348,   349,   350,   351,   355,   358,   361,   365,
+     366,   367,   368,   369,   370,   373,   374,   377,   378,   379,
+     380,   381,   382,   383,   384,   387,   388,   389,   390,   391,
+     394
 };
 #endif
 
@@ -1928,453 +1927,453 @@ yyreduce:
   switch (yyn)
     {
         case 2:
-#line 278 "highlight/src/gram.y"
+#line 277 "highlight/src/gram.y"
     { return 0; ;}
     break;
 
   case 3:
-#line 279 "highlight/src/gram.y"
+#line 278 "highlight/src/gram.y"
     { return xxvalue(NULL,2); ;}
     break;
 
   case 4:
-#line 280 "highlight/src/gram.y"
+#line 279 "highlight/src/gram.y"
     { return xxvalue((yyvsp[(1) - (2)]),3); ;}
     break;
 
   case 5:
-#line 281 "highlight/src/gram.y"
+#line 280 "highlight/src/gram.y"
     { return xxvalue((yyvsp[(1) - (2)]),4); ;}
     break;
 
   case 6:
-#line 282 "highlight/src/gram.y"
+#line 281 "highlight/src/gram.y"
     { YYABORT; ;}
     break;
 
   case 7:
-#line 285 "highlight/src/gram.y"
-    { (yyval) = (yyvsp[(1) - (1)]); /* setId( $$, @$ ) ; */ ;}
+#line 284 "highlight/src/gram.y"
+    { (yyval) = (yyvsp[(1) - (1)]); ;}
     break;
 
   case 8:
-#line 286 "highlight/src/gram.y"
-    { (yyval) = (yyvsp[(1) - (1)]); /* setId( $$, @$ ) ; */ ;}
+#line 285 "highlight/src/gram.y"
+    { (yyval) = (yyvsp[(1) - (1)]); ;}
     break;
 
   case 9:
-#line 289 "highlight/src/gram.y"
+#line 288 "highlight/src/gram.y"
     { (yyval) = xxbinary((yyvsp[(2) - (3)]),(yyvsp[(1) - (3)]),(yyvsp[(3) - (3)])); setId( (yyval), (yyloc) ) ; ;}
     break;
 
   case 10:
-#line 292 "highlight/src/gram.y"
-    { (yyval) = (yyvsp[(1) - (1)]);  setId( (yyval), (yyloc)); /* recordChild1_token( $$, @$, @1 ); */ ;}
+#line 291 "highlight/src/gram.y"
+    { (yyval) = (yyvsp[(1) - (1)]);  setId( (yyval), (yyloc)); ;}
     break;
 
   case 11:
-#line 293 "highlight/src/gram.y"
-    { (yyval) = (yyvsp[(1) - (1)]);  setId( (yyval), (yyloc)); /* recordChild1_token( $$, @$, @1 ); */ ;}
+#line 292 "highlight/src/gram.y"
+    { (yyval) = (yyvsp[(1) - (1)]);  setId( (yyval), (yyloc)); ;}
     break;
 
   case 12:
-#line 294 "highlight/src/gram.y"
-    { (yyval) = (yyvsp[(1) - (1)]);  setId( (yyval), (yyloc)); /* recordChild1_token( $$, @$, @1 ); */ ;}
+#line 293 "highlight/src/gram.y"
+    { (yyval) = (yyvsp[(1) - (1)]);  setId( (yyval), (yyloc)); ;}
     break;
 
   case 13:
-#line 295 "highlight/src/gram.y"
-    { (yyval) = (yyvsp[(1) - (1)]);  setId( (yyval), (yyloc)); /* recordChild1_token( $$, @$, @1 ); */ ;}
+#line 294 "highlight/src/gram.y"
+    { (yyval) = (yyvsp[(1) - (1)]);  setId( (yyval), (yyloc)); ;}
     break;
 
   case 14:
-#line 297 "highlight/src/gram.y"
+#line 296 "highlight/src/gram.y"
     { (yyval) = xxexprlist((yyvsp[(1) - (3)]),(yyvsp[(2) - (3)]));  setId( (yyval), (yyloc)); ;}
     break;
 
   case 15:
-#line 298 "highlight/src/gram.y"
+#line 297 "highlight/src/gram.y"
     { (yyval) = xxparen((yyvsp[(1) - (3)]),(yyvsp[(2) - (3)]));		setId( (yyval), (yyloc)); ;}
     break;
 
   case 16:
-#line 300 "highlight/src/gram.y"
-    { (yyval) = xxunary((yyvsp[(1) - (2)]),(yyvsp[(2) - (2)]));     setId( (yyval), (yyloc)); /* recordChilds2( $$, @$, @1, @2) ; */ ;}
+#line 299 "highlight/src/gram.y"
+    { (yyval) = xxunary((yyvsp[(1) - (2)]),(yyvsp[(2) - (2)]));     setId( (yyval), (yyloc)); ;}
     break;
 
   case 17:
-#line 301 "highlight/src/gram.y"
-    { (yyval) = xxunary((yyvsp[(1) - (2)]),(yyvsp[(2) - (2)]));     setId( (yyval), (yyloc)); /* recordChilds2( $$, @$, @1, @2) ; */ ;}
+#line 300 "highlight/src/gram.y"
+    { (yyval) = xxunary((yyvsp[(1) - (2)]),(yyvsp[(2) - (2)]));     setId( (yyval), (yyloc)); ;}
     break;
 
   case 18:
-#line 302 "highlight/src/gram.y"
-    { (yyval) = xxunary((yyvsp[(1) - (2)]),(yyvsp[(2) - (2)]));     setId( (yyval), (yyloc)); /* recordChilds2( $$, @$, @1, @2) ; */ ;}
+#line 301 "highlight/src/gram.y"
+    { (yyval) = xxunary((yyvsp[(1) - (2)]),(yyvsp[(2) - (2)]));     setId( (yyval), (yyloc)); ;}
     break;
 
   case 19:
-#line 303 "highlight/src/gram.y"
-    { (yyval) = xxunary((yyvsp[(1) - (2)]),(yyvsp[(2) - (2)]));     setId( (yyval), (yyloc)); /* recordChilds2( $$, @$, @1, @2) ; */ ;}
+#line 302 "highlight/src/gram.y"
+    { (yyval) = xxunary((yyvsp[(1) - (2)]),(yyvsp[(2) - (2)]));     setId( (yyval), (yyloc)); ;}
     break;
 
   case 20:
-#line 304 "highlight/src/gram.y"
-    { (yyval) = xxunary((yyvsp[(1) - (2)]),(yyvsp[(2) - (2)]));     setId( (yyval), (yyloc)); /* recordChilds2( $$, @$, @1, @2) ; */ ;}
+#line 303 "highlight/src/gram.y"
+    { (yyval) = xxunary((yyvsp[(1) - (2)]),(yyvsp[(2) - (2)]));     setId( (yyval), (yyloc)); ;}
     break;
 
   case 21:
-#line 306 "highlight/src/gram.y"
+#line 305 "highlight/src/gram.y"
     { (yyval) = xxbinary((yyvsp[(2) - (3)]),(yyvsp[(1) - (3)]),(yyvsp[(3) - (3)]));     setId( (yyval), (yyloc)); ;}
     break;
 
   case 22:
-#line 307 "highlight/src/gram.y"
+#line 306 "highlight/src/gram.y"
     { (yyval) = xxbinary((yyvsp[(2) - (3)]),(yyvsp[(1) - (3)]),(yyvsp[(3) - (3)]));     setId( (yyval), (yyloc)); ;}
     break;
 
   case 23:
-#line 308 "highlight/src/gram.y"
+#line 307 "highlight/src/gram.y"
     { (yyval) = xxbinary((yyvsp[(2) - (3)]),(yyvsp[(1) - (3)]),(yyvsp[(3) - (3)]));     setId( (yyval), (yyloc)); ;}
     break;
 
   case 24:
-#line 309 "highlight/src/gram.y"
+#line 308 "highlight/src/gram.y"
     { (yyval) = xxbinary((yyvsp[(2) - (3)]),(yyvsp[(1) - (3)]),(yyvsp[(3) - (3)]));     setId( (yyval), (yyloc)); ;}
     break;
 
   case 25:
-#line 310 "highlight/src/gram.y"
+#line 309 "highlight/src/gram.y"
     { (yyval) = xxbinary((yyvsp[(2) - (3)]),(yyvsp[(1) - (3)]),(yyvsp[(3) - (3)]));     setId( (yyval), (yyloc)); ;}
     break;
 
   case 26:
-#line 311 "highlight/src/gram.y"
+#line 310 "highlight/src/gram.y"
     { (yyval) = xxbinary((yyvsp[(2) - (3)]),(yyvsp[(1) - (3)]),(yyvsp[(3) - (3)]));     setId( (yyval), (yyloc)); ;}
     break;
 
   case 27:
-#line 312 "highlight/src/gram.y"
+#line 311 "highlight/src/gram.y"
     { (yyval) = xxbinary((yyvsp[(2) - (3)]),(yyvsp[(1) - (3)]),(yyvsp[(3) - (3)]));     setId( (yyval), (yyloc)); ;}
     break;
 
   case 28:
-#line 313 "highlight/src/gram.y"
+#line 312 "highlight/src/gram.y"
     { (yyval) = xxbinary((yyvsp[(2) - (3)]),(yyvsp[(1) - (3)]),(yyvsp[(3) - (3)]));     setId( (yyval), (yyloc)); ;}
     break;
 
   case 29:
-#line 314 "highlight/src/gram.y"
+#line 313 "highlight/src/gram.y"
     { (yyval) = xxbinary((yyvsp[(2) - (3)]),(yyvsp[(1) - (3)]),(yyvsp[(3) - (3)]));     setId( (yyval), (yyloc)); ;}
     break;
 
   case 30:
-#line 315 "highlight/src/gram.y"
+#line 314 "highlight/src/gram.y"
     { (yyval) = xxbinary((yyvsp[(2) - (3)]),(yyvsp[(1) - (3)]),(yyvsp[(3) - (3)]));     setId( (yyval), (yyloc)); ;}
     break;
 
   case 31:
-#line 316 "highlight/src/gram.y"
+#line 315 "highlight/src/gram.y"
     { (yyval) = xxbinary((yyvsp[(2) - (3)]),(yyvsp[(1) - (3)]),(yyvsp[(3) - (3)]));     setId( (yyval), (yyloc)); ;}
     break;
 
   case 32:
-#line 317 "highlight/src/gram.y"
+#line 316 "highlight/src/gram.y"
     { (yyval) = xxbinary((yyvsp[(2) - (3)]),(yyvsp[(1) - (3)]),(yyvsp[(3) - (3)]));     setId( (yyval), (yyloc)); ;}
     break;
 
   case 33:
-#line 318 "highlight/src/gram.y"
+#line 317 "highlight/src/gram.y"
     { (yyval) = xxbinary((yyvsp[(2) - (3)]),(yyvsp[(1) - (3)]),(yyvsp[(3) - (3)]));     setId( (yyval), (yyloc)); ;}
     break;
 
   case 34:
-#line 319 "highlight/src/gram.y"
+#line 318 "highlight/src/gram.y"
     { (yyval) = xxbinary((yyvsp[(2) - (3)]),(yyvsp[(1) - (3)]),(yyvsp[(3) - (3)]));     setId( (yyval), (yyloc)); ;}
     break;
 
   case 35:
-#line 320 "highlight/src/gram.y"
+#line 319 "highlight/src/gram.y"
     { (yyval) = xxbinary((yyvsp[(2) - (3)]),(yyvsp[(1) - (3)]),(yyvsp[(3) - (3)]));     setId( (yyval), (yyloc)); ;}
     break;
 
   case 36:
-#line 321 "highlight/src/gram.y"
+#line 320 "highlight/src/gram.y"
     { (yyval) = xxbinary((yyvsp[(2) - (3)]),(yyvsp[(1) - (3)]),(yyvsp[(3) - (3)]));     setId( (yyval), (yyloc)); ;}
     break;
 
   case 37:
-#line 322 "highlight/src/gram.y"
+#line 321 "highlight/src/gram.y"
     { (yyval) = xxbinary((yyvsp[(2) - (3)]),(yyvsp[(1) - (3)]),(yyvsp[(3) - (3)]));     setId( (yyval), (yyloc)); ;}
     break;
 
   case 38:
-#line 323 "highlight/src/gram.y"
+#line 322 "highlight/src/gram.y"
     { (yyval) = xxbinary((yyvsp[(2) - (3)]),(yyvsp[(1) - (3)]),(yyvsp[(3) - (3)]));     setId( (yyval), (yyloc)); ;}
     break;
 
   case 39:
-#line 324 "highlight/src/gram.y"
+#line 323 "highlight/src/gram.y"
     { (yyval) = xxbinary((yyvsp[(2) - (3)]),(yyvsp[(1) - (3)]),(yyvsp[(3) - (3)]));     setId( (yyval), (yyloc)); ;}
     break;
 
   case 40:
-#line 325 "highlight/src/gram.y"
+#line 324 "highlight/src/gram.y"
     { (yyval) = xxbinary((yyvsp[(2) - (3)]),(yyvsp[(1) - (3)]),(yyvsp[(3) - (3)]));     setId( (yyval), (yyloc)); ;}
     break;
 
   case 41:
-#line 327 "highlight/src/gram.y"
+#line 326 "highlight/src/gram.y"
     { (yyval) = xxbinary((yyvsp[(2) - (3)]),(yyvsp[(1) - (3)]),(yyvsp[(3) - (3)])); setId( (yyval), (yyloc)); ;}
     break;
 
   case 42:
-#line 328 "highlight/src/gram.y"
+#line 327 "highlight/src/gram.y"
     { (yyval) = xxbinary((yyvsp[(2) - (3)]),(yyvsp[(3) - (3)]),(yyvsp[(1) - (3)])); setId( (yyval), (yyloc)); ;}
     break;
 
   case 43:
-#line 330 "highlight/src/gram.y"
+#line 329 "highlight/src/gram.y"
     { (yyval) = xxdefun((yyvsp[(1) - (6)]),(yyvsp[(3) - (6)]),(yyvsp[(6) - (6)]));             setId( (yyval), (yyloc)); ;}
     break;
 
   case 44:
-#line 331 "highlight/src/gram.y"
+#line 330 "highlight/src/gram.y"
     { (yyval) = xxfuncall((yyvsp[(1) - (4)]),(yyvsp[(3) - (4)]));  setId( (yyval), (yyloc));;}
     break;
 
   case 45:
-#line 332 "highlight/src/gram.y"
+#line 331 "highlight/src/gram.y"
     { (yyval) = xxif((yyvsp[(1) - (3)]),(yyvsp[(2) - (3)]),(yyvsp[(3) - (3)]));    setId( (yyval), (yyloc)); ;}
     break;
 
   case 46:
-#line 333 "highlight/src/gram.y"
+#line 332 "highlight/src/gram.y"
     { (yyval) = xxifelse((yyvsp[(1) - (5)]),(yyvsp[(2) - (5)]),(yyvsp[(3) - (5)]),(yyvsp[(5) - (5)])); setId( (yyval), (yyloc)); ;}
     break;
 
   case 47:
-#line 334 "highlight/src/gram.y"
+#line 333 "highlight/src/gram.y"
     { (yyval) = xxfor((yyvsp[(1) - (3)]),(yyvsp[(2) - (3)]),(yyvsp[(3) - (3)])); setId( (yyval), (yyloc)); ;}
     break;
 
   case 48:
-#line 335 "highlight/src/gram.y"
+#line 334 "highlight/src/gram.y"
     { (yyval) = xxwhile((yyvsp[(1) - (3)]),(yyvsp[(2) - (3)]),(yyvsp[(3) - (3)]));   setId( (yyval), (yyloc)); ;}
     break;
 
   case 49:
-#line 336 "highlight/src/gram.y"
+#line 335 "highlight/src/gram.y"
     { (yyval) = xxrepeat((yyvsp[(1) - (2)]),(yyvsp[(2) - (2)]));         setId( (yyval), (yyloc));;}
     break;
 
   case 50:
-#line 337 "highlight/src/gram.y"
+#line 336 "highlight/src/gram.y"
     { (yyval) = xxsubscript((yyvsp[(1) - (5)]),(yyvsp[(2) - (5)]),(yyvsp[(3) - (5)]));       setId( (yyval), (yyloc)); ;}
     break;
 
   case 51:
-#line 338 "highlight/src/gram.y"
+#line 337 "highlight/src/gram.y"
     { (yyval) = xxsubscript((yyvsp[(1) - (4)]),(yyvsp[(2) - (4)]),(yyvsp[(3) - (4)]));       setId( (yyval), (yyloc)); ;}
     break;
 
   case 52:
-#line 339 "highlight/src/gram.y"
+#line 338 "highlight/src/gram.y"
     { (yyval) = xxbinary((yyvsp[(2) - (3)]),(yyvsp[(1) - (3)]),(yyvsp[(3) - (3)]));      	 setId( (yyval), (yyloc)); ;}
     break;
 
   case 53:
-#line 340 "highlight/src/gram.y"
+#line 339 "highlight/src/gram.y"
     { (yyval) = xxbinary((yyvsp[(2) - (3)]),(yyvsp[(1) - (3)]),(yyvsp[(3) - (3)]));      setId( (yyval), (yyloc)); ;}
     break;
 
   case 54:
-#line 341 "highlight/src/gram.y"
+#line 340 "highlight/src/gram.y"
     { (yyval) = xxbinary((yyvsp[(2) - (3)]),(yyvsp[(1) - (3)]),(yyvsp[(3) - (3)]));      setId( (yyval), (yyloc)); ;}
     break;
 
   case 55:
-#line 342 "highlight/src/gram.y"
+#line 341 "highlight/src/gram.y"
     { (yyval) = xxbinary((yyvsp[(2) - (3)]),(yyvsp[(1) - (3)]),(yyvsp[(3) - (3)]));          setId( (yyval), (yyloc)); ;}
     break;
 
   case 56:
-#line 343 "highlight/src/gram.y"
+#line 342 "highlight/src/gram.y"
     { (yyval) = xxbinary((yyvsp[(2) - (3)]),(yyvsp[(1) - (3)]),(yyvsp[(3) - (3)]));          setId( (yyval), (yyloc)); ;}
     break;
 
   case 57:
-#line 344 "highlight/src/gram.y"
+#line 343 "highlight/src/gram.y"
     { (yyval) = xxbinary((yyvsp[(2) - (3)]),(yyvsp[(1) - (3)]),(yyvsp[(3) - (3)]));      setId( (yyval), (yyloc)); ;}
     break;
 
   case 58:
-#line 345 "highlight/src/gram.y"
+#line 344 "highlight/src/gram.y"
     { (yyval) = xxbinary((yyvsp[(2) - (3)]),(yyvsp[(1) - (3)]),(yyvsp[(3) - (3)]));      setId( (yyval), (yyloc)); ;}
     break;
 
   case 59:
-#line 346 "highlight/src/gram.y"
+#line 345 "highlight/src/gram.y"
     { (yyval) = xxbinary((yyvsp[(2) - (3)]),(yyvsp[(1) - (3)]),(yyvsp[(3) - (3)]) );     setId( (yyval), (yyloc));;}
     break;
 
   case 60:
-#line 347 "highlight/src/gram.y"
+#line 346 "highlight/src/gram.y"
     { (yyval) = xxbinary((yyvsp[(2) - (3)]),(yyvsp[(1) - (3)]),(yyvsp[(3) - (3)]));              setId( (yyval), (yyloc)); ;}
     break;
 
   case 61:
-#line 348 "highlight/src/gram.y"
+#line 347 "highlight/src/gram.y"
     { (yyval) = xxbinary((yyvsp[(2) - (3)]),(yyvsp[(1) - (3)]),(yyvsp[(3) - (3)]));              setId( (yyval), (yyloc)); ;}
     break;
 
   case 62:
-#line 349 "highlight/src/gram.y"
+#line 348 "highlight/src/gram.y"
     { (yyval) = xxbinary((yyvsp[(2) - (3)]),(yyvsp[(1) - (3)]),(yyvsp[(3) - (3)]));              setId( (yyval), (yyloc)); ;}
     break;
 
   case 63:
-#line 350 "highlight/src/gram.y"
+#line 349 "highlight/src/gram.y"
     { (yyval) = xxbinary((yyvsp[(2) - (3)]),(yyvsp[(1) - (3)]),(yyvsp[(3) - (3)]));              setId( (yyval), (yyloc)); ;}
     break;
 
   case 64:
-#line 351 "highlight/src/gram.y"
+#line 350 "highlight/src/gram.y"
     { (yyval) = xxnxtbrk((yyvsp[(1) - (1)]));                       setId( (yyval), (yyloc)); ;}
     break;
 
   case 65:
-#line 352 "highlight/src/gram.y"
+#line 351 "highlight/src/gram.y"
     { (yyval) = xxnxtbrk((yyvsp[(1) - (1)]));                       setId( (yyval), (yyloc)); ;}
     break;
 
   case 66:
-#line 356 "highlight/src/gram.y"
+#line 355 "highlight/src/gram.y"
     { (yyval) = xxcond((yyvsp[(2) - (3)])); ;}
     break;
 
   case 67:
-#line 359 "highlight/src/gram.y"
+#line 358 "highlight/src/gram.y"
     { (yyval) = xxifcond((yyvsp[(2) - (3)])); ;}
     break;
 
   case 68:
-#line 362 "highlight/src/gram.y"
+#line 361 "highlight/src/gram.y"
     { (yyval) = xxforcond((yyvsp[(2) - (5)]),(yyvsp[(4) - (5)])); ;}
     break;
 
   case 69:
-#line 366 "highlight/src/gram.y"
+#line 365 "highlight/src/gram.y"
     { (yyval) = xxexprlist0(); ;}
     break;
 
   case 70:
-#line 367 "highlight/src/gram.y"
+#line 366 "highlight/src/gram.y"
     { (yyval) = xxexprlist1((yyvsp[(1) - (1)])); ;}
     break;
 
   case 71:
-#line 368 "highlight/src/gram.y"
+#line 367 "highlight/src/gram.y"
     { (yyval) = xxexprlist2((yyvsp[(1) - (3)]), (yyvsp[(3) - (3)])); ;}
     break;
 
   case 72:
-#line 369 "highlight/src/gram.y"
+#line 368 "highlight/src/gram.y"
     { (yyval) = (yyvsp[(1) - (2)]); ;}
     break;
 
   case 73:
-#line 370 "highlight/src/gram.y"
+#line 369 "highlight/src/gram.y"
     { (yyval) = xxexprlist2((yyvsp[(1) - (3)]), (yyvsp[(3) - (3)])); ;}
     break;
 
   case 74:
-#line 371 "highlight/src/gram.y"
+#line 370 "highlight/src/gram.y"
     { (yyval) = (yyvsp[(1) - (2)]);;}
     break;
 
   case 75:
-#line 374 "highlight/src/gram.y"
+#line 373 "highlight/src/gram.y"
     { (yyval) = xxsublist1((yyvsp[(1) - (1)])); ;}
     break;
 
   case 76:
-#line 375 "highlight/src/gram.y"
+#line 374 "highlight/src/gram.y"
     { (yyval) = xxsublist2((yyvsp[(1) - (4)]),(yyvsp[(4) - (4)])); ;}
     break;
 
   case 77:
-#line 378 "highlight/src/gram.y"
+#line 377 "highlight/src/gram.y"
     { (yyval) = xxsub0(); ;}
     break;
 
   case 78:
-#line 379 "highlight/src/gram.y"
+#line 378 "highlight/src/gram.y"
     { (yyval) = xxsub1((yyvsp[(1) - (1)]), &(yylsp[(1) - (1)])); ;}
     break;
 
   case 79:
-#line 380 "highlight/src/gram.y"
+#line 379 "highlight/src/gram.y"
     { (yyval) = xxsymsub0((yyvsp[(1) - (2)]), &(yylsp[(1) - (2)])); ;}
     break;
 
   case 80:
-#line 381 "highlight/src/gram.y"
+#line 380 "highlight/src/gram.y"
     { (yyval) = xxsymsub1((yyvsp[(1) - (3)]),(yyvsp[(3) - (3)]), &(yylsp[(1) - (3)])); ;}
     break;
 
   case 81:
-#line 382 "highlight/src/gram.y"
+#line 381 "highlight/src/gram.y"
     { (yyval) = xxsymsub0((yyvsp[(1) - (2)]), &(yylsp[(1) - (2)])); ;}
     break;
 
   case 82:
-#line 383 "highlight/src/gram.y"
+#line 382 "highlight/src/gram.y"
     { (yyval) = xxsymsub1((yyvsp[(1) - (3)]),(yyvsp[(3) - (3)]), &(yylsp[(1) - (3)])); ;}
     break;
 
   case 83:
-#line 384 "highlight/src/gram.y"
+#line 383 "highlight/src/gram.y"
     { (yyval) = xxnullsub0(&(yylsp[(1) - (2)])); ;}
     break;
 
   case 84:
-#line 385 "highlight/src/gram.y"
+#line 384 "highlight/src/gram.y"
     { (yyval) = xxnullsub1((yyvsp[(3) - (3)]), &(yylsp[(1) - (3)])); ;}
     break;
 
   case 85:
-#line 388 "highlight/src/gram.y"
+#line 387 "highlight/src/gram.y"
     { (yyval) = xxnullformal(); ;}
     break;
 
   case 86:
-#line 389 "highlight/src/gram.y"
+#line 388 "highlight/src/gram.y"
     { (yyval) = xxfirstformal0((yyvsp[(1) - (1)])); ;}
     break;
 
   case 87:
-#line 390 "highlight/src/gram.y"
+#line 389 "highlight/src/gram.y"
     { (yyval) = xxfirstformal1((yyvsp[(1) - (3)]),(yyvsp[(3) - (3)])); ;}
     break;
 
   case 88:
-#line 391 "highlight/src/gram.y"
+#line 390 "highlight/src/gram.y"
     { (yyval) = xxaddformal0((yyvsp[(1) - (3)]),(yyvsp[(3) - (3)]), &(yylsp[(3) - (3)])); ;}
     break;
 
   case 89:
-#line 392 "highlight/src/gram.y"
+#line 391 "highlight/src/gram.y"
     { (yyval) = xxaddformal1((yyvsp[(1) - (5)]),(yyvsp[(3) - (5)]),(yyvsp[(5) - (5)]),&(yylsp[(3) - (5)])); ;}
     break;
 
   case 90:
-#line 395 "highlight/src/gram.y"
+#line 394 "highlight/src/gram.y"
     { EatLines = 1; ;}
     break;
 
 
 /* Line 1267 of yacc.c.  */
-#line 2378 "highlight/src/gram.c"
+#line 2377 "highlight/src/gram.c"
       default: break;
     }
   YY_SYMBOL_PRINT ("-> $$ =", yyr1[yyn], &yyval, &yyloc);
@@ -2594,7 +2593,7 @@ yyreturn:
 }
 
 
-#line 397 "highlight/src/gram.y"
+#line 396 "highlight/src/gram.y"
 
 /*}}}*/
 /*}}}*/
@@ -5268,11 +5267,10 @@ finish:
     for (n = 0 ; n < LENGTH(rval) ; n++, t = CDR(t)){
 		SET_VECTOR_ELT(rval, n, CAR(t));
 	}
-	PROTECT( mat = makeMatrix( ) ); 
-	setAttrib( rval, mkString( "data" ), mat ) ;
+	setAttrib( rval, mkString( "data" ), makeMatrix( ) ) ;
 	// setAttrib( rval, mkString( "data" ), CDR(locations) ) ;
 	// setAttrib( rval, mkString( "parents" ), CDR(parents) ) ;
-	UNPROTECT(4) ; // t, locations, parents, mat, parentsVector, idVector
+	UNPROTECT(3) ; // t, locations, parents, mat, parentsVector, idVector
 	
     R_PPStackTop = savestack;
     *status = PARSE_OK;
@@ -5382,9 +5380,10 @@ static int nloc ;
 #define ACTUAL_ID( i ) INTEGER( idVector )[ i ]
 
 static SEXP makeMatrix( ){
+	SEXP mat ;
 	
 	nloc = length( CDR( locations ) ) ;
-	mat = allocVector( INTSXP, nloc * 9) ;
+	PROTECT( mat = allocVector( INTSXP, nloc * 9) );
 	int ii;
 	int jj;
 	for( ii=0; ii<nloc; ii++){
@@ -5426,13 +5425,41 @@ static SEXP makeMatrix( ){
 			parentsVector[ id ] = parent ;
 		}
 	}
+	
+	/* attach comments to closest enclosing symbol */
+	int comment_line, comment_first_byte, comment_last_byte ;
+	int this_first_line, this_last_line, this_first_byte ;
+	
+	for( i=0; i<nloc; i++){
+		if( i==nloc-1) break ;
+		comment_line = _FIRST_LINE( i ) ;
+		comment_first_byte = _FIRST_BYTE( i ) ;
+		comment_last_byte  = _LAST_LINE( i ) ;
+		
+		if( _TOKEN(i) == COMMENT || _TOKEN(i) == ROXYGEN_COMMENT ){
+			for( j=i+1; j<nloc; j++){
+				this_first_line = _FIRST_LINE( j ) ;
+				this_first_byte = _FIRST_BYTE( j ) ;
+				this_last_line  = _LAST_LINE( j ) ;
+				
+				/* the comment needs to start after the current symbol */
+				if( comment_line < this_first_line ) continue ;
+				if( comment_line == this_first_line & comment_first_byte < this_first_byte ) continue ;
+				
+				/* the current symbol must finish after the comment */
+				if( this_last_line <= comment_line ) continue ; /* the current symbol finishes before the comment starts */
+				
+				/* we have a match, record the parent and stop looking */
+				parentsVector[ _ID(i) ] = _ID(j) ;
+				break ;
+			}
+		}
+	}
+	
 	for( i=0; i< nloc; i++){
 		idsVector[ _ID(i) ] = 1;
 	}
-
-
 	int idp ; 
-	
 	for( i=0; i<nloc; i++){
 		id = _ID(i);
 		parent = parentsVector[id] ;
@@ -5450,7 +5477,8 @@ static SEXP makeMatrix( ){
 		}
 		_PARENT(i) = parent ;
 	}
-
+	
+	UNPROTECT(1) ;
 	return mat ;
 }
 

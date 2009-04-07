@@ -29,7 +29,6 @@ static SEXP makeMatrix( ) ;
 static SEXP locations ;
 static SEXP parents ;
 static void recordParents( int, yyltype*, int) ;
-static SEXP mat ;
 
 /* This is used as the buffer for NumericValue, SpecialValue and
    SymbolValue.  None of these could conceivably need 8192 bytes.
@@ -282,26 +281,26 @@ prog	:	END_OF_INPUT			{ return 0; }
 	|	error	 			{ YYABORT; }
 	;
 
-expr_or_assign  :    expr                       { $$ = $1; /* setId( $$, @$ ) ; */ }
-                |    equal_assign               { $$ = $1; /* setId( $$, @$ ) ; */ }
+expr_or_assign  :    expr                       { $$ = $1; }
+                |    equal_assign               { $$ = $1; }
                 ;
 
 equal_assign    :    expr EQ_ASSIGN expr_or_assign  { $$ = xxbinary($2,$1,$3); setId( $$, @$ ) ; }
                 ;
 
-expr	: 	NUM_CONST		{ $$ = $1;  setId( $$, @$); /* recordChild1_token( $$, @$, @1 ); */ }
-	|	STR_CONST			{ $$ = $1;  setId( $$, @$); /* recordChild1_token( $$, @$, @1 ); */ }
-	|	NULL_CONST			{ $$ = $1;  setId( $$, @$); /* recordChild1_token( $$, @$, @1 ); */ }          
-	|	SYMBOL				{ $$ = $1;  setId( $$, @$); /* recordChild1_token( $$, @$, @1 ); */ }
+expr	: 	NUM_CONST		{ $$ = $1;  setId( $$, @$); }
+	|	STR_CONST			{ $$ = $1;  setId( $$, @$); }
+	|	NULL_CONST			{ $$ = $1;  setId( $$, @$); }          
+	|	SYMBOL				{ $$ = $1;  setId( $$, @$); }
 
 	|	'{' exprlist '}'		{ $$ = xxexprlist($1,$2);  setId( $$, @$); }
 	|	'(' expr_or_assign ')'	{ $$ = xxparen($1,$2);		setId( $$, @$); }
 
-	|	'-' expr %prec UMINUS	{ $$ = xxunary($1,$2);     setId( $$, @$); /* recordChilds2( $$, @$, @1, @2) ; */ }
-	|	'+' expr %prec UMINUS	{ $$ = xxunary($1,$2);     setId( $$, @$); /* recordChilds2( $$, @$, @1, @2) ; */ }
-	|	'!' expr %prec UNOT		{ $$ = xxunary($1,$2);     setId( $$, @$); /* recordChilds2( $$, @$, @1, @2) ; */ }
-	|	'~' expr %prec TILDE	{ $$ = xxunary($1,$2);     setId( $$, @$); /* recordChilds2( $$, @$, @1, @2) ; */ }
-	|	'?' expr				{ $$ = xxunary($1,$2);     setId( $$, @$); /* recordChilds2( $$, @$, @1, @2) ; */ }
+	|	'-' expr %prec UMINUS	{ $$ = xxunary($1,$2);     setId( $$, @$); }
+	|	'+' expr %prec UMINUS	{ $$ = xxunary($1,$2);     setId( $$, @$); }
+	|	'!' expr %prec UNOT		{ $$ = xxunary($1,$2);     setId( $$, @$); }
+	|	'~' expr %prec TILDE	{ $$ = xxunary($1,$2);     setId( $$, @$); }
+	|	'?' expr				{ $$ = xxunary($1,$2);     setId( $$, @$); }
 
 	|	expr ':'  expr			{ $$ = xxbinary($2,$1,$3);     setId( $$, @$); }
 	|	expr '+'  expr			{ $$ = xxbinary($2,$1,$3);     setId( $$, @$); }
@@ -3067,11 +3066,10 @@ finish:
     for (n = 0 ; n < LENGTH(rval) ; n++, t = CDR(t)){
 		SET_VECTOR_ELT(rval, n, CAR(t));
 	}
-	PROTECT( mat = makeMatrix( ) ); 
-	setAttrib( rval, mkString( "data" ), mat ) ;
+	setAttrib( rval, mkString( "data" ), makeMatrix( ) ) ;
 	// setAttrib( rval, mkString( "data" ), CDR(locations) ) ;
 	// setAttrib( rval, mkString( "parents" ), CDR(parents) ) ;
-	UNPROTECT(4) ; // t, locations, parents, mat, parentsVector, idVector
+	UNPROTECT(3) ; // t, locations, parents, mat, parentsVector, idVector
 	
     R_PPStackTop = savestack;
     *status = PARSE_OK;
@@ -3181,9 +3179,10 @@ static int nloc ;
 #define ACTUAL_ID( i ) INTEGER( idVector )[ i ]
 
 static SEXP makeMatrix( ){
+	SEXP mat ;
 	
 	nloc = length( CDR( locations ) ) ;
-	mat = allocVector( INTSXP, nloc * 9) ;
+	PROTECT( mat = allocVector( INTSXP, nloc * 9) );
 	int ii;
 	int jj;
 	for( ii=0; ii<nloc; ii++){
@@ -3225,13 +3224,41 @@ static SEXP makeMatrix( ){
 			parentsVector[ id ] = parent ;
 		}
 	}
+	
+	/* attach comments to closest enclosing symbol */
+	int comment_line, comment_first_byte, comment_last_byte ;
+	int this_first_line, this_last_line, this_first_byte ;
+	
+	for( i=0; i<nloc; i++){
+		if( i==nloc-1) break ;
+		comment_line = _FIRST_LINE( i ) ;
+		comment_first_byte = _FIRST_BYTE( i ) ;
+		comment_last_byte  = _LAST_LINE( i ) ;
+		
+		if( _TOKEN(i) == COMMENT || _TOKEN(i) == ROXYGEN_COMMENT ){
+			for( j=i+1; j<nloc; j++){
+				this_first_line = _FIRST_LINE( j ) ;
+				this_first_byte = _FIRST_BYTE( j ) ;
+				this_last_line  = _LAST_LINE( j ) ;
+				
+				/* the comment needs to start after the current symbol */
+				if( comment_line < this_first_line ) continue ;
+				if( comment_line == this_first_line & comment_first_byte < this_first_byte ) continue ;
+				
+				/* the current symbol must finish after the comment */
+				if( this_last_line <= comment_line ) continue ; /* the current symbol finishes before the comment starts */
+				
+				/* we have a match, record the parent and stop looking */
+				parentsVector[ _ID(i) ] = _ID(j) ;
+				break ;
+			}
+		}
+	}
+	
 	for( i=0; i< nloc; i++){
 		idsVector[ _ID(i) ] = 1;
 	}
-
-
 	int idp ; 
-	
 	for( i=0; i<nloc; i++){
 		id = _ID(i);
 		parent = parentsVector[id] ;
@@ -3249,7 +3276,8 @@ static SEXP makeMatrix( ){
 		}
 		_PARENT(i) = parent ;
 	}
-
+	
+	UNPROTECT(1) ;
 	return mat ;
 }
 
