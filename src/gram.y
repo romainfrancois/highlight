@@ -1578,7 +1578,6 @@ static int SkipSpace(void) {
 /**
  * Wrapper around SkipSpace
  */
-
 static int SkipSpace_(void){
 	int c ;
 	int _space_first_line = xxlineno ;
@@ -3102,9 +3101,22 @@ static void incrementId(void){
 static void initId(void){
 	identifier = 0 ;
 }
-
 /*}}}*/
 
+/*{{{ Recording functions */
+/**
+ * Records location information about a symbol. The information is
+ * used to grow the "locations" list with a new vector 
+ * 
+ * @param first_line first line of the symbol
+ * @param first_column first column of the symbol
+ * @param first_byte first byte of the symbol
+ * @param last_line last line of the symbol
+ * @param last_column last column of the symbol
+ * @param last_byte last byte of the symbol
+ * @param token token type
+ * @param id identifier for this token
+ */
 static void record_( int first_line, int first_column, int first_byte,                                    
 	int last_line, int last_column, int last_byte, 
 	int token, int id ){
@@ -3127,18 +3139,25 @@ static void record_( int first_line, int first_column, int first_byte,
 	INTEGER(new_)[6] = token;
 	INTEGER(new_)[7] = id ;
 	REPROTECT( locations = GrowList(locations, new_) , LOC_INDEX );
-	UNPROTECT( 1 ) ; // new_
-	
+	UNPROTECT( 1 ) ; // new_	
 }
 
-
+/**
+ * records parent as the parent of all its childs. This grows the 
+ * parents list with a new vector. The first element of the new 
+ * vector is the parent id, and other elements are childs id
+ *
+ * @param parent id of the parent expression
+ * @param childs array of location information for all child symbols
+ * @param nchilds number of childs
+ */
 static void recordParents( int parent, yyltype * childs, int nchilds){
 	SEXP new_ ;
 	
 	/* some of the childs might be the fake token cr 
 	   which we do not want to track */
-	int ii = 0; 
-	int cr = -1 ;
+	int ii, jj;    /* loop index */
+	int cr = -1 ;  /* the index where a cr token was seen */
 	yyltype loc ;
 	int size = nchilds + 1 ;
 	for( ii=0; ii<nchilds; ii++){
@@ -3152,9 +3171,7 @@ static void recordParents( int parent, yyltype * childs, int nchilds){
 	
 	PROTECT( new_ = allocVector( INTSXP, size ) ) ;
 	INTEGER(new_)[0] = parent ;
-	
-	int jj; 
-    for( ii=0, jj=0; ii<nchilds; ii++){
+	for( ii=0, jj=0; ii<nchilds; ii++){
 		if( ii != cr) {
 			jj++ ;
 			INTEGER(new_)[jj] = (childs[ii]).id ;
@@ -3163,8 +3180,11 @@ static void recordParents( int parent, yyltype * childs, int nchilds){
 	REPROTECT( parents = GrowList(parents, new_) , PARENTS_INDEX );
 	UNPROTECT( 1 ) ; // new_
 }
+/*}}}*/
 
-static int nloc ;
+/*{{{ makeMatrix */
+
+/*{{{ macros to conveniently read the mat matrix */
 #define _FIRST_LINE( i )   INTEGER( mat )[ i            ]
 #define _FIRST_COLUMN( i ) INTEGER( mat )[ i +     nloc ]
 #define _FIRST_BYTE( i )   INTEGER( mat )[ i + 2 * nloc ]
@@ -3174,14 +3194,22 @@ static int nloc ;
 #define _TOKEN( i )        INTEGER( mat )[ i + 6 * nloc ]
 #define _ID( i )           INTEGER( mat )[ i + 7 * nloc ]
 #define _PARENT(i)         INTEGER( mat )[ i + 8 * nloc ]
+/*}}}*/
 
-#define ACTUAL_PARENT( i ) INTEGER( parentsVector )[ i ]
-#define ACTUAL_ID( i ) INTEGER( idVector )[ i ]
-
+/** 
+ * Makes a matrix representation of the collected information
+ * This makes a matrix of 9 columns, and one line per collected 
+ * symbol (terminal or not)
+ * 
+ * The matrix is built by reading information from : 
+ * - the "locations" list which contains location 
+ *    information from every symbols
+ * - the "parents" list which is used to track childs of each 
+ *    expressions (expr) symbols
+ */
 static SEXP makeMatrix( ){
+	int nloc = length( CDR( locations ) ) ;
 	SEXP mat ;
-	
-	nloc = length( CDR( locations ) ) ;
 	PROTECT( mat = allocVector( INTSXP, nloc * 9) );
 	int ii;
 	int jj;
@@ -3303,7 +3331,7 @@ static SEXP makeMatrix( ){
 	UNPROTECT(1) ;
 	return mat ;
 }
-
+/*}}}*/
 
 
 
