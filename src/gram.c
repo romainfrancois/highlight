@@ -5431,7 +5431,6 @@ static SEXP makeMatrix( ){
 	int this_first_line, this_last_line, this_first_byte ;
 	
 	for( i=0; i<nloc; i++){
-		if( i==nloc-1) break ;
 		comment_line = _FIRST_LINE( i ) ;
 		comment_first_byte = _FIRST_BYTE( i ) ;
 		comment_last_byte  = _LAST_LINE( i ) ;
@@ -5453,6 +5452,7 @@ static SEXP makeMatrix( ){
 				parentsVector[ _ID(i) ] = _ID(j) ;
 				break ;
 			}
+			parentsVector[ _ID(i) ] = -1 ;
 		}
 	}
 	
@@ -5463,8 +5463,8 @@ static SEXP makeMatrix( ){
 	for( i=0; i<nloc; i++){
 		id = _ID(i);
 		parent = parentsVector[id] ;
-		if( parent == 0 ){
-			_PARENT(i)=0;
+		if( parent == 0 || parent == -1){
+			_PARENT(i)=parent;
 			continue;
 		}
 		while( 1 ){
