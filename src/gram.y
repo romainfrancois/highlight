@@ -397,9 +397,8 @@ cr	:					{ EatLines = 1; }
 /*}}}*/
 /*}}}*/
 
-/* Private pushback, since file ungetc only guarantees one byte.
+/*{{{ Private pushback, since file ungetc only guarantees one byte.
    We need up to one MBCS-worth */
-
 #define DECLARE_YYTEXT_BUFP(bp) char *bp = yytext_ ;
 #define YYTEXT_PUSH(c, bp) do { \
     if ((bp) - yytext_ >= sizeof(yytext_) - 1){ \
@@ -407,6 +406,7 @@ cr	:					{ EatLines = 1; }
 	} \
 	*(bp)++ = (c); \
 } while(0) ;
+/*}}}*/
 	
 /*{{{ set of functions used in the parsing process */
 
@@ -1302,7 +1302,7 @@ static void ifpop(void){
 
 /*}}}*/
 
-/*{{{ function to deal with characters */
+/*{{{ typeofnext */
 /**
  * Looks at the type of the next character
  *
@@ -1320,7 +1320,9 @@ static int typeofnext(void) {
     xxungetc(c);
     return k;
 }
+/*}}}*/
 
+/*{{{ nextchar */
 /** 
  * Moves forward one character, checks that we get what we expect.
  * if not return 0 and move back to where it started
@@ -1338,8 +1340,9 @@ static int nextchar(int expect){
 	}
     return 0;
 }
+/*}}}*/
 
-
+/*{{{ SkipComment */
 /* Note that with interactive use, EOF cannot occur inside */
 /* a comment.  However, semicolons inside comments make it */
 /* appear that this does happen.  For this reason we use the */
@@ -1348,7 +1351,11 @@ static int nextchar(int expect){
 
 /**
  * Flush away comments. Keep going to the next character until the 
- * end of the line
+ * end of the line.
+ *
+ * This version differs from the one in the core R parser so that 
+ * it records comments (via a call to record_). Also, the distinction
+ * is made between comments and roxygen comments
  * 
  */
 static int SkipComment(void){
@@ -1392,7 +1399,9 @@ static int SkipComment(void){
 			type, identifier ) ;
 	return c ;
 }
+/*}}}*/
 
+/*{{{ NumericValue*/
 /**
  * Converts to a numeric value
  */ 
@@ -1505,20 +1514,35 @@ static int NumericValue(int c) {
     PROTECT(yylval);
     return NUM_CONST;
 }
+/*}}}*/
 
+/*{{{ SkipSpace
 /**
- * Goes to the next character that is not a space
- */ 
+ * Keeping track of the last character of a SPACES token
+ */
 static int _space_last_line ;
 static int _space_last_col  ;
 static int _space_last_byte ;
 
+/**
+ * Reset the variables _space_last_line, _space_last_col, _space_last_byte
+ * to current positions
+ */ 
 static void trackspaces( ){
 	_space_last_line = xxlineno ;
 	_space_last_col  = xxcolno ;
 	_space_last_byte = xxbyteno ;    
 }
 
+/**
+ * Skips any number of spaces. This implementation differs from the one
+ * used in the standard R parser so that the first the first character 
+ * of a token is within the token.
+ *
+ * The trackspaces function is called before each call to xxgetc so that 
+ * the static variables _space_last_line, ... are reset to current 
+ * information __before__ reading the character
+ */ 
 static int SkipSpace(void) {
     int c;
 	trackspaces() ;
@@ -1573,10 +1597,11 @@ static int SkipSpace(void) {
 		}   
 	return c;
 }
-/*}}}*/
-	
+
 /**
- * Wrapper around SkipSpace
+ * Wrapper around SkipSpace. Calls SkipSpace and reset the first location
+ * if any space was actually skipped. This allows to include the first character
+ * of every token in the token (which the internal R parser does not)
  */
 static int SkipSpace_(void){
 	int c ;
@@ -1596,7 +1621,6 @@ static int SkipSpace_(void){
 		// 	_space_first_line, _space_first_col, _space_first_byte, 
 		// 	_space_last_line, _space_last_col, _space_last_byte,  
 		// 	SPACES, identifier ) ;
-		
 		setfirstloc( _space_last_line, _space_last_col, _space_last_byte );
 	}
 	
@@ -1604,7 +1628,7 @@ static int SkipSpace_(void){
 	
 }
 
-
+/*}}}*/
 
 /*{{{ Special Symbols */
 /* Syntactic Keywords + Symbolic Constants */
