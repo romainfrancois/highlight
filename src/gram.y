@@ -3228,6 +3228,7 @@ static SEXP makeMatrix( ){
 	/* attach comments to closest enclosing symbol */
 	int comment_line, comment_first_byte, comment_last_byte ;
 	int this_first_line, this_last_line, this_first_byte ;
+	int orphan ;
 	
 	for( i=0; i<nloc; i++){
 		comment_line = _FIRST_LINE( i ) ;
@@ -3235,6 +3236,7 @@ static SEXP makeMatrix( ){
 		comment_last_byte  = _LAST_LINE( i ) ;
 		
 		if( _TOKEN(i) == COMMENT || _TOKEN(i) == ROXYGEN_COMMENT ){
+			orphan = 1 ;
 			for( j=i+1; j<nloc; j++){
 				this_first_line = _FIRST_LINE( j ) ;
 				this_first_byte = _FIRST_BYTE( j ) ;
@@ -3249,9 +3251,12 @@ static SEXP makeMatrix( ){
 				
 				/* we have a match, record the parent and stop looking */
 				parentsVector[ _ID(i) ] = _ID(j) ;
+				orphan = 0;
 				break ;
 			}
-			parentsVector[ _ID(i) ] = -1 ;
+			if(orphan){
+				parentsVector[ _ID(i) ] = -1 ;
+			}
 		}
 	}
 	
