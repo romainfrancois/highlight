@@ -1,8 +1,7 @@
 parser <- function( file, encoding = "unknown", text ){
 	if( !missing( text ) ){
-		tf <- tempfile( ); on.exit( unlink( tf ) )
-		cat( text , file = tf, sep = "\n" )
-		file <- tf
+		file <- tempfile( );
+		cat( text , file = file, sep = "\n" )
 	}
 	p <- .External( "do_parser", file = file, encoding = encoding )
 	
@@ -14,6 +13,7 @@ parser <- function( file, encoding = "unknown", text ){
 	data$token.desc <- symbols$desc [ m ]
 	data$type <- symbols$type[m]
 	attr( p, "data" ) <- data
+	attr( p, "file" ) <- file
 	# </TODO>
 	p
 }
