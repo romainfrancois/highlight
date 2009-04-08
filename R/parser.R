@@ -10,8 +10,8 @@ parser <- function( file, encoding = "unknown", text ){
 	colnames( data ) <- c( "line1", "col1", "byte1", 
 		 	"line2", "col2", "byte2", "token", "id", "parent" )
 	m <- match( data$token, symbols$token )
-	data$token.desc <- symbols$desc [ m ]
-	data$type <- symbols$type[m]
+	data$token.desc <- as.character(symbols$desc)[ m ]
+	data$terminal <- symbols$terminal[m]
 	attr( p, "data" ) <- data
 	attr( p, "file" ) <- file
 	# </TODO>
@@ -34,7 +34,7 @@ grammar.symbols <- function(  ){
 		desc   <- gsub( rx, "\\1", rl, perl = TRUE )
 		token  <- as.integer( gsub( rx, "\\2", rl, perl = TRUE ) )
 		data.frame( desc = desc, token = token, 
-			type = rep.int( type , length(token) ), 
+			terminal = rep.int( type , length(token) ), 
 			stringsAsFactors = FALSE )
 	}
 	rbind( 

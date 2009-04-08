@@ -9,6 +9,12 @@
 
 static PROTECT_INDEX LOC_INDEX ;
 static PROTECT_INDEX PARENTS_INDEX ;
+static PROTECT_INDEX MODIF_INDEX ;
+
+/* size used for the formals arguments tracker */
+#define MODIF_INC 1000
+static int modif_count ;
+static int modif_length ;
 
 #define yyconst const
 typedef struct yyltype{
@@ -28,6 +34,8 @@ static void setfirstloc( int, int, int ) ;
 static SEXP makeMatrix( ) ;
 static SEXP locations ;
 static SEXP parents ;
+static SEXP token_modifications ;
+static void modif_token( yyltype*, int ) ;
 static void recordParents( int, yyltype*, int) ;
 
 /* This is used as the buffer for NumericValue, SpecialValue and
@@ -245,6 +253,9 @@ static int mbcs_get_next(int c, wchar_t *wc){
 %token		GT GE LT LE EQ NE AND OR AND2 OR2
 %token		NS_GET NS_GET_INT
 %token		COMMENT SPACES ROXYGEN_COMMENT
+%token		ARGUMENT_FORMAL_NAME
+%token		ARGUMENT_FORMAL_EQ
+%token		SUB_EQ SUB_SYMBOL
 /*}}}*/
 
 /*{{{ This is the precedence table, low to high */
@@ -374,21 +385,21 @@ sublist	:	sub				{ $$ = xxsublist1($1); }
 	|	sublist cr ',' sub		{ $$ = xxsublist2($1,$4); }
 	;
 
-sub	:					{ $$ = xxsub0(); }
-	|	expr				{ $$ = xxsub1($1, &@1); }
-	|	SYMBOL EQ_ASSIGN 			{ $$ = xxsymsub0($1, &@1); }
-	|	SYMBOL EQ_ASSIGN expr			{ $$ = xxsymsub1($1,$3, &@1); }
-	|	STR_CONST EQ_ASSIGN 			{ $$ = xxsymsub0($1, &@1); }
-	|	STR_CONST EQ_ASSIGN expr		{ $$ = xxsymsub1($1,$3, &@1); }
-	|	NULL_CONST EQ_ASSIGN 			{ $$ = xxnullsub0(&@1); }
-	|	NULL_CONST EQ_ASSIGN expr		{ $$ = xxnullsub1($3, &@1); }
+sub	:									{ $$ = xxsub0(); 				}
+	|	expr							{ $$ = xxsub1($1, &@1); 		}
+	|	SYMBOL EQ_ASSIGN 				{ $$ = xxsymsub0($1, &@1); 	modif_token( &@2, SUB_EQ ) ; modif_token( &@1, SUB_SYMBOL ) ; }
+	|	SYMBOL EQ_ASSIGN expr			{ $$ = xxsymsub1($1,$3, &@1); 	modif_token( &@2, SUB_EQ ) ; modif_token( &@1, SUB_SYMBOL ) ; }
+	|	STR_CONST EQ_ASSIGN 			{ $$ = xxsymsub0($1, &@1); 	modif_token( &@2, SUB_EQ ) ; /* TODO */ }
+	|	STR_CONST EQ_ASSIGN expr		{ $$ = xxsymsub1($1,$3, &@1); 	modif_token( &@2, SUB_EQ ) ; /* TODO */ }
+	|	NULL_CONST EQ_ASSIGN 			{ $$ = xxnullsub0(&@1); 		modif_token( &@2, SUB_EQ ) ; }
+	|	NULL_CONST EQ_ASSIGN expr		{ $$ = xxnullsub1($3, &@1); 	modif_token( &@2, SUB_EQ ) ; }
 	;
 
-formlist:					{ $$ = xxnullformal(); }
-	|	SYMBOL				{ $$ = xxfirstformal0($1); }
-	|	SYMBOL EQ_ASSIGN expr			{ $$ = xxfirstformal1($1,$3); }
-	|	formlist ',' SYMBOL		{ $$ = xxaddformal0($1,$3, &@3); }
-	|	formlist ',' SYMBOL EQ_ASSIGN expr	{ $$ = xxaddformal1($1,$3,$5,&@3); }
+formlist:									{ $$ = xxnullformal(); }
+	|	SYMBOL								{ $$ = xxfirstformal0($1); 			modif_token( &@1, ARGUMENT_FORMAL_NAME ) ; }
+	|	SYMBOL EQ_ASSIGN expr				{ $$ = xxfirstformal1($1,$3); 			modif_token( &@1, ARGUMENT_FORMAL_NAME ) ; modif_token( &@2, ARGUMENT_FORMAL_EQ ) ; }
+	|	formlist ',' SYMBOL					{ $$ = xxaddformal0($1,$3, &@3); 		modif_token( &@3, ARGUMENT_FORMAL_NAME ) ; }
+	|	formlist ',' SYMBOL EQ_ASSIGN expr	{ $$ = xxaddformal1($1,$3,$5,&@3);		modif_token( &@3, ARGUMENT_FORMAL_NAME ) ; modif_token( &@4, ARGUMENT_FORMAL_EQ ) ;}
 	;
 
 cr	:					{ EatLines = 1; }
@@ -1388,8 +1399,6 @@ static int SkipComment(void){
 			_last_byte = xxbyteno ;
 		}
 	}
-	
-	
 	if (c == R_EOF) {
 		EndOfFile = 2;
 	}
@@ -2994,6 +3003,9 @@ static void ParseContextInit(void) {
 	initId();
 	PROTECT_WITH_INDEX( locations = NewList(), &LOC_INDEX ) ;
 	PROTECT_WITH_INDEX( parents = NewList(), &PARENTS_INDEX ) ;
+	modif_count = 0 ;
+	modif_length = MODIF_INC ;
+	PROTECT_WITH_INDEX( token_modifications = allocVector(INTSXP, MODIF_INC ) , &MODIF_INDEX ) ; 
 
 }
 /*}}}*/
@@ -3089,9 +3101,7 @@ finish:
 		SET_VECTOR_ELT(rval, n, CAR(t));
 	}
 	setAttrib( rval, mkString( "data" ), makeMatrix( ) ) ;
-	// setAttrib( rval, mkString( "data" ), CDR(locations) ) ;
-	// setAttrib( rval, mkString( "parents" ), CDR(parents) ) ;
-	UNPROTECT(3) ; // t, locations, parents, mat, parentsVector, idVector
+	UNPROTECT(4) ; // t, locations, parents, mat, parentsVector, idVector
 	
     R_PPStackTop = savestack;
     *status = PARSE_OK;
@@ -3202,6 +3212,34 @@ static void recordParents( int parent, yyltype * childs, int nchilds){
     }
 	REPROTECT( parents = GrowList(parents, new_) , PARENTS_INDEX );
 	UNPROTECT( 1 ) ; // new_
+}
+
+/**
+ * The token pointed by the location is a formal argument symbol
+ * we track it here so that we can modify its type later on
+ *
+ * @param loc location information for the token to track
+ */ 
+static void modif_token( yyltype* loc, int tok ){
+	
+	INTEGER( token_modifications )[2*modif_count] = loc->id ;
+	INTEGER( token_modifications )[2*modif_count+1] = tok ;
+	modif_count++ ;
+	
+	/* check if we need more space */
+	if( modif_count == ( length( token_modifications ) / 2 ) ){
+		int current_length = modif_length ; 
+		modif_length += ( MODIF_INC *2 ) ;
+		SEXP bigger ;
+		PROTECT( bigger = allocVector( INTSXP, modif_length ) ) ;
+		int i ;
+		for( i=0; i<current_length; i++){
+			INTEGER(bigger)[i] = INTEGER(token_modifications)[i] ;
+		}
+		REPROTECT( token_modifications = bigger, MODIF_INDEX ); 
+		UNPROTECT(1);
+	}
+	
 }
 /*}}}*/
 
@@ -3350,6 +3388,20 @@ static SEXP makeMatrix( ){
 			}
 		}
 	}
+	
+	/* now all the ids in the formalArgs vector are formal argument names */ 
+	j = 0 ;
+	int index = 0 ;
+	int tok ;
+	for( i=0; i<modif_count; i++){
+		id = INTEGER(token_modifications)[index] ; index++; 
+		tok = INTEGER(token_modifications)[index] ; index++; 
+		while( _ID(j) != id ){
+			j++ ;
+		}
+		_TOKEN(j) = tok ;
+	}
+	
 	
 	UNPROTECT(1) ;
 	return mat ;
