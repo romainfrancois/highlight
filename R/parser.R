@@ -36,9 +36,9 @@ gram.output <- function(  ){
 #' @param file file to analyze
 #' @param encoding encoding to assume for the file
 count.chars <- function( file, encoding = "unknown" ){
-	
-	.External( "do_countchars", file = file, encoding = encoding )
-	
+	out <- .External( "do_countchars", file = file, encoding = encoding )
+	dimnames(out) <- list( 1:nrow(out), c("char", "byte") )
+	out
 }
 
 #' counts the number of lines of a file
