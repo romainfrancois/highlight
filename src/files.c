@@ -53,17 +53,14 @@
 // }
 // /*}}}*/
 
-/*{{{ do_nlines */
+/*{{{ nlines */
 /** 
- * R interface : 
- *  nlines( file )
+ * Get the number of lines from a file
+ * 
+ * @param fname the name of the file
  */
-SEXP attribute_hidden do_nlines(SEXP args){
-	
-	SEXP result ;
-    FILE *fp;
-	
-	const char* fname = CHAR(STRING_ELT(CADR(args),0) ) ;
+int nlines( const char* fname ){
+	FILE *fp;
 	if((fp = R_fopen(R_ExpandFileName( fname ), "r")) == NULL){
 		error(_("unable to open file to read"), 0);
 	}
@@ -82,9 +79,19 @@ SEXP attribute_hidden do_nlines(SEXP args){
 	if( previous != '\n' ){
 		n++;
 	}
+	return n ; 
+}
+
+/** 
+ * R interface for nlines
+ * 
+ *  nlines( file )
+ */
+SEXP attribute_hidden do_nlines(SEXP args){
 	
-	PROTECT( result = allocVector( INTSXP, 1)  ) ;
-	INTEGER( result )[0] = n ;
+	SEXP result ;
+    PROTECT( result = allocVector( INTSXP, 1)  ) ;
+	INTEGER( result )[0] = nlines( CHAR(STRING_ELT(CADR(args),0) ) ) ;
 	UNPROTECT( 1 ) ; // result
     return result;
 }
