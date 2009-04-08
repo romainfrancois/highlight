@@ -45,7 +45,6 @@ SEXP attribute_hidden do_nlines(SEXP args){
 }
 /*}}}*/
 
-
 /*{{{ do_countchars */
 SEXP countchars( const char* fname, int nl){
 	
@@ -124,7 +123,6 @@ SEXP attribute_hidden do_countchars(SEXP args){
 	return result ;
 }
 /*}}}*/
-
 
 /* :tabSize=4:indentSize=4:noTabs=false:folding=explicit:collapseFolds=1: */
 

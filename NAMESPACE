@@ -4,3 +4,6 @@ import( codetools )
 
 export( highlight )
 export( parser )
+
+export( grammar.symbols )
+

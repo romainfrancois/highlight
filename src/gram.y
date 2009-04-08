@@ -2984,7 +2984,6 @@ int file_getc(void){
 
 /*{{{ Parsing entry points */
 
-
 /*{{{ ParseContextInit */
 static void ParseContextInit(void) {
     R_ParseContextLast = 0;
