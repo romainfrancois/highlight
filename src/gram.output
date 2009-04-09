@@ -4,10 +4,12 @@ Terminals which are not used
    COMMENT
    SPACES
    ROXYGEN_COMMENT
-   ARGUMENT_FORMAL_NAME
-   ARGUMENT_FORMAL_EQ
-   SUB_EQ
-   SUB_SYMBOL
+   SYMBOL_FORMALS
+   EQ_FORMALS
+   EQ_SUB
+   SYMBOL_SUB
+   SYMBOL_FUNCTION_CALL
+   SYMBOL_PACKAGE
    NOT
    UPLUS
 
@@ -207,51 +209,53 @@ NS_GET_INT (288) 55 56 57 58
 COMMENT (289)
 SPACES (290)
 ROXYGEN_COMMENT (291)
-ARGUMENT_FORMAL_NAME (292)
-ARGUMENT_FORMAL_EQ (293)
-SUB_EQ (294)
-SUB_SYMBOL (295)
-LOW (296)
-TILDE (297)
-NOT (298)
-UNOT (299)
-SPECIAL (300) 26
-UPLUS (301)
-UMINUS (302)
+SYMBOL_FORMALS (292)
+EQ_FORMALS (293)
+EQ_SUB (294)
+SYMBOL_SUB (295)
+SYMBOL_FUNCTION_CALL (296)
+SYMBOL_PACKAGE (297)
+LOW (298)
+TILDE (299)
+NOT (300)
+UNOT (301)
+SPECIAL (302) 26
+UPLUS (303)
+UMINUS (304)
 
 
 Nonterminals, with rules where they appear
 
-$accept (69)
+$accept (71)
     on left: 0
-prog (70)
+prog (72)
     on left: 1 2 3 4 5, on right: 0
-expr_or_assign (71)
+expr_or_assign (73)
     on left: 6 7, on right: 3 4 8 14 42 44 45 46 47 48 69 70 72
-equal_assign (72)
+equal_assign (74)
     on left: 8, on right: 7
-expr (73)
+expr (75)
     on left: 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27
     28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48
     49 50 51 52 53 54 55 56 57 58 59 60 61 62 63 64,
     on right: 6 8 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31
     32 33 34 35 36 37 38 39 40 41 43 49 50 59 60 61 62 65 66 67 77
     79 81 83 86 88
-cond (74)
+cond (76)
     on left: 65, on right: 47
-ifcond (75)
+ifcond (77)
     on left: 66, on right: 44 45
-forcond (76)
+forcond (78)
     on left: 67, on right: 46
-exprlist (77)
+exprlist (79)
     on left: 68 69 70 71 72 73, on right: 13 70 71 72 73
-sublist (78)
+sublist (80)
     on left: 74 75, on right: 43 49 50 75
-sub (79)
+sub (81)
     on left: 76 77 78 79 80 81 82 83, on right: 74 75
-formlist (80)
+formlist (82)
     on left: 84 85 86 87 88, on right: 42 87 88
-cr (81)
+cr (83)
     on left: 89, on right: 42 75
 
 

@@ -253,9 +253,11 @@ static int mbcs_get_next(int c, wchar_t *wc){
 %token		GT GE LT LE EQ NE AND OR AND2 OR2
 %token		NS_GET NS_GET_INT
 %token		COMMENT SPACES ROXYGEN_COMMENT
-%token		ARGUMENT_FORMAL_NAME
-%token		ARGUMENT_FORMAL_EQ
-%token		SUB_EQ SUB_SYMBOL
+%token		SYMBOL_FORMALS
+%token		EQ_FORMALS
+%token		EQ_SUB SYMBOL_SUB
+%token		SYMBOL_FUNCTION_CALL
+%token		SYMBOL_PACKAGE
 /*}}}*/
 
 /*{{{ This is the precedence table, low to high */
@@ -338,7 +340,7 @@ expr	: 	NUM_CONST		{ $$ = $1;  setId( $$, @$); }
 	|	expr RIGHT_ASSIGN expr 	{ $$ = xxbinary($2,$3,$1); setId( $$, @$); }
 	|	FUNCTION '(' formlist ')' cr expr_or_assign %prec LOW
 						{ $$ = xxdefun($1,$3,$6);             setId( $$, @$); }
-	|	expr '(' sublist ')'		{ $$ = xxfuncall($1,$3);  setId( $$, @$);}
+	|	expr '(' sublist ')'		{ $$ = xxfuncall($1,$3);  setId( $$, @$); modif_token( &@1, SYMBOL_FUNCTION_CALL ) ; }
 	|	IF ifcond expr_or_assign 	{ $$ = xxif($1,$2,$3);    setId( $$, @$); }
 	|	IF ifcond expr_or_assign ELSE expr_or_assign	{ $$ = xxifelse($1,$2,$3,$5); setId( $$, @$); }
 	|	FOR forcond expr_or_assign %prec FOR 	{ $$ = xxfor($1,$2,$3); setId( $$, @$); }
@@ -346,12 +348,12 @@ expr	: 	NUM_CONST		{ $$ = $1;  setId( $$, @$); }
 	|	REPEAT expr_or_assign			{ $$ = xxrepeat($1,$2);         setId( $$, @$);}
 	|	expr LBB sublist ']' ']'	{ $$ = xxsubscript($1,$2,$3);       setId( $$, @$); }
 	|	expr '[' sublist ']'		{ $$ = xxsubscript($1,$2,$3);       setId( $$, @$); }
-	|	SYMBOL NS_GET SYMBOL		{ $$ = xxbinary($2,$1,$3);      	 setId( $$, @$); }
-	|	SYMBOL NS_GET STR_CONST		{ $$ = xxbinary($2,$1,$3);      setId( $$, @$); }
+	|	SYMBOL NS_GET SYMBOL		{ $$ = xxbinary($2,$1,$3);      	 setId( $$, @$); modif_token( &@1, SYMBOL_PACKAGE ) ; }
+	|	SYMBOL NS_GET STR_CONST		{ $$ = xxbinary($2,$1,$3);      setId( $$, @$);modif_token( &@1, SYMBOL_PACKAGE ) ; }
 	|	STR_CONST NS_GET SYMBOL		{ $$ = xxbinary($2,$1,$3);      setId( $$, @$); }
 	|	STR_CONST NS_GET STR_CONST	{ $$ = xxbinary($2,$1,$3);          setId( $$, @$); }
-	|	SYMBOL NS_GET_INT SYMBOL	{ $$ = xxbinary($2,$1,$3);          setId( $$, @$); }
-	|	SYMBOL NS_GET_INT STR_CONST	{ $$ = xxbinary($2,$1,$3);      setId( $$, @$); }
+	|	SYMBOL NS_GET_INT SYMBOL	{ $$ = xxbinary($2,$1,$3);          setId( $$, @$); modif_token( &@1, SYMBOL_PACKAGE ) ;}
+	|	SYMBOL NS_GET_INT STR_CONST	{ $$ = xxbinary($2,$1,$3);      setId( $$, @$); modif_token( &@1, SYMBOL_PACKAGE ) ;}
 	|	STR_CONST NS_GET_INT SYMBOL	{ $$ = xxbinary($2,$1,$3);      setId( $$, @$); }
 	|	STR_CONST NS_GET_INT STR_CONST	{ $$ = xxbinary($2,$1,$3 );     setId( $$, @$);}
 	|	expr '$' SYMBOL			{ $$ = xxbinary($2,$1,$3);              setId( $$, @$); }
@@ -387,19 +389,19 @@ sublist	:	sub				{ $$ = xxsublist1($1); }
 
 sub	:									{ $$ = xxsub0(); 				}
 	|	expr							{ $$ = xxsub1($1, &@1); 		}
-	|	SYMBOL EQ_ASSIGN 				{ $$ = xxsymsub0($1, &@1); 	modif_token( &@2, SUB_EQ ) ; modif_token( &@1, SUB_SYMBOL ) ; }
-	|	SYMBOL EQ_ASSIGN expr			{ $$ = xxsymsub1($1,$3, &@1); 	modif_token( &@2, SUB_EQ ) ; modif_token( &@1, SUB_SYMBOL ) ; }
-	|	STR_CONST EQ_ASSIGN 			{ $$ = xxsymsub0($1, &@1); 	modif_token( &@2, SUB_EQ ) ; /* TODO */ }
-	|	STR_CONST EQ_ASSIGN expr		{ $$ = xxsymsub1($1,$3, &@1); 	modif_token( &@2, SUB_EQ ) ; /* TODO */ }
-	|	NULL_CONST EQ_ASSIGN 			{ $$ = xxnullsub0(&@1); 		modif_token( &@2, SUB_EQ ) ; }
-	|	NULL_CONST EQ_ASSIGN expr		{ $$ = xxnullsub1($3, &@1); 	modif_token( &@2, SUB_EQ ) ; }
+	|	SYMBOL EQ_ASSIGN 				{ $$ = xxsymsub0($1, &@1); 	modif_token( &@2, EQ_SUB ) ; modif_token( &@1, SYMBOL_SUB ) ; }
+	|	SYMBOL EQ_ASSIGN expr			{ $$ = xxsymsub1($1,$3, &@1); 	modif_token( &@2, EQ_SUB ) ; modif_token( &@1, SYMBOL_SUB ) ; }
+	|	STR_CONST EQ_ASSIGN 			{ $$ = xxsymsub0($1, &@1); 	modif_token( &@2, EQ_SUB ) ; }
+	|	STR_CONST EQ_ASSIGN expr		{ $$ = xxsymsub1($1,$3, &@1); 	modif_token( &@2, EQ_SUB ) ; }
+	|	NULL_CONST EQ_ASSIGN 			{ $$ = xxnullsub0(&@1); 		modif_token( &@2, EQ_SUB ) ; }
+	|	NULL_CONST EQ_ASSIGN expr		{ $$ = xxnullsub1($3, &@1); 	modif_token( &@2, EQ_SUB ) ; }
 	;
 
 formlist:									{ $$ = xxnullformal(); }
-	|	SYMBOL								{ $$ = xxfirstformal0($1); 			modif_token( &@1, ARGUMENT_FORMAL_NAME ) ; }
-	|	SYMBOL EQ_ASSIGN expr				{ $$ = xxfirstformal1($1,$3); 			modif_token( &@1, ARGUMENT_FORMAL_NAME ) ; modif_token( &@2, ARGUMENT_FORMAL_EQ ) ; }
-	|	formlist ',' SYMBOL					{ $$ = xxaddformal0($1,$3, &@3); 		modif_token( &@3, ARGUMENT_FORMAL_NAME ) ; }
-	|	formlist ',' SYMBOL EQ_ASSIGN expr	{ $$ = xxaddformal1($1,$3,$5,&@3);		modif_token( &@3, ARGUMENT_FORMAL_NAME ) ; modif_token( &@4, ARGUMENT_FORMAL_EQ ) ;}
+	|	SYMBOL								{ $$ = xxfirstformal0($1); 			modif_token( &@1, SYMBOL_FORMALS ) ; }
+	|	SYMBOL EQ_ASSIGN expr				{ $$ = xxfirstformal1($1,$3); 			modif_token( &@1, SYMBOL_FORMALS ) ; modif_token( &@2, EQ_FORMALS ) ; }
+	|	formlist ',' SYMBOL					{ $$ = xxaddformal0($1,$3, &@3); 		modif_token( &@3, SYMBOL_FORMALS ) ; }
+	|	formlist ',' SYMBOL EQ_ASSIGN expr	{ $$ = xxaddformal1($1,$3,$5,&@3);		modif_token( &@3, SYMBOL_FORMALS ) ; modif_token( &@4, EQ_FORMALS ) ;}
 	;
 
 cr	:					{ EatLines = 1; }
@@ -3393,15 +3395,32 @@ static SEXP makeMatrix( ){
 	j = 0 ;
 	int index = 0 ;
 	int tok ;
+	int child_id ;
+	int k ;
 	for( i=0; i<modif_count; i++){
 		id = INTEGER(token_modifications)[index] ; index++; 
 		tok = INTEGER(token_modifications)[index] ; index++; 
-		while( _ID(j) != id ){
+		
+		// look forward until j is the index of the symbol with id
+		j=0; /* we would not have to do that if token_modifications was sorted */ 
+		while( _ID(j) != id ){                      
 			j++ ;
 		}
-		_TOKEN(j) = tok ;
+			
+		if( tok == SYMBOL_FUNCTION_CALL ){
+			// now we need to find child of this token
+			k = j ;
+			while( _PARENT(k) != id ){
+				k-- ;
+			}
+			// if this is a SYMBOL token, it should be a SYMBOL_FUNCTION_CALL
+			if( _TOKEN(k) == SYMBOL ){
+				_TOKEN(k) = SYMBOL_FUNCTION_CALL ;
+			}	
+		} else {
+			_TOKEN(j) = tok ;
+		}
 	}
-	
 	
 	UNPROTECT(1) ;
 	return mat ;
