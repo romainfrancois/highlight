@@ -11,4 +11,7 @@ highlight.connection <- function( x, detective, renderer ){
 	.NotYetImplemented()
 }
 
+highlight.character <- function( x, detective, renderer ){
+	
+}
 

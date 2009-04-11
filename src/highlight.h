@@ -8,6 +8,8 @@
 #include <Rinternals.h>
 #include <R_ext/libextern.h>
 
+int nlines( const char* ) ;
+
 static int identifier ;
 static void incrementId(void);
 static void initId(void);
@@ -37,24 +39,15 @@ static Rboolean known_to_be_latin1 = FALSE ;
 #define MAXELTSIZE 8192 
 
 SEXP	NewList(void);
-SEXP	NewList_(SEXP);
-
 SEXP	GrowList(SEXP, SEXP);
 SEXP	Insert(SEXP, SEXP);
-SEXP attachSrcrefs(SEXP, SEXP) ;
 
 static void yyerror(char *);
 static int yylex();
 int yyparse(void);
 
-
-
-/* strecthy list */
-
-
 /* File Handling */
 #define R_EOF   -1
-
 
 #ifdef __cplusplus
 extern "C" {
@@ -77,20 +70,9 @@ typedef enum {
 # define yylval			Rf_yylval
 # define yynerrs		Rf_yynerrs
 
-#define MAXFUNSIZE 131072
-#define MAXNEST       265
-
-static unsigned char FunctionSource[MAXFUNSIZE];
-static unsigned char *FunctionStart[MAXNEST], *SourcePtr;
-static int FunctionLevel = 0;
-static int KeepSource;
-
-
 /* Objects Used In Parsing  */
-static SEXP	R_CommentSxp;	    /* Comments accumulate here */
 static int	R_ParseError = 0; /* Line where parse error occurred */
 static int	R_ParseErrorCol;    /* Column of start of token where parse error occurred */
-static SEXP	R_ParseErrorFile;   /* Source file where parse error was seen */
 #define PARSE_ERROR_SIZE 256	    /* Parse error messages saved here */
 static char	R_ParseErrorMsg[PARSE_ERROR_SIZE]=  "";
 #define PARSE_CONTEXT_SIZE 256	    /* Recent parse context kept in a circular buffer */
@@ -122,7 +104,6 @@ static int	R_PPStackTop;	    /* The top of the stack */
 #define streql(s, t)	(!strcmp((s), (t)))
 
 static int	EatLines = 0;
-static int	GenerateCode = 0;
 static int	EndOfFile = 0;
 static int	xxcharcount, xxcharsave;
 static int	xxlineno, xxbyteno, xxcolno,  xxlinesave, xxbytesave, xxcolsave;
@@ -159,7 +140,7 @@ static void ParseContextInit(void);
 static void ParseInit(void);
 static SEXP R_Parse1(ParseStatus *) ;
 static SEXP R_Parse(int, ParseStatus *, SEXP) ;
-attribute_hidden SEXP R_ParseFile(FILE *, int , ParseStatus *, SEXP) ;    
+attribute_hidden SEXP R_ParseFile(FILE *, int , ParseStatus *, SEXP, int) ;    
 /*}}}*/
 
 

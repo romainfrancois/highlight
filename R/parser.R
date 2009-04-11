@@ -6,7 +6,7 @@ parser <- function( file, encoding = "unknown", text ){
 	p <- .External( "do_parser", file = file, encoding = encoding )
 	
 	# <TODO> do this in C
-	data <- as.data.frame( attr(p,"data") )
+	data <- as.data.frame( t(attr(p,"data")) )
 	colnames( data ) <- c( "line1", "col1", "byte1", 
 		 	"line2", "col2", "byte2", "token", "id", "parent" )
 	m <- match( data$token, symbols$token )
@@ -14,6 +14,7 @@ parser <- function( file, encoding = "unknown", text ){
 	data$terminal <- symbols$terminal[m]
 	attr( p, "data" ) <- data
 	attr( p, "file" ) <- file
+	attr( p, "encoding") <- encoding
 	# </TODO>
 	p
 }
@@ -64,5 +65,30 @@ count.chars <- function( file, encoding = "unknown" ){
 #' @param file file from which to count lines
 nlines <- function( file ){
 	.External( "do_nlines", file = file )
+}
+
+#' gets the terminal tokens
+getTokens <- function( x, 
+	data = subset( attr( x, "data" ), terminal ), 
+	encoding = attr( x, "encoding"), 
+	file = attr( x, "file" ), 
+	sort = TRUE ){
+	
+	if( sort ){
+		data <- data[ do.call( order, data[, c("line1", "col1") ] ), ]
+	} else{
+		if( is.unsorted(data[["line1"]] ) ){
+			stop( "data is not in increasing order of line1" )
+		}	
+	}
+	
+	.External( "do_getTokens", 
+		file = file, 
+		encoding = encoding, 
+		line1 = data[, "line1" ], 
+		col1  = data[, "byte1"  ], 
+		line2 = data[, "line2" ], 
+		col2  = data[, "byte2"  ] )
+
 }
 

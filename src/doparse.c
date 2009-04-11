@@ -38,6 +38,7 @@ SEXP attribute_hidden do_parser(SEXP args){
 		known_to_be_utf8 = TRUE;
 		allKnown = FALSE;
     }
+	
 	/*}}}*/
 
 	/*{{{ Try to open the file */
@@ -45,13 +46,14 @@ SEXP attribute_hidden do_parser(SEXP args){
 	if((fp = R_fopen(R_ExpandFileName( fname ), "r")) == NULL){
 		error(_("unable to open file to read"), 0);
 	}
+	int nl = nlines( fname ) ;
+	
 	/*}}}*/
 
 	/*{{{ Call the parser */
 	R_ParseError = 0;
     R_ParseErrorMsg[0] = '\0';
-	      
-	result = PROTECT(R_ParseFile(fp, -1, &status, filename));
+	result = PROTECT(R_ParseFile(fp, -1, &status, filename, nl));
 	if (status != PARSE_OK) {
 		/* TODO : use the parseError function (in source.c) */
 		error(_("parsing error"), 0);

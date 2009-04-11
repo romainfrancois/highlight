@@ -7,14 +7,8 @@
 
 #define YYERROR_VERBOSE 1
 
-static PROTECT_INDEX LOC_INDEX ;
-static PROTECT_INDEX PARENTS_INDEX ;
-static PROTECT_INDEX MODIF_INDEX ;
-
-/* size used for the formals arguments tracker */
-#define MODIF_INC 1000
-static int modif_count ;
-static int modif_length ;
+static PROTECT_INDEX DATA_INDEX ;
+static PROTECT_INDEX ID_INDEX ;
 
 #define yyconst const
 typedef struct yyltype{
@@ -31,10 +25,32 @@ typedef struct yyltype{
 
 static void setfirstloc( int, int, int ) ;
 
-static SEXP makeMatrix( ) ;
-static SEXP locations ;
-static SEXP parents ;
-static SEXP token_modifications ;
+static int NLINES ;       /* number of lines in the file */
+static int data_count ;
+static int data_size ;
+static int nterminals ;
+
+static int id_size ;
+
+static SEXP data ;
+static SEXP ids ; 
+static void finalizeData( ) ;
+static void growData( ) ;
+static void growID( ) ;
+
+#define _FIRST_LINE( i )   INTEGER( data )[ 9*(i)     ]
+#define _FIRST_COLUMN( i ) INTEGER( data )[ 9*(i) + 1 ]
+#define _FIRST_BYTE( i )   INTEGER( data )[ 9*(i) + 2 ]
+#define _LAST_LINE( i )    INTEGER( data )[ 9*(i) + 3 ]
+#define _LAST_COLUMN( i )  INTEGER( data )[ 9*(i) + 4 ]
+#define _LAST_BYTE( i )    INTEGER( data )[ 9*(i) + 5 ]
+#define _TOKEN( i )        INTEGER( data )[ 9*(i) + 6 ]
+#define _ID( i )           INTEGER( data )[ 9*(i) + 7 ]
+#define _PARENT(i)         INTEGER( data )[ 9*(i) + 8 ]
+
+#define ID_ID( i )      INTEGER(ids)[ 2*(i) ]
+#define ID_PARENT( i )  INTEGER(ids)[ 2*(i) + 1 ]
+
 static void modif_token( yyltype*, int ) ;
 static void recordParents( int, yyltype*, int) ;
 
@@ -115,6 +131,8 @@ static void setId( SEXP expr, yyltype loc){
 
 #define YYDEBUG 1
 
+static int colon ;
+
 /*{{{ Routines used to build the parse tree */
 static SEXP	xxnullformal(void);
 static SEXP	xxfirstformal0(SEXP);
@@ -151,8 +169,7 @@ static SEXP	xxexprlist(SEXP, SEXP);
 static int	xxvalue(SEXP, int);
 /*}}}*/ 
 
-
-/* Functions used in the parsing process */
+/*{{{ Functions used in the parsing process */
 
 static void	CheckFormalArgs(SEXP, SEXP, YYLTYPE* );
 static SEXP	TagArg(SEXP, SEXP, YYLTYPE* );
@@ -171,13 +188,12 @@ SEXP mkFalse(void);
 
 static int	xxgetc();
 static int	xxungetc(int);
+/*}}}*/
 
 /* The idea here is that if a string contains \u escapes that are not
    valid in the current locale, we should switch to UTF-8 for that
    string.  Needs wide-char support.
 */
-
-
 #if defined(SUPPORT_MBCS)
 # include <R_ext/rlocale.h>
 #ifdef HAVE_LANGINFO_CODESET
@@ -238,7 +254,6 @@ static int mbcs_get_next(int c, wchar_t *wc){
 }
 #endif 
 
-/* Handle function source */
 #define YYSTYPE		SEXP
 
 
@@ -258,6 +273,7 @@ static int mbcs_get_next(int c, wchar_t *wc){
 %token		EQ_SUB SYMBOL_SUB
 %token		SYMBOL_FUNCTION_CALL
 %token		SYMBOL_PACKAGE
+%token		COLON_ASSIGN
 /*}}}*/
 
 /*{{{ This is the precedence table, low to high */
@@ -288,103 +304,107 @@ static int mbcs_get_next(int c, wchar_t *wc){
 %%
 
 prog	:	END_OF_INPUT			{ return 0; }
-	|	'\n'				{ return xxvalue(NULL,2); }
+	|	'\n'						{ return xxvalue(NULL,2); }
 	|	expr_or_assign '\n'			{ return xxvalue($1,3); }
 	|	expr_or_assign ';'			{ return xxvalue($1,4); }
-	|	error	 			{ YYABORT; }
+	|	error	 					{ YYABORT; }
 	;
 
-expr_or_assign  :    expr                       { $$ = $1; }
-                |    equal_assign               { $$ = $1; }
+expr_or_assign  :    expr         { $$ = $1; }
+                |    equal_assign { $$ = $1; }
                 ;
 
 equal_assign    :    expr EQ_ASSIGN expr_or_assign  { $$ = xxbinary($2,$1,$3); setId( $$, @$ ) ; }
                 ;
 
-expr	: 	NUM_CONST		{ $$ = $1;  setId( $$, @$); }
-	|	STR_CONST			{ $$ = $1;  setId( $$, @$); }
-	|	NULL_CONST			{ $$ = $1;  setId( $$, @$); }          
-	|	SYMBOL				{ $$ = $1;  setId( $$, @$); }
+expr	: 	NUM_CONST					{ $$ = $1;  setId( $$, @$); }
+	|	STR_CONST						{ $$ = $1;  setId( $$, @$); }
+	|	NULL_CONST						{ $$ = $1;  setId( $$, @$); }          
+	|	SYMBOL							{ $$ = $1;  setId( $$, @$); }
 
-	|	'{' exprlist '}'		{ $$ = xxexprlist($1,$2);  setId( $$, @$); }
-	|	'(' expr_or_assign ')'	{ $$ = xxparen($1,$2);		setId( $$, @$); }
+	|	'{' exprlist '}'				{ $$ = xxexprlist($1,$2);  setId( $$, @$); }
+	|	'(' expr_or_assign ')'			{ $$ = xxparen($1,$2);		setId( $$, @$); }
 
-	|	'-' expr %prec UMINUS	{ $$ = xxunary($1,$2);     setId( $$, @$); }
-	|	'+' expr %prec UMINUS	{ $$ = xxunary($1,$2);     setId( $$, @$); }
-	|	'!' expr %prec UNOT		{ $$ = xxunary($1,$2);     setId( $$, @$); }
-	|	'~' expr %prec TILDE	{ $$ = xxunary($1,$2);     setId( $$, @$); }
-	|	'?' expr				{ $$ = xxunary($1,$2);     setId( $$, @$); }
+	|	'-' expr %prec UMINUS			{ $$ = xxunary($1,$2);     setId( $$, @$); }
+	|	'+' expr %prec UMINUS			{ $$ = xxunary($1,$2);     setId( $$, @$); }
+	|	'!' expr %prec UNOT				{ $$ = xxunary($1,$2);     setId( $$, @$); }
+	|	'~' expr %prec TILDE			{ $$ = xxunary($1,$2);     setId( $$, @$); }
+	|	'?' expr						{ $$ = xxunary($1,$2);     setId( $$, @$); }
 
-	|	expr ':'  expr			{ $$ = xxbinary($2,$1,$3);     setId( $$, @$); }
-	|	expr '+'  expr			{ $$ = xxbinary($2,$1,$3);     setId( $$, @$); }
-	|	expr '-' expr			{ $$ = xxbinary($2,$1,$3);     setId( $$, @$); }
-	|	expr '*' expr			{ $$ = xxbinary($2,$1,$3);     setId( $$, @$); }
-	|	expr '/' expr			{ $$ = xxbinary($2,$1,$3);     setId( $$, @$); }
-	|	expr '^' expr 			{ $$ = xxbinary($2,$1,$3);     setId( $$, @$); }
-	|	expr SPECIAL expr		{ $$ = xxbinary($2,$1,$3);     setId( $$, @$); }
-	|	expr '%' expr			{ $$ = xxbinary($2,$1,$3);     setId( $$, @$); }
-	|	expr '~' expr			{ $$ = xxbinary($2,$1,$3);     setId( $$, @$); }
-	|	expr '?' expr			{ $$ = xxbinary($2,$1,$3);     setId( $$, @$); }
-	|	expr LT expr			{ $$ = xxbinary($2,$1,$3);     setId( $$, @$); }
-	|	expr LE expr			{ $$ = xxbinary($2,$1,$3);     setId( $$, @$); }
-	|	expr EQ expr			{ $$ = xxbinary($2,$1,$3);     setId( $$, @$); }
-	|	expr NE expr			{ $$ = xxbinary($2,$1,$3);     setId( $$, @$); }
-	|	expr GE expr			{ $$ = xxbinary($2,$1,$3);     setId( $$, @$); }
-	|	expr GT expr			{ $$ = xxbinary($2,$1,$3);     setId( $$, @$); }
-	|	expr AND expr			{ $$ = xxbinary($2,$1,$3);     setId( $$, @$); }
-	|	expr OR expr			{ $$ = xxbinary($2,$1,$3);     setId( $$, @$); }
-	|	expr AND2 expr			{ $$ = xxbinary($2,$1,$3);     setId( $$, @$); }
-	|	expr OR2 expr			{ $$ = xxbinary($2,$1,$3);     setId( $$, @$); }
+	|	expr ':'  expr					{ $$ = xxbinary($2,$1,$3);     setId( $$, @$); }
+	|	expr '+'  expr					{ $$ = xxbinary($2,$1,$3);     setId( $$, @$); }
+	|	expr '-' expr					{ $$ = xxbinary($2,$1,$3);     setId( $$, @$); }
+	|	expr '*' expr					{ $$ = xxbinary($2,$1,$3);     setId( $$, @$); }
+	|	expr '/' expr					{ $$ = xxbinary($2,$1,$3);     setId( $$, @$); }
+	|	expr '^' expr 					{ $$ = xxbinary($2,$1,$3);     setId( $$, @$); }
+	|	expr SPECIAL expr				{ $$ = xxbinary($2,$1,$3);     setId( $$, @$); }
+	|	expr '%' expr					{ $$ = xxbinary($2,$1,$3);     setId( $$, @$); }
+	|	expr '~' expr					{ $$ = xxbinary($2,$1,$3);     setId( $$, @$); }
+	|	expr '?' expr					{ $$ = xxbinary($2,$1,$3);     setId( $$, @$); }
+	|	expr LT expr					{ $$ = xxbinary($2,$1,$3);     setId( $$, @$); }
+	|	expr LE expr					{ $$ = xxbinary($2,$1,$3);     setId( $$, @$); }
+	|	expr EQ expr					{ $$ = xxbinary($2,$1,$3);     setId( $$, @$); }
+	|	expr NE expr					{ $$ = xxbinary($2,$1,$3);     setId( $$, @$); }
+	|	expr GE expr					{ $$ = xxbinary($2,$1,$3);     setId( $$, @$); }
+	|	expr GT expr					{ $$ = xxbinary($2,$1,$3);     setId( $$, @$); }
+	|	expr AND expr					{ $$ = xxbinary($2,$1,$3);     setId( $$, @$); }
+	|	expr OR expr					{ $$ = xxbinary($2,$1,$3);     setId( $$, @$); }
+	|	expr AND2 expr					{ $$ = xxbinary($2,$1,$3);     setId( $$, @$); }
+	|	expr OR2 expr					{ $$ = xxbinary($2,$1,$3);     setId( $$, @$); }
 
-	|	expr LEFT_ASSIGN expr 		{ $$ = xxbinary($2,$1,$3); setId( $$, @$); }
-	|	expr RIGHT_ASSIGN expr 	{ $$ = xxbinary($2,$3,$1); setId( $$, @$); }
+	|	expr LEFT_ASSIGN expr 			{ $$ = xxbinary($2,$1,$3); setId( $$, @$); }
+	|	expr RIGHT_ASSIGN expr 		{ $$ = xxbinary($2,$3,$1); setId( $$, @$); }
 	|	FUNCTION '(' formlist ')' cr expr_or_assign %prec LOW
-						{ $$ = xxdefun($1,$3,$6);             setId( $$, @$); }
-	|	expr '(' sublist ')'		{ $$ = xxfuncall($1,$3);  setId( $$, @$); modif_token( &@1, SYMBOL_FUNCTION_CALL ) ; }
-	|	IF ifcond expr_or_assign 	{ $$ = xxif($1,$2,$3);    setId( $$, @$); }
-	|	IF ifcond expr_or_assign ELSE expr_or_assign	{ $$ = xxifelse($1,$2,$3,$5); setId( $$, @$); }
-	|	FOR forcond expr_or_assign %prec FOR 	{ $$ = xxfor($1,$2,$3); setId( $$, @$); }
-	|	WHILE cond expr_or_assign			{ $$ = xxwhile($1,$2,$3);   setId( $$, @$); }
+										{ $$ = xxdefun($1,$3,$6);             setId( $$, @$); }
+									
+	|	expr '(' sublist ')'			{ $$ = xxfuncall($1,$3);  setId( $$, @$); modif_token( &@1, SYMBOL_FUNCTION_CALL ) ; }
+	|	IF ifcond expr_or_assign 		{ $$ = xxif($1,$2,$3);    setId( $$, @$); }
+	|	IF ifcond expr_or_assign ELSE expr_or_assign	
+										{ $$ = xxifelse($1,$2,$3,$5); setId( $$, @$); }
+								
+	|	FOR forcond expr_or_assign %prec FOR 	
+										{ $$ = xxfor($1,$2,$3); setId( $$, @$); }
+	|	WHILE cond expr_or_assign		{ $$ = xxwhile($1,$2,$3);   setId( $$, @$); }
 	|	REPEAT expr_or_assign			{ $$ = xxrepeat($1,$2);         setId( $$, @$);}
-	|	expr LBB sublist ']' ']'	{ $$ = xxsubscript($1,$2,$3);       setId( $$, @$); }
-	|	expr '[' sublist ']'		{ $$ = xxsubscript($1,$2,$3);       setId( $$, @$); }
-	|	SYMBOL NS_GET SYMBOL		{ $$ = xxbinary($2,$1,$3);      	 setId( $$, @$); modif_token( &@1, SYMBOL_PACKAGE ) ; }
+	|	expr LBB sublist ']' ']'		{ $$ = xxsubscript($1,$2,$3);       setId( $$, @$); }
+	|	expr '[' sublist ']'			{ $$ = xxsubscript($1,$2,$3);       setId( $$, @$); }
+	|	SYMBOL NS_GET SYMBOL			{ $$ = xxbinary($2,$1,$3);      	 setId( $$, @$); modif_token( &@1, SYMBOL_PACKAGE ) ; }
 	|	SYMBOL NS_GET STR_CONST		{ $$ = xxbinary($2,$1,$3);      setId( $$, @$);modif_token( &@1, SYMBOL_PACKAGE ) ; }
 	|	STR_CONST NS_GET SYMBOL		{ $$ = xxbinary($2,$1,$3);      setId( $$, @$); }
-	|	STR_CONST NS_GET STR_CONST	{ $$ = xxbinary($2,$1,$3);          setId( $$, @$); }
-	|	SYMBOL NS_GET_INT SYMBOL	{ $$ = xxbinary($2,$1,$3);          setId( $$, @$); modif_token( &@1, SYMBOL_PACKAGE ) ;}
+	|	STR_CONST NS_GET STR_CONST		{ $$ = xxbinary($2,$1,$3);          setId( $$, @$); }
+	|	SYMBOL NS_GET_INT SYMBOL		{ $$ = xxbinary($2,$1,$3);          setId( $$, @$); modif_token( &@1, SYMBOL_PACKAGE ) ;}
 	|	SYMBOL NS_GET_INT STR_CONST	{ $$ = xxbinary($2,$1,$3);      setId( $$, @$); modif_token( &@1, SYMBOL_PACKAGE ) ;}
 	|	STR_CONST NS_GET_INT SYMBOL	{ $$ = xxbinary($2,$1,$3);      setId( $$, @$); }
 	|	STR_CONST NS_GET_INT STR_CONST	{ $$ = xxbinary($2,$1,$3 );     setId( $$, @$);}
-	|	expr '$' SYMBOL			{ $$ = xxbinary($2,$1,$3);              setId( $$, @$); }
-	|	expr '$' STR_CONST		{ $$ = xxbinary($2,$1,$3);              setId( $$, @$); }
-	|	expr '@' SYMBOL			{ $$ = xxbinary($2,$1,$3);              setId( $$, @$); }
-	|	expr '@' STR_CONST		{ $$ = xxbinary($2,$1,$3);              setId( $$, @$); }
-	|	NEXT				{ $$ = xxnxtbrk($1);                       setId( $$, @$); }
-	|	BREAK				{ $$ = xxnxtbrk($1);                       setId( $$, @$); }
+	|	expr '$' SYMBOL					{ $$ = xxbinary($2,$1,$3);              setId( $$, @$); }
+	|	expr '$' STR_CONST				{ $$ = xxbinary($2,$1,$3);              setId( $$, @$); }
+	|	expr '@' SYMBOL					{ $$ = xxbinary($2,$1,$3);              setId( $$, @$); }
+	|	expr '@' STR_CONST				{ $$ = xxbinary($2,$1,$3);              setId( $$, @$); }
+	|	NEXT							{ $$ = xxnxtbrk($1);                       setId( $$, @$); }
+	|	BREAK							{ $$ = xxnxtbrk($1);                       setId( $$, @$); }
 	;
 
 
-cond	:	'(' expr ')'			{ $$ = xxcond($2); }
+cond	:	'(' expr ')'				{ $$ = xxcond($2); }
 	;
 
-ifcond	:	'(' expr ')'			{ $$ = xxifcond($2); }
+ifcond	:	'(' expr ')'				{ $$ = xxifcond($2); }
 	;
 
-forcond :	'(' SYMBOL IN expr ')' 		{ $$ = xxforcond($2,$4); }
+forcond :	'(' SYMBOL IN expr ')' 	{ $$ = xxforcond($2,$4); }
 	;
 
 
-exprlist:					{ $$ = xxexprlist0(); }
-	|	expr_or_assign			{ $$ = xxexprlist1($1); }
+exprlist:								{ $$ = xxexprlist0(); }
+	|	expr_or_assign					{ $$ = xxexprlist1($1); }
 	|	exprlist ';' expr_or_assign	{ $$ = xxexprlist2($1, $3); }
-	|	exprlist ';'			{ $$ = $1; }
+	|	exprlist ';'					{ $$ = $1; }
 	|	exprlist '\n' expr_or_assign	{ $$ = xxexprlist2($1, $3); }
-	|	exprlist '\n'			{ $$ = $1;}
+	|	exprlist '\n'					{ $$ = $1;}
 	;
 
-sublist	:	sub				{ $$ = xxsublist1($1); }
-	|	sublist cr ',' sub		{ $$ = xxsublist2($1,$4); }
+sublist	:	sub							{ $$ = xxsublist1($1); }
+	|	sublist cr ',' sub				{ $$ = xxsublist2($1,$4); }
 	;
 
 sub	:									{ $$ = xxsub0(); 				}
@@ -397,14 +417,15 @@ sub	:									{ $$ = xxsub0(); 				}
 	|	NULL_CONST EQ_ASSIGN expr		{ $$ = xxnullsub1($3, &@1); 	modif_token( &@2, EQ_SUB ) ; }
 	;
 
-formlist:									{ $$ = xxnullformal(); }
-	|	SYMBOL								{ $$ = xxfirstformal0($1); 			modif_token( &@1, SYMBOL_FORMALS ) ; }
-	|	SYMBOL EQ_ASSIGN expr				{ $$ = xxfirstformal1($1,$3); 			modif_token( &@1, SYMBOL_FORMALS ) ; modif_token( &@2, EQ_FORMALS ) ; }
-	|	formlist ',' SYMBOL					{ $$ = xxaddformal0($1,$3, &@3); 		modif_token( &@3, SYMBOL_FORMALS ) ; }
-	|	formlist ',' SYMBOL EQ_ASSIGN expr	{ $$ = xxaddformal1($1,$3,$5,&@3);		modif_token( &@3, SYMBOL_FORMALS ) ; modif_token( &@4, EQ_FORMALS ) ;}
+formlist:								{ $$ = xxnullformal(); }
+	|	SYMBOL							{ $$ = xxfirstformal0($1); 			modif_token( &@1, SYMBOL_FORMALS ) ; }
+	|	SYMBOL EQ_ASSIGN expr			{ $$ = xxfirstformal1($1,$3); 			modif_token( &@1, SYMBOL_FORMALS ) ; modif_token( &@2, EQ_FORMALS ) ; }
+	|	formlist ',' SYMBOL				{ $$ = xxaddformal0($1,$3, &@3); 		modif_token( &@3, SYMBOL_FORMALS ) ; }
+	|	formlist ',' SYMBOL EQ_ASSIGN expr	
+										{ $$ = xxaddformal1($1,$3,$5,&@3);		modif_token( &@3, SYMBOL_FORMALS ) ; modif_token( &@4, EQ_FORMALS ) ;}
 	;
 
-cr	:					{ EatLines = 1; }
+cr	:									{ EatLines = 1; }
 	;
 %%
 /*}}}*/
@@ -471,14 +492,6 @@ static int xxgetc(void) {
     
     R_ParseContextLine = xxlineno;    
 
-    if ( KeepSource && GenerateCode && FunctionLevel > 0 ) {
-		if(SourcePtr <  FunctionSource + MAXFUNSIZE){
-		    *SourcePtr++ = c;
-		}
-		else {
-			error(_("function is too long to keep source (at line %d)"), xxlineno);
-		}
-    }
     xxcharcount++;
     return c;
 }
@@ -497,9 +510,6 @@ static int xxungetc(int c) {
     prevpos = (prevpos + PUSHBACK_BUFSIZE - 1) % PUSHBACK_BUFSIZE;
 
     R_ParseContextLine = xxlineno;
-    if ( KeepSource && GenerateCode && FunctionLevel > 0 ){
-		SourcePtr--;
-	}
     xxcharcount--;
     R_ParseContext[R_ParseContextLast] = '\0';
     
@@ -536,12 +546,8 @@ static SEXP xxnullformal(){
 static SEXP xxfirstformal0(SEXP sym){
     SEXP ans;
     UNPROTECT_PTR(sym);
-    if (GenerateCode) {
-		PROTECT(ans = FirstArg(R_MissingArg, sym));
-    } else {
-		PROTECT(ans = R_NilValue);
-    }
-	return ans;
+    PROTECT(ans = FirstArg(R_MissingArg, sym));
+    return ans;
 }
 
 /**
@@ -554,11 +560,7 @@ static SEXP xxfirstformal0(SEXP sym){
  */
 static SEXP xxfirstformal1(SEXP sym, SEXP expr){
     SEXP ans;
-    if (GenerateCode){
-		PROTECT(ans = FirstArg(expr, sym));
-    } else { 
-		PROTECT(ans = R_NilValue);
-	}
+    PROTECT(ans = FirstArg(expr, sym));
     UNPROTECT_PTR(expr);
     UNPROTECT_PTR(sym);
    return ans;
@@ -575,13 +577,8 @@ static SEXP xxfirstformal1(SEXP sym, SEXP expr){
 static SEXP xxaddformal0(SEXP formlist, SEXP sym, YYLTYPE *lloc) {
 	
     SEXP ans;
-    if (GenerateCode) {
-		CheckFormalArgs(formlist, sym, lloc);
-		PROTECT(ans = NextArg(formlist, R_MissingArg, sym));
-    }
-    else {
-		PROTECT(ans = R_NilValue);
-	}
+    CheckFormalArgs(formlist, sym, lloc);
+	PROTECT(ans = NextArg(formlist, R_MissingArg, sym));
     UNPROTECT_PTR(sym);
     UNPROTECT_PTR(formlist);
     return ans;
@@ -599,13 +596,8 @@ static SEXP xxaddformal0(SEXP formlist, SEXP sym, YYLTYPE *lloc) {
 static SEXP xxaddformal1(SEXP formlist, SEXP sym, SEXP expr, YYLTYPE *lloc)
 {
     SEXP ans;
-    if (GenerateCode) {
-		CheckFormalArgs(formlist, sym, lloc);
-		PROTECT(ans = NextArg(formlist, expr, sym));
-    }
-    else {
-		PROTECT(ans = R_NilValue);
-	}
+    CheckFormalArgs(formlist, sym, lloc);
+	PROTECT(ans = NextArg(formlist, expr, sym));
     UNPROTECT_PTR(expr);
     UNPROTECT_PTR(sym);
     UNPROTECT_PTR(formlist);
@@ -659,14 +651,10 @@ static SEXP NextArg(SEXP l, SEXP s, SEXP tag) {
 static SEXP xxexprlist(SEXP a1, SEXP a2) {
     SEXP ans;
     EatLines = 0;
-    if (GenerateCode) {
-		SET_TYPEOF(a2, LANGSXP);
-		SETCAR(a2, a1);
-		PROTECT(ans = a2);
-    } else {
-		PROTECT(ans = R_NilValue);
-    }
-	UNPROTECT_PTR(a2);
+    SET_TYPEOF(a2, LANGSXP);
+	SETCAR(a2, a1);
+	PROTECT(ans = a2);
+    UNPROTECT_PTR(a2);
 	return ans;
 }
 
@@ -678,12 +666,8 @@ static SEXP xxexprlist(SEXP a1, SEXP a2) {
  */
 static SEXP xxexprlist0(void) {
     SEXP ans;
-    if (GenerateCode) {
-		PROTECT(ans = NewList()); 
-    } else {
-		PROTECT(ans = R_NilValue);
-	}
-	return ans;
+    PROTECT(ans = NewList()); 
+    return ans;
 }
 
 /**
@@ -694,14 +678,10 @@ static SEXP xxexprlist0(void) {
  */
 static SEXP xxexprlist1(SEXP expr){
     SEXP ans,tmp;
-    if (GenerateCode) {
-		PROTECT(tmp = NewList());
-		PROTECT(ans = GrowList(tmp, expr));
-		UNPROTECT_PTR(tmp);
-    } else {
-		PROTECT(ans = R_NilValue);
-    }
-	UNPROTECT_PTR(expr);
+    PROTECT(tmp = NewList());
+	PROTECT(ans = GrowList(tmp, expr));
+	UNPROTECT_PTR(tmp);
+    UNPROTECT_PTR(expr);
     return ans;
 }
 
@@ -714,11 +694,7 @@ static SEXP xxexprlist1(SEXP expr){
  */
 static SEXP xxexprlist2(SEXP exprlist, SEXP expr){
     SEXP ans;
-    if (GenerateCode) {
-		PROTECT(ans = GrowList(exprlist, expr));
-    } else {
-		PROTECT(ans = R_NilValue);
-	}
+    PROTECT(ans = GrowList(exprlist, expr));
     UNPROTECT_PTR(expr);
     UNPROTECT_PTR(exprlist);
     return ans;
@@ -741,11 +717,7 @@ static SEXP xxexprlist2(SEXP exprlist, SEXP expr){
  */
 static SEXP xxsubscript(SEXP a1, SEXP a2, SEXP a3){
     SEXP ans;
-    if (GenerateCode){
-		PROTECT(ans = LCONS(a2, CONS(a1, CDR(a3))));
-    } else {
-		PROTECT(ans = R_NilValue);
-	}
+    PROTECT(ans = LCONS(a2, CONS(a1, CDR(a3))));
     UNPROTECT_PTR(a3);
     UNPROTECT_PTR(a1);
     return ans;
@@ -760,11 +732,7 @@ static SEXP xxsubscript(SEXP a1, SEXP a2, SEXP a3){
  */
 static SEXP xxsub0(void){
     SEXP ans;
-    if (GenerateCode){
-		PROTECT(ans = lang2(R_MissingArg,R_NilValue));
-    } else {
-		PROTECT(ans = R_NilValue);
-	}
+    PROTECT(ans = lang2(R_MissingArg,R_NilValue));
     return ans;
 }
 
@@ -777,12 +745,8 @@ static SEXP xxsub0(void){
  */
 static SEXP xxsub1(SEXP expr, YYLTYPE *lloc){
     SEXP ans;
-    if (GenerateCode){
-		PROTECT(ans = TagArg(expr, R_NilValue, lloc));
-    } else {
-		PROTECT(ans = R_NilValue);
-    }
-	UNPROTECT_PTR(expr);
+    PROTECT(ans = TagArg(expr, R_NilValue, lloc));
+    UNPROTECT_PTR(expr);
     return ans;
 }
 
@@ -800,11 +764,7 @@ static SEXP xxsub1(SEXP expr, YYLTYPE *lloc){
  */
 static SEXP xxsymsub0(SEXP sym, YYLTYPE *lloc){
     SEXP ans;
-    if (GenerateCode){
-		PROTECT(ans = TagArg(R_MissingArg, sym, lloc));
-    } else {
-		PROTECT(ans = R_NilValue);
-	}
+    PROTECT(ans = TagArg(R_MissingArg, sym, lloc));
     UNPROTECT_PTR(sym);
     return ans;
 }
@@ -822,11 +782,7 @@ static SEXP xxsymsub0(SEXP sym, YYLTYPE *lloc){
  */
 static SEXP xxsymsub1(SEXP sym, SEXP expr, YYLTYPE *lloc){
     SEXP ans;
-    if (GenerateCode){
-		PROTECT(ans = TagArg(expr, sym, lloc));
-    } else {
-		PROTECT(ans = R_NilValue);
-	}
+    PROTECT(ans = TagArg(expr, sym, lloc));
     UNPROTECT_PTR(expr);
     UNPROTECT_PTR(sym);
     return ans;
@@ -844,11 +800,7 @@ static SEXP xxsymsub1(SEXP sym, SEXP expr, YYLTYPE *lloc){
 static SEXP xxnullsub0(YYLTYPE *lloc){
     SEXP ans;
     UNPROTECT_PTR(R_NilValue);
-    if (GenerateCode){
-		PROTECT(ans = TagArg(R_MissingArg, install("NULL"), lloc));
-    } else {
-		PROTECT(ans = R_NilValue);
-	}
+    PROTECT(ans = TagArg(R_MissingArg, install("NULL"), lloc));
     return ans;
 }
 
@@ -865,12 +817,8 @@ static SEXP xxnullsub0(YYLTYPE *lloc){
 static SEXP xxnullsub1(SEXP expr, YYLTYPE *lloc) {
     SEXP ans = install("NULL");
     UNPROTECT_PTR(R_NilValue);
-    if (GenerateCode){
-		PROTECT(ans = TagArg(expr, ans, lloc));
-    } else {
-		PROTECT(ans = R_NilValue);
-    }
-	UNPROTECT_PTR(expr);
+    PROTECT(ans = TagArg(expr, ans, lloc));
+    UNPROTECT_PTR(expr);
     return ans;
 }
 /*}}}*/
@@ -884,11 +832,7 @@ static SEXP xxnullsub1(SEXP expr, YYLTYPE *lloc) {
  */ 
 static SEXP xxsublist1(SEXP sub){
     SEXP ans;
-    if (GenerateCode){
-		PROTECT(ans = FirstArg(CAR(sub),CADR(sub)));
-    } else {
-		PROTECT(ans = R_NilValue);
-	}
+    PROTECT(ans = FirstArg(CAR(sub),CADR(sub)));
     UNPROTECT_PTR(sub);
     return ans;
 }
@@ -902,11 +846,7 @@ static SEXP xxsublist1(SEXP sub){
  */ 
 static SEXP xxsublist2(SEXP sublist, SEXP sub){
     SEXP ans;
-    if (GenerateCode){
-		PROTECT(ans = NextArg(sublist, CAR(sub), CADR(sub)));
-    } else {
-		PROTECT(ans = R_NilValue);
-	}
+    PROTECT(ans = NextArg(sublist, CAR(sub), CADR(sub)));
     UNPROTECT_PTR(sub);
     UNPROTECT_PTR(sublist);
     return ans;
@@ -954,11 +894,7 @@ static SEXP xxifcond(SEXP expr){
  */
 static SEXP xxif(SEXP ifsym, SEXP cond, SEXP expr){
     SEXP ans;
-    if (GenerateCode){ 
-		PROTECT(ans = lang3(ifsym, cond, expr));
-    } else {
-		PROTECT(ans = R_NilValue);
-	}
+    PROTECT(ans = lang3(ifsym, cond, expr));
     UNPROTECT_PTR(expr);
     UNPROTECT_PTR(cond);
 	
@@ -976,16 +912,11 @@ static SEXP xxif(SEXP ifsym, SEXP cond, SEXP expr){
  */
 static SEXP xxifelse(SEXP ifsym, SEXP cond, SEXP ifexpr, SEXP elseexpr){
     SEXP ans;
-    if( GenerateCode){
-		PROTECT(ans = lang4(ifsym, cond, ifexpr, elseexpr));
-	} else {
-		PROTECT(ans = R_NilValue);
-	}
-    UNPROTECT_PTR(elseexpr);
+    PROTECT(ans = lang4(ifsym, cond, ifexpr, elseexpr));
+	UNPROTECT_PTR(elseexpr);
     UNPROTECT_PTR(ifexpr);
     UNPROTECT_PTR(cond);
-	
-    return ans;
+	return ans;
 }
 
 /**
@@ -1001,10 +932,7 @@ static SEXP xxifelse(SEXP ifsym, SEXP cond, SEXP ifexpr, SEXP elseexpr){
 static SEXP xxforcond(SEXP sym, SEXP expr){
     SEXP ans;
     EatLines = 1;
-    if (GenerateCode)
-	PROTECT(ans = LCONS(sym, expr));
-    else
-	PROTECT(ans = R_NilValue);
+    PROTECT(ans = LCONS(sym, expr));
     UNPROTECT_PTR(expr);
     UNPROTECT_PTR(sym);
     return ans;
@@ -1022,11 +950,7 @@ static SEXP xxforcond(SEXP sym, SEXP expr){
  */
 static SEXP xxfor(SEXP forsym, SEXP forcond, SEXP body){
     SEXP ans;
-    if (GenerateCode){
-		PROTECT(ans = lang4(forsym, CAR(forcond), CDR(forcond), body));
-    } else {
-		PROTECT(ans = R_NilValue);
-	}
+    PROTECT(ans = lang4(forsym, CAR(forcond), CDR(forcond), body));
     UNPROTECT_PTR(body);
     UNPROTECT_PTR(forcond);
    return ans;
@@ -1042,12 +966,8 @@ static SEXP xxfor(SEXP forsym, SEXP forcond, SEXP body){
  */
 static SEXP xxwhile(SEXP whilesym, SEXP cond, SEXP body){
     SEXP ans;
-    if (GenerateCode){
-		PROTECT(ans = lang3(whilesym, cond, body));
-	} else {
-		PROTECT(ans = R_NilValue);
-	}
-    UNPROTECT_PTR(body);
+    PROTECT(ans = lang3(whilesym, cond, body));
+	UNPROTECT_PTR(body);
     UNPROTECT_PTR(cond);
     return ans;
 }
@@ -1061,11 +981,7 @@ static SEXP xxwhile(SEXP whilesym, SEXP cond, SEXP body){
  */
 static SEXP xxrepeat(SEXP repeatsym, SEXP body){
     SEXP ans;
-    if (GenerateCode){
-		PROTECT(ans = lang2(repeatsym, body));
-    } else {
-		PROTECT(ans = R_NilValue);
-	}
+    PROTECT(ans = lang2(repeatsym, body));
     UNPROTECT_PTR(body);
     return ans;
 }
@@ -1077,12 +993,8 @@ static SEXP xxrepeat(SEXP repeatsym, SEXP body){
  * @return the keyword (passed through lang1)
  */ 
 static SEXP xxnxtbrk(SEXP keyword){
-    if (GenerateCode){
-		PROTECT(keyword = lang1(keyword));
-	} else {
-		PROTECT(keyword = R_NilValue);
-	}
-    return keyword;
+    PROTECT(keyword = lang1(keyword));
+	return keyword;
 }
 /*}}}*/
 
@@ -1096,21 +1008,17 @@ static SEXP xxnxtbrk(SEXP keyword){
  */
 static SEXP xxfuncall(SEXP expr, SEXP args){
 	SEXP ans, sav_expr = expr;
-    if(GenerateCode) {
-		if (isString(expr)){
-		    expr = install(CHAR(STRING_ELT(expr, 0)));
-		}
-		PROTECT(expr);
-		if (length(CDR(args)) == 1 && CADR(args) == R_MissingArg && TAG(CDR(args)) == R_NilValue ){
-		    ans = lang1(expr);
-		} else {
-		    ans = LCONS(expr, CDR(args));
-		}
-		UNPROTECT(1);
-		PROTECT(ans);
-    } else {
-		PROTECT(ans = R_NilValue);
-    }
+    if (isString(expr)){
+	    expr = install(CHAR(STRING_ELT(expr, 0)));
+	}
+	PROTECT(expr);
+	if (length(CDR(args)) == 1 && CADR(args) == R_MissingArg && TAG(CDR(args)) == R_NilValue ){
+	    ans = lang1(expr);
+	} else {
+	    ans = LCONS(expr, CDR(args));
+	}
+	UNPROTECT(1);
+	PROTECT(ans);
     UNPROTECT_PTR(args);
     UNPROTECT_PTR(sav_expr);
 	
@@ -1126,79 +1034,14 @@ static SEXP xxfuncall(SEXP expr, SEXP args){
  * @return the expression containing the function definition
  */
 static SEXP xxdefun(SEXP fname, SEXP formals, SEXP body){
-
-    SEXP ans;
+	SEXP ans;
     SEXP source;
-
-    if (GenerateCode) {
-		if (!KeepSource){ 
-			PROTECT(source = R_NilValue);
-		} else {
-	    	unsigned char *p, *p0, *end;
-	    	int lines = 0, nc;
-        	
-	    	/*  If the function ends with an endline comment,  e.g.
-        	
-			function()
-			    print("Hey") # This comment
-        	
-			we need some special handling to keep it from getting
-			chopped off. Normally, we will have read one token too
-			far, which is what xxcharcount and xxcharsave keeps
-			track of.
-        	
-	    	*/
-	    	end = SourcePtr - (xxcharcount - xxcharsave);
-	    	
-			/* FIXME: this should be whitespace */
-	    	for (p = end ; p < SourcePtr && (*p == ' ' || *p == '\t') ; p++) ;
-	    	if (*p == '#') {
-				while (p < SourcePtr && *p != '\n'){
-				    p++;
-				}
-				end = p;
-	    	}
-        	
-	    	for (p = FunctionStart[FunctionLevel]; p < end ; p++){
-				if (*p == '\n') {
-					lines++;
-				}
-			}
-	    	if ( *(end - 1) != '\n' ){
-				lines++;
-			}
-	    	PROTECT(source = allocVector(STRSXP, lines));
-	    	p0 = FunctionStart[FunctionLevel];
-	    	lines = 0;
-	    	for (p = FunctionStart[FunctionLevel]; p < end ; p++){
-				if (*p == '\n' || p == end - 1) {
-				    cetype_t enc = CE_NATIVE;
-				    nc = p - p0;
-				    if (*p != '\n') {
-						nc++;
-					}
-				    if(known_to_be_latin1) {
-						enc = CE_LATIN1;
-					} else if(known_to_be_utf8) {
-						enc = CE_UTF8;
-					}
-				    SET_STRING_ELT(source, lines++,
-						   mkCharLenCE((char *)p0, nc, enc));
-				    p0 = p + 1;
-				}
-			}
-			/* PrintValue(source); */
-		}
-		PROTECT(ans = lang4(fname, CDR(formals), body, source));
-		UNPROTECT_PTR(source);
-    }
-    else {
-		PROTECT(ans = R_NilValue);
-	}
+    PROTECT(source = R_NilValue);
+	PROTECT(ans = lang4(fname, CDR(formals), body, source));
+	UNPROTECT_PTR(source);
     UNPROTECT_PTR(body);
     UNPROTECT_PTR(formals);
-    FunctionLevel--;
-	
+    
     return ans;
 }
 /*}}}*/
@@ -1213,14 +1056,9 @@ static SEXP xxdefun(SEXP fname, SEXP formals, SEXP body){
  */
 static SEXP xxunary(SEXP op, SEXP arg){
     SEXP ans;
-    if (GenerateCode){
-		PROTECT(ans = lang2(op, arg));
-    } else {
-		PROTECT(ans = R_NilValue);
-	}
+    PROTECT(ans = lang2(op, arg));
     UNPROTECT_PTR(arg);
-    
-	return ans;
+    return ans;
 }
 
 /**
@@ -1233,11 +1071,7 @@ static SEXP xxunary(SEXP op, SEXP arg){
  */
 static SEXP xxbinary(SEXP n1, SEXP n2, SEXP n3){
     SEXP ans;
-    if (GenerateCode){
-		PROTECT(ans = lang3(n1, n2, n3));
-    } else {
-		PROTECT(ans = R_NilValue);
-	}
+    PROTECT(ans = lang3(n1, n2, n3));
     UNPROTECT_PTR(n2);
     UNPROTECT_PTR(n3);
 	
@@ -1254,12 +1088,8 @@ static SEXP xxbinary(SEXP n1, SEXP n2, SEXP n3){
  */
 static SEXP xxparen(SEXP n1, SEXP n2){
     SEXP ans;
-    if (GenerateCode){
-		PROTECT(ans = lang2(n1, n2));
-	} else {
-		PROTECT(ans = R_NilValue);
-	}
-    UNPROTECT_PTR(n2);
+    PROTECT(ans = lang2(n1, n2));
+	UNPROTECT_PTR(n2);
     return ans;
 }
 
@@ -1408,6 +1238,7 @@ static int SkipComment(void){
 	record_( _first_line,  _first_column, _first_byte, 
 			_last_line, _last_column, _last_byte, 
 			type, identifier ) ;
+	nterminals++ ;
 	return c ;
 }
 /*}}}*/
@@ -1489,37 +1320,33 @@ static int NumericValue(int c) {
 		   will not lose information and so use the numeric value.
 		*/
 		if(a != (double) b) {
-		    if(GenerateCode) {
-				if(seendot == 1 && seenexp == 0){
-				    warning(_("integer literal %sL contains decimal; using numeric value"), yytext_);
-				} else {
-				    warning(_("non-integer value %s qualified with L; using numeric value"), yytext_);
-				}
-		    }
+		    if(seendot == 1 && seenexp == 0){
+			    warning(_("integer literal %sL contains decimal; using numeric value"), yytext_);
+			} else {
+			    warning(_("non-integer value %s qualified with L; using numeric value"), yytext_);
+			}
 		    asNumeric = 1;
 		    seenexp = 1;
 		}
     }
 
     if(c == 'i') {
-		yylval = GenerateCode ? mkComplex(yytext_) : R_NilValue;
+		yylval = mkComplex(yytext_) ;
     } else if(c == 'L' && asNumeric == 0) {
-		if(GenerateCode && seendot == 1 && seenexp == 0)
+		if(seendot == 1 && seenexp == 0)
 		    warning(_("integer literal %sL contains unnecessary decimal point"), yytext_);
-		yylval = GenerateCode ? mkInt(yytext_) : R_NilValue;
+		yylval = mkInt(yytext_);
 #if 0  /* do this to make 123 integer not double */
     } else if(!(seendot || seenexp)) {
 		if(c != 'L') xxungetc(c);
-		if (GenerateCode) {
-		    double a = R_atof(yytext_);
-		    int b = (int) a;
-		    yylval = (a != (double) b) ? mkFloat(yytext_) : mkInt(yytext_);
-		} else yylval = R_NilValue;
+		double a = R_atof(yytext_);
+		int b = (int) a;
+		yylval = (a != (double) b) ? mkFloat(yytext_) : mkInt(yytext_);
 #endif
     } else {
 		if(c != 'L')
 		    xxungetc(c);
-		yylval = GenerateCode ? mkFloat(yytext_) : R_NilValue;
+		yylval = mkFloat(yytext_) ;
     }
 
     PROTECT(yylval);
@@ -1632,6 +1459,7 @@ static int SkipSpace_(void){
 		// 	_space_first_line, _space_first_col, _space_first_byte, 
 		// 	_space_last_line, _space_last_col, _space_last_byte,  
 		// 	SPACES, identifier ) ;
+		// nterminals++;
 		setfirstloc( _space_last_line, _space_last_col, _space_last_byte );
 	}
 	
@@ -1686,44 +1514,40 @@ static int KeywordLookup(const char *s) {
 					PROTECT(yylval = R_NilValue);
 					break;
 		    	case NUM_CONST:
-					if(GenerateCode) {
-					    switch(i) {
-					    	case 1:
-								PROTECT(yylval = mkNA());
-								break;
-					    	case 2:
-								PROTECT(yylval = mkTrue());
-								break;
-					    	case 3:
-								PROTECT(yylval = mkFalse());
-								break;
-					    	case 4:
-								PROTECT(yylval = allocVector(REALSXP, 1));
-								REAL(yylval)[0] = R_PosInf;
-								break;
-					    	case 5:
-								PROTECT(yylval = allocVector(REALSXP, 1));
-								REAL(yylval)[0] = R_NaN;
-								break;
-					    	case 6:
-								PROTECT(yylval = allocVector(INTSXP, 1));
-								INTEGER(yylval)[0] = NA_INTEGER;
-								break;
-					    	case 7:
-								PROTECT(yylval = allocVector(REALSXP, 1));
-								REAL(yylval)[0] = NA_REAL;
-								break;
-					    	case 8:
-								PROTECT(yylval = allocVector(STRSXP, 1));
-								SET_STRING_ELT(yylval, 0, NA_STRING);
-								break;
-					    	case 9:
-								PROTECT(yylval = allocVector(CPLXSXP, 1));
-								COMPLEX(yylval)[0].r = COMPLEX(yylval)[0].i = NA_REAL;
-								break;
-					    }
-					} else {
-					    PROTECT(yylval = R_NilValue);
+					switch(i) {
+						case 1:
+							PROTECT(yylval = mkNA());
+							break;
+						case 2:
+							PROTECT(yylval = mkTrue());
+							break;
+						case 3:
+							PROTECT(yylval = mkFalse());
+							break;
+						case 4:
+							PROTECT(yylval = allocVector(REALSXP, 1));
+							REAL(yylval)[0] = R_PosInf;
+							break;
+						case 5:
+							PROTECT(yylval = allocVector(REALSXP, 1));
+							REAL(yylval)[0] = R_NaN;
+							break;
+						case 6:
+							PROTECT(yylval = allocVector(INTSXP, 1));
+							INTEGER(yylval)[0] = NA_INTEGER;
+							break;
+						case 7:
+							PROTECT(yylval = allocVector(REALSXP, 1));
+							REAL(yylval)[0] = NA_REAL;
+							break;
+						case 8:
+							PROTECT(yylval = allocVector(STRSXP, 1));
+							SET_STRING_ELT(yylval, 0, NA_STRING);
+							break;
+						case 9:
+							PROTECT(yylval = allocVector(CPLXSXP, 1));
+							COMPLEX(yylval)[0].r = COMPLEX(yylval)[0].i = NA_REAL;
+							break;
 					}
 					break;
 		    	case FUNCTION:
@@ -1754,7 +1578,6 @@ static int KeywordLookup(const char *s) {
  * Makes a COMPLEX (CPLXSXP) from the character string
  *
  * @param s the character string to convert to a complex
- * @param GenerateCode if true some code is generated
  */
 SEXP mkComplex(const char *s ) {
     SEXP t = R_NilValue;
@@ -1762,12 +1585,10 @@ SEXP mkComplex(const char *s ) {
 	/* FIXME: make certain the value is legitimate. */
     f = R_atof(s); 
 
-    if(GenerateCode) {
-       t = allocVector(CPLXSXP, 1);
-       COMPLEX(t)[0].r = 0;
-       COMPLEX(t)[0].i = f;
-    }
-
+    t = allocVector(CPLXSXP, 1);
+    COMPLEX(t)[0].r = 0;
+    COMPLEX(t)[0].i = f;
+    
     return t;
 }
 
@@ -1903,8 +1724,7 @@ static void yyerror(char *s) {
 
     R_ParseError     = yylloc.first_line;
     R_ParseErrorCol  = yylloc.first_column;
-    // R_ParseErrorFile = SrcFile;
-
+    
     if (!strncmp(s, yyunexpected, sizeof yyunexpected -1)) {
 		int i;
 		/* Edit the error message */
@@ -1950,7 +1770,6 @@ static void CheckFormalArgs(SEXP formlist, SEXP _new, YYLTYPE *lloc) {
     }
 }
 /*}}}*/
-
 
 
 /* Strings may contain the standard ANSI escapes and octal */
@@ -2080,7 +1899,7 @@ static int StringValue(int c, Rboolean forSymbol) {
 						xxungetc(c);
 						CTEXT_POP();
 						if (i == 0) { /* was just \x */
-						    if(GenerateCode && R_WarnEscapes) {
+						    if(R_WarnEscapes) {
 								have_warned++;
 								warningcall(R_NilValue, _("'\\x' used without hex digits"));
 						    }
@@ -2113,7 +1932,7 @@ static int StringValue(int c, Rboolean forSymbol) {
 						xxungetc(c);
 						CTEXT_POP();
 						if (i == 0) { /* was just \x */
-						    if(GenerateCode && R_WarnEscapes) {
+						    if(R_WarnEscapes) {
 								have_warned++;
 								warningcall(R_NilValue, _("\\u used without hex digits"));
 						    }
@@ -2169,7 +1988,7 @@ static int StringValue(int c, Rboolean forSymbol) {
 						xxungetc(c);
 						CTEXT_POP();
 						if (i == 0) { /* was just \x */
-						    if(GenerateCode && R_WarnEscapes) {
+						    if(R_WarnEscapes) {
 								have_warned++;
 								warningcall(R_NilValue, _("\\U used without hex digits"));
 						    }
@@ -2233,7 +2052,7 @@ static int StringValue(int c, Rboolean forSymbol) {
 					case '\n':
 					    break;
 					default:
-					    if(GenerateCode && R_WarnEscapes) {
+					    if(R_WarnEscapes) {
 							have_warned++;
 							warningcall(R_NilValue, _("'\\%c' is an unrecognized escape in a character string"), c);
 					    }
@@ -2368,8 +2187,8 @@ int isValidName(const char *name){
  */
 static int SpecialValue(int c) {
 	
-	// DECLARE_YYTEXT_BUFP(yyp);
-    // YYTEXT_PUSH(c, yyp);
+	DECLARE_YYTEXT_BUFP(yyp);
+    YYTEXT_PUSH(c, yyp);
 	char *p = yytext_ ;
 	*p='%';
 	while ((c = xxgetc()) != R_EOF && c != '%') {
@@ -2377,23 +2196,23 @@ static int SpecialValue(int c) {
 		    xxungetc(c);
 		    return ERROR;
 		}
-		// YYTEXT_PUSH(c, yyp);
+		YYTEXT_PUSH(c, yyp);
 		*(p)++ = c ;
     }
     if (c == '%') {
-		// YYTEXT_PUSH(c, yyp);
+		YYTEXT_PUSH(c, yyp);
 		*(p)++ = '%' ;
 	}
 	*(p)++ = '\0' ;
-	// YYTEXT_PUSH('\0', yyp);
+	YYTEXT_PUSH('\0', yyp);
     yylval = install(yytext_);
     return SPECIAL;
 }
 /*}}}*/
 
 /*{{{ SymbolValue */
-static int SymbolValue(int c)
-{
+static int SymbolValue(int c) {
+	
     int kw;
     DECLARE_YYTEXT_BUFP(yyp);
 #if defined(SUPPORT_MBCS)
@@ -2427,18 +2246,6 @@ static int SymbolValue(int c)
 	xxungetc(c);
     YYTEXT_PUSH('\0', yyp);
     if ((kw = KeywordLookup(yytext_))) {
-		if ( kw == FUNCTION ) {
-		    if (FunctionLevel >= MAXNEST)
-			error(_("functions nested too deeply in source code at line %d"), xxlineno);
-		    if ( FunctionLevel++ == 0 && GenerateCode) {
-				strcpy((char *)FunctionSource, "function");
-				SourcePtr = FunctionSource + 8;
-		    }
-		    FunctionStart[FunctionLevel] = SourcePtr - 8;
-#if 0
-		    printf("%d,%d\n", SourcePtr - FunctionSource, FunctionLevel);
-#endif
-		}
 		return kw;
     }
     PROTECT(yylval = install(yytext_));
@@ -2454,7 +2261,6 @@ static int SymbolValue(int c)
  * 
  * @return the token type once characters are consumed
  */
-static int _space_count = 0 ;
 static int token(void) {
 	
     int c;
@@ -2609,6 +2415,7 @@ static int token(void) {
 			}
 			if (nextchar('=')) {
 			    yylval = install(":=");
+				colon = 1 ;
 			    return LEFT_ASSIGN;
 			}
 			yylval = install(":");
@@ -2707,7 +2514,7 @@ static int token_(void){
 		record_( yylloc.first_line, yylloc.first_column, yylloc.first_byte, 
 				_last_line, _last_col, _last_byte, 
 				res, identifier ) ;
-		
+		nterminals++;
 	}
 	
 	return res; 
@@ -3000,15 +2807,20 @@ static void ParseContextInit(void) {
     R_ParseContextLast = 0;
     R_ParseContext[0] = '\0';
 	idSXP = mkString( "id" ) ;
+	colon = 0 ;
 	
 	/* starts the identifier counter*/
 	initId();
-	PROTECT_WITH_INDEX( locations = NewList(), &LOC_INDEX ) ;
-	PROTECT_WITH_INDEX( parents = NewList(), &PARENTS_INDEX ) ;
-	modif_count = 0 ;
-	modif_length = MODIF_INC ;
-	PROTECT_WITH_INDEX( token_modifications = allocVector(INTSXP, MODIF_INC ) , &MODIF_INDEX ) ; 
-
+	
+	data_count = 0 ;
+	data_size  = 0 ;
+	id_size=0;
+	nterminals = 0 ;
+	PROTECT_WITH_INDEX( data = R_NilValue, &DATA_INDEX ) ;
+	PROTECT_WITH_INDEX( ids = R_NilValue, &ID_INDEX ) ;
+	growData( ) ;
+	growID();
+	
 }
 /*}}}*/
            
@@ -3020,10 +2832,7 @@ static void ParseInit(void) {
     SavedLval = R_NilValue;
     EatLines = 0;
     EndOfFile = 0;
-    FunctionLevel=0;
-    SourcePtr = FunctionSource;
     xxcharcount = 0;
-    KeepSource = *LOGICAL(GetOption(install("keep.source"), R_BaseEnv));
     npush = 0;
 }
 /*}}}*/
@@ -3102,8 +2911,11 @@ finish:
     for (n = 0 ; n < LENGTH(rval) ; n++, t = CDR(t)){
 		SET_VECTOR_ELT(rval, n, CAR(t));
 	}
-	setAttrib( rval, mkString( "data" ), makeMatrix( ) ) ;
-	UNPROTECT(4) ; // t, locations, parents, mat, parentsVector, idVector
+	finalizeData() ;
+	setAttrib( rval, mkString( "data" ), data ) ;
+	UNPROTECT_PTR( data ) ;
+	UNPROTECT_PTR( ids ) ;
+	UNPROTECT( 1 ) ; // t 
 	
     R_PPStackTop = savestack;
     *status = PARSE_OK;
@@ -3113,10 +2925,9 @@ finish:
 /*}}}*/
 
 /*{{{ R_ParseFile */
-attribute_hidden 
-SEXP R_ParseFile(FILE *fp, int n, ParseStatus *status, SEXP srcfile) {
-    GenerateCode = 1;
-    fp_parse = fp;
+attribute_hidden SEXP R_ParseFile(FILE *fp, int n, ParseStatus *status, SEXP srcfile, int nl) {
+    NLINES = nl ;
+	fp_parse = fp;
     ptr_getc = file_getc;
 	// yydebug = 1 ;
     return R_Parse(n, status, srcfile);
@@ -3124,6 +2935,8 @@ SEXP R_ParseFile(FILE *fp, int n, ParseStatus *status, SEXP srcfile) {
 /*}}}*/
 
 /*}}}*/
+
+/*{{{ tracking things */
 
 /*{{{ Keeping track of the id */
 /**
@@ -3141,7 +2954,7 @@ static void initId(void){
 /*{{{ Recording functions */
 /**
  * Records location information about a symbol. The information is
- * used to grow the "locations" list with a new vector 
+ * used to fill the data 
  * 
  * @param first_line first line of the symbol
  * @param first_column first column of the symbol
@@ -3156,25 +2969,44 @@ static void record_( int first_line, int first_column, int first_byte,
 	int last_line, int last_column, int last_byte, 
 	int token, int id ){
        
+	if( token == LEFT_ASSIGN && colon == 1){
+		token = COLON_ASSIGN ;
+		colon = 0 ;
+	}
+	
 	// don't care about zero sized things
 	if( first_line == last_line && first_byte == last_byte ) return ;
 	
+	_FIRST_LINE( data_count )   = first_line ;  
+	_FIRST_COLUMN( data_count ) = first_column; 
+	_FIRST_BYTE( data_count )   = first_byte;   
+	_LAST_LINE( data_count )    = last_line;    
+	_LAST_COLUMN( data_count )  = last_column;  
+	_LAST_BYTE( data_count )    = last_byte;    
+	_TOKEN( data_count )        = token;        
+	_ID( data_count )           = id ;          
+	_PARENT(data_count)         = 0 ; 
+	
 	// Rprintf("%d,%d,%d,%d,%d,%d,%d,%d,%d\n", 
-	// 		first_line, first_column, first_byte, 
-	// 		last_line, last_column, last_byte, 
-	// 		token, id, parent ) ;
-	SEXP new_ ;
-	PROTECT(new_ = allocVector(INTSXP, 8));
-    INTEGER(new_)[0] = first_line ;
-    INTEGER(new_)[1] = first_column;
-	INTEGER(new_)[2] = first_byte;
-	INTEGER(new_)[3] = last_line;
-	INTEGER(new_)[4] = last_column;
-	INTEGER(new_)[5] = last_byte;
-	INTEGER(new_)[6] = token;
-	INTEGER(new_)[7] = id ;
-	REPROTECT( locations = GrowList(locations, new_) , LOC_INDEX );
-	UNPROTECT( 1 ) ; // new_	
+	// 		_FIRST_LINE( data_count )  , 
+	// 		_FIRST_COLUMN( data_count ), 
+	// 		_FIRST_BYTE( data_count )  , 
+	// 		_LAST_LINE( data_count )   , 
+	// 		_LAST_COLUMN( data_count ) , 
+	// 		_LAST_BYTE( data_count )   , 
+	// 		_TOKEN( data_count )       , 
+	// 		_ID( data_count )          , 
+	// 		_PARENT(data_count)         
+	// 		) ;
+	ID_ID( id ) = data_count ; 
+	data_count++ ;
+	if( id == (id_size-1) ){
+		growID() ;
+	}
+	if( data_count == data_size ){
+		growData( ) ;
+	}
+	
 }
 
 /**
@@ -3187,134 +3019,75 @@ static void record_( int first_line, int first_column, int first_byte,
  * @param nchilds number of childs
  */
 static void recordParents( int parent, yyltype * childs, int nchilds){
-	SEXP new_ ;
 	
-	/* some of the childs might be the fake token cr 
+	/* some of the childs might be an empty token (like cr)
 	   which we do not want to track */
 	int ii, jj;    /* loop index */
-	int cr = -1 ;  /* the index where a cr token was seen */
 	yyltype loc ;
 	int size = nchilds + 1 ;
 	for( ii=0; ii<nchilds; ii++){
 		loc = childs[ii] ;
 		if( loc.first_line == loc.last_line && loc.first_byte == loc.last_byte ){
-			cr = ii;
-			size-- ;
-			break ;
+			continue ;
 		}
+		ID_PARENT( (childs[ii]).id ) = parent ;
 	}
 	
-	PROTECT( new_ = allocVector( INTSXP, size ) ) ;
-	INTEGER(new_)[0] = parent ;
-	for( ii=0, jj=0; ii<nchilds; ii++){
-		if( ii != cr) {
-			jj++ ;
-			INTEGER(new_)[jj] = (childs[ii]).id ;
-		}
-    }
-	REPROTECT( parents = GrowList(parents, new_) , PARENTS_INDEX );
-	UNPROTECT( 1 ) ; // new_
 }
 
 /**
- * The token pointed by the location is a formal argument symbol
- * we track it here so that we can modify its type later on
+ * The token pointed by the location has the wrong token type, 
+ * This updates the type
  *
  * @param loc location information for the token to track
  */ 
 static void modif_token( yyltype* loc, int tok ){
 	
-	INTEGER( token_modifications )[2*modif_count] = loc->id ;
-	INTEGER( token_modifications )[2*modif_count+1] = tok ;
-	modif_count++ ;
-	
-	/* check if we need more space */
-	if( modif_count == ( length( token_modifications ) / 2 ) ){
-		int current_length = modif_length ; 
-		modif_length += ( MODIF_INC *2 ) ;
-		SEXP bigger ;
-		PROTECT( bigger = allocVector( INTSXP, modif_length ) ) ;
-		int i ;
-		for( i=0; i<current_length; i++){
-			INTEGER(bigger)[i] = INTEGER(token_modifications)[i] ;
+	int id = loc->id ;
+	if( tok == SYMBOL_FUNCTION_CALL ){
+		// looking for first child of id
+		int j = ID_ID( id ) ;
+		int parent = _ID( j ) ;
+		while( ID_PARENT( _ID(j) ) != parent ){
+			j-- ;
 		}
-		REPROTECT( token_modifications = bigger, MODIF_INDEX ); 
-		UNPROTECT(1);
+		if( _TOKEN(j) == SYMBOL ){
+			_TOKEN(j) = SYMBOL_FUNCTION_CALL ;
+		}
+		
+	} else{
+		_TOKEN( ID_ID(id) ) = tok ;
 	}
 	
 }
 /*}}}*/
 
-/*{{{ makeMatrix */
+/*{{{ finalizeData */
 
-/*{{{ macros to conveniently read the mat matrix */
-#define _FIRST_LINE( i )   INTEGER( mat )[ i            ]
-#define _FIRST_COLUMN( i ) INTEGER( mat )[ i +     nloc ]
-#define _FIRST_BYTE( i )   INTEGER( mat )[ i + 2 * nloc ]
-#define _LAST_LINE( i )    INTEGER( mat )[ i + 3 * nloc ]
-#define _LAST_COLUMN( i )  INTEGER( mat )[ i + 4 * nloc ]
-#define _LAST_BYTE( i )    INTEGER( mat )[ i + 5 * nloc ]
-#define _TOKEN( i )        INTEGER( mat )[ i + 6 * nloc ]
-#define _ID( i )           INTEGER( mat )[ i + 7 * nloc ]
-#define _PARENT(i)         INTEGER( mat )[ i + 8 * nloc ]
-/*}}}*/
-
-/** 
- * Makes a matrix representation of the collected information
- * This makes a matrix of 9 columns, and one line per collected 
- * symbol (terminal or not)
- * 
- * The matrix is built by reading information from : 
- * - the "locations" list which contains location 
- *    information from every symbols
- * - the "parents" list which is used to track childs of each 
- *    expressions (expr) symbols
- */
-static SEXP makeMatrix( ){
-	int nloc = length( CDR( locations ) ) ;
-	SEXP mat ;
-	PROTECT( mat = allocVector( INTSXP, nloc * 9) );
-	int ii;
-	int jj;
-	for( ii=0; ii<nloc; ii++){
-		locations = CDR( locations ) ;
-		for( jj=0; jj<8; jj++){
-			INTEGER( mat )[ii + nloc * jj] = INTEGER(CAR(locations))[jj] ;
-		}
-		INTEGER( mat )[ii + nloc * 8] = 0 ;
-	}
+static void finalizeData( ){
 	
-	SEXP dims ;
-	PROTECT( dims = allocVector( INTSXP, 2 ) ) ;
-	INTEGER(dims)[0] = nloc ;
-	INTEGER(dims)[1] = 9 ;
-	setAttrib( mat, mkString( "dim" ), dims ) ;
-	UNPROTECT(1) ; // dims
+	int nloc = data_count ;
 	
+	// int loop ;
+	// int iii ;
+	// for( loop = 0; loop<data_count; loop++){
+	// 	Rprintf("%d,%d,%d,%d,%d,%d,%d,%d,%d\n", 
+	// 		_FIRST_LINE( loop )  , 
+	// 		_FIRST_COLUMN( loop ), 
+	// 		_FIRST_BYTE( loop )  , 
+	// 		_LAST_LINE( loop )   , 
+	// 		_LAST_COLUMN( loop ) , 
+	// 		_LAST_BYTE( loop )   , 
+	// 		_TOKEN( loop )       , 
+	// 		_ID( loop )          , 
+	// 		_PARENT(loop)         
+	// 	) ;
+	// }
+	SETLENGTH( data, data_count * 9 ) ;
 	
 	int maxId = _ID(nloc-1) ;
-	int parentsVector[ maxId + 1] ;
-	int idsVector[ maxId + 1] ;
-	
-	int np = length(CDR(parents)) ;
 	int i, j, n, id ;
 	int parent ; 
-	for( i=0; i<= maxId; i++){
-		parentsVector[ i ] = 0 ;
-		idsVector[i] = 0 ;
-	}
-	for( i=0; i<np; i++){
-		parents = CDR( parents ) ;
-		parent = INTEGER(CAR(parents))[0] ;
-		if( parent > maxId ){
-			break ;
-		}
-		n = length(CAR(parents)) ;
-		for(j=1; j<n; j++){
-			id = INTEGER(CAR(parents))[j] ;
-			parentsVector[ id ] = parent ;
-		}
-	}
 	
 	/* attach comments to closest enclosing symbol */
 	int comment_line, comment_first_byte, comment_last_byte ;
@@ -3322,11 +3095,11 @@ static SEXP makeMatrix( ){
 	int orphan ;
 	
 	for( i=0; i<nloc; i++){
-		comment_line = _FIRST_LINE( i ) ;
-		comment_first_byte = _FIRST_BYTE( i ) ;
-		comment_last_byte  = _LAST_LINE( i ) ;
-		
 		if( _TOKEN(i) == COMMENT || _TOKEN(i) == ROXYGEN_COMMENT ){
+			comment_line = _FIRST_LINE( i ) ;
+			comment_first_byte = _FIRST_BYTE( i ) ;
+			comment_last_byte  = _LAST_LINE( i ) ;
+		
 			orphan = 1 ;
 			for( j=i+1; j<nloc; j++){
 				this_first_line = _FIRST_LINE( j ) ;
@@ -3341,34 +3114,32 @@ static SEXP makeMatrix( ){
 				if( this_last_line <= comment_line ) continue ; 
 				
 				/* we have a match, record the parent and stop looking */
-				parentsVector[ _ID(i) ] = _ID(j) ;
+				ID_PARENT( _ID(i) ) = _ID(j) ;
 				orphan = 0;
 				break ;
 			}
 			if(orphan){
-				parentsVector[ _ID(i) ] = 0 ;
+				ID_PARENT( _ID(i) ) = 0 ;
 			}
 		}
 	}
 	
-	for( i=0; i< nloc; i++){
-		idsVector[ _ID(i) ] = 1;
-	}
-	int idp ; 
+	int idp;
+	/* store parents in the data */
 	for( i=0; i<nloc; i++){
 		id = _ID(i);
-		parent = parentsVector[id] ;
+		parent = ID_PARENT( id ) ;
 		if( parent == 0 ){
 			_PARENT(i)=parent;
 			continue;
 		}
 		while( 1 ){
-			idp = idsVector[ parent ] ;
-			if( idp == 1 ) break ;
+			idp = ID_ID( parent ) ;
+			if( idp > 0 ) break ;
 			if( parent == 0 ){
 				break ;
 			}
-			parent = parentsVector[parent];
+			parent = ID_PARENT( parent ) ;
 		}
 		_PARENT(i) = parent ;
 	}
@@ -3391,41 +3162,68 @@ static SEXP makeMatrix( ){
 		}
 	}
 	
-	/* now all the ids in the formalArgs vector are formal argument names */ 
-	j = 0 ;
-	int index = 0 ;
-	int tok ;
-	int child_id ;
-	int k ;
-	for( i=0; i<modif_count; i++){
-		id = INTEGER(token_modifications)[index] ; index++; 
-		tok = INTEGER(token_modifications)[index] ; index++; 
-		
-		// look forward until j is the index of the symbol with id
-		j=0; /* we would not have to do that if token_modifications was sorted */ 
-		while( _ID(j) != id ){                      
-			j++ ;
-		}
-			
-		if( tok == SYMBOL_FUNCTION_CALL ){
-			// now we need to find child of this token
-			k = j ;
-			while( _PARENT(k) != id ){
-				k-- ;
-			}
-			// if this is a SYMBOL token, it should be a SYMBOL_FUNCTION_CALL
-			if( _TOKEN(k) == SYMBOL ){
-				_TOKEN(k) = SYMBOL_FUNCTION_CALL ;
-			}	
-		} else {
-			_TOKEN(j) = tok ;
-		}
-	}
+	SEXP dims ;
+	PROTECT( dims = allocVector( INTSXP, 2 ) ) ;
+	INTEGER(dims)[0] = 9 ;
+	INTEGER(dims)[1] = data_count ;
+	setAttrib( data, mkString( "dim" ), dims ) ;
+	UNPROTECT(1) ; // dims
 	
-	UNPROTECT(1) ;
-	return mat ;
 }
 /*}}}*/
 
+/*{{{ growData */
+/**
+ * Grows the data
+ */
+static void growData(){
+	
+	SEXP bigger ; 
+	int current_data_size = data_size ;
+	data_size += NLINES * 10 ;
+	
+	PROTECT( bigger = allocVector( INTSXP, data_size * 9 ) ) ; 
+	int i,j,k;         
+	if( current_data_size > 0 ){
+		for( i=0,k=0; i<data_size; i++){
+			for( j=0; j<9; j++,k++){
+				INTEGER( bigger )[k] = INTEGER(data)[k] ;
+			}
+		}
+	}
+	REPROTECT( data = bigger, DATA_INDEX ) ;
+	UNPROTECT( 1 ) ;
+	
+}
+/*}}}*/
+
+/*{{{ growID*/
+/**
+ * Grows the ids vector
+ */
+static void growID( ){
+	SEXP newid ;
+	int current_id_size = id_size ;
+	id_size += NLINES * 15 ;
+	PROTECT( newid = allocVector( INTSXP, id_size * 2) ) ;
+	int i=0,j,k=0;
+	if( current_id_size > 0 ){
+		for( ; i<current_id_size; i++){
+			for(j=0;j<2; j++,k++){
+				INTEGER( newid )[k] = INTEGER( ids )[k] ;
+			}
+		}
+	}
+	for( ;i<id_size;i++){
+		for(j=0;j<2; j++,k++){
+			INTEGER( newid )[k] = 0 ;
+		}
+	}
+	REPROTECT( ids = newid, ID_INDEX ) ;
+	UNPROTECT(1) ;
+}
+/*}}}*/
+
+/*}}}*/
 
 
