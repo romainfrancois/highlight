@@ -15,6 +15,7 @@ parser <- function( file, encoding = "unknown", text ){
 	attr( p, "data" ) <- data
 	attr( p, "file" ) <- file
 	attr( p, "encoding") <- encoding
+	attr( p, "tokens" ) <- getTokens( p ) 
 	# </TODO>
 	p
 }
@@ -67,7 +68,7 @@ nlines <- function( file ){
 	.External( "do_nlines", file = file )
 }
 
-#' gets the terminal tokens
+#' Gets the terminal tokens
 getTokens <- function( x, 
 	data = subset( attr( x, "data" ), terminal ), 
 	encoding = attr( x, "encoding"), 
