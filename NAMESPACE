@@ -4,6 +4,7 @@ import( codetools )
 
 export( highlight )
 export( parser )
-
 export( grammar.symbols )
+export( nlines) 
+export( count.chars )
 
