@@ -1,39 +1,58 @@
 
-#' Get a renderer
-renderer <- function( x, ...){
-	UseMethod( "renderer" )
+# renderers are responsible for rendering the evidence gathered by the 
+# parser and the detective. they need to be able to : 
+# 
+# - translate the token text into the end format : 
+#       e.g. > becomes &gt; in html format
+#   this particular job is the job of the "translator" function
+#  
+# - apply the style decided by the detective, e.g surround the token
+#       with "<span>" tags for html. 
+#   this is the job of the formatter
+# 
+# - translate a number of spaces into the end format (space)
+# - translate a number of newline character into the end format (newline)
+#
+# - generate a header, e.g write <html>, css definitions, <body>
+# - generate a footer, e.g write </body></html>
+
+renderer <- function( translator, formatter, space, newline, header, footer, ... ){
+	structure( list( translator = translator, 
+		formatter = formatter, space = space, newline = newline, 
+		header = header, footer = footer, ... ), 
+		class = "renderer" )
 }
 
-renderer.function <- function( x, ... ){
-	checkRenderer( x )
+formatter_html <- function( x ){
+	tokens <- attr( x, "tokens" )
+	styles <- attr( x, "styles" )
+	ifelse( styles == "", tokens, sprintf( "<span class='%s'>%s</span>\n", styles, tokens ) ) 
 }
 
-checkRenderer <- function( x ){
-	# TODO: actually do some checking on the x
-	#       when the type of arguments, etc ...
-	#       is defined
+translator_html <- function( x ){
 	x
 }
 
-renderer.character <- function( x, ...){
-
-	if( length(x) == 0 ){
-		stop("`x` must have at least one element")
-	}
-	if( length( x ) > 1 ){
-		warning("`x` has more than on element, only the first one will be used")
-		x <- x[1]
-	}
-	
-	if( x %in% names( renderers ) ){
-		renderers[[ x ]]
-	} else{
-		stop( sprintf( "renderer `%s` not found", x ) )
-	}
+space_html <- function( n ){
+	" "
 }
 
-renderer.html <- function( x, ... ){
-	.NotYetImplemented( )
+newline_html <- function( n ){
+	"<br/>" 
+}
+
+header_html <- function( ... ){
+	"<html><head></head><body>"
+}
+
+footer_html <- function( ... ){
+	"</body></html>"
+}
+
+renderer_html <- function( translator = translator_html, 
+	formatter = formatter_html, space = space_html, newline = newline_html, 
+	header = header_html, footer = footer_html, ... ){
+	renderer( translator, formatter, space, newline, header, footer, ... )
 }
 
 renderer.latex <- function( x, ...){

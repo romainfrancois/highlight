@@ -4,8 +4,6 @@ parser <- function( file, encoding = "unknown", text ){
 		cat( text , file = file, sep = "\n" )
 	}
 	p <- .External( "do_parser", file = file, encoding = encoding )
-	
-	# <TODO> do this in C
 	data <- as.data.frame( t(attr(p,"data")) )
 	colnames( data ) <- c( "line1", "col1", "byte1", 
 		 	"line2", "col2", "byte2", "token", "id", "parent" )
@@ -16,7 +14,6 @@ parser <- function( file, encoding = "unknown", text ){
 	attr( p, "file" ) <- file
 	attr( p, "encoding") <- encoding
 	attr( p, "tokens" ) <- getTokens( p ) 
-	# </TODO>
 	p
 }
 
