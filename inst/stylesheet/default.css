@@ -1,0 +1,24 @@
+.number{
+	color: orange ;
+}
+
+.functioncall{
+	color: red ;
+}
+
+.string{
+	color: rgb(255,204,51) ;
+}
+
+.keyword{
+	font-weight: bolder ;
+	color: black;
+}
+
+.argument{
+	color: blue ;
+}
+
+.comment{
+	color: rgb( 204,204,204) ;
+}
