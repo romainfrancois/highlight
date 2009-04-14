@@ -6,16 +6,8 @@
 #include <string.h>
 #include <ctype.h>
 #include <Rinternals.h>
-#include <R_ext/libextern.h>
 
 int nlines( const char* ) ;
-
-static int identifier ;
-static void incrementId(void);
-static void initId(void);
-static void record_( int, int, int, int, int, int, int, int ) ;
-
-static int yys ;
 
 #ifdef SUPPORT_MBCS
 # ifdef Win32
@@ -31,9 +23,6 @@ static int yys ;
 # define attribute_hidden
 #endif
 
-static Rboolean known_to_be_utf8 = FALSE ;
-static Rboolean known_to_be_latin1 = FALSE ;
-
 /* Used as a default for string buffer sizes,
 			   and occasionally as a limit. */
 #define MAXELTSIZE 8192 
@@ -41,10 +30,6 @@ static Rboolean known_to_be_latin1 = FALSE ;
 SEXP	NewList(void);
 SEXP	GrowList(SEXP, SEXP);
 SEXP	Insert(SEXP, SEXP);
-
-static void yyerror(char *);
-static int yylex();
-int yyparse(void);
 
 /* File Handling */
 #define R_EOF   -1
@@ -70,19 +55,6 @@ typedef enum {
 # define yylval			Rf_yylval
 # define yynerrs		Rf_yynerrs
 
-/* Objects Used In Parsing  */
-static int	R_ParseError = 0; /* Line where parse error occurred */
-static int	R_ParseErrorCol;    /* Column of start of token where parse error occurred */
-#define PARSE_ERROR_SIZE 256	    /* Parse error messages saved here */
-static char	R_ParseErrorMsg[PARSE_ERROR_SIZE]=  "";
-#define PARSE_CONTEXT_SIZE 256	    /* Recent parse context kept in a circular buffer */
-static char	R_ParseContext[PARSE_CONTEXT_SIZE] = "";
-static int	R_ParseContextLast = 0 ; /* last character in context buffer */
-static int	R_ParseContextLine; /* Line in file of the above */
-static Rboolean R_WarnEscapes = TRUE ;   /* Warn on unrecognized escapes */
-LibExtern SEXP	R_CurrentExpr;	    /* Currently evaluating expression */
-static int	R_PPStackTop;	    /* The top of the stack */
-
 #ifdef ENABLE_NLS
 #include <libintl.h>
 #ifdef Win32
@@ -103,46 +75,13 @@ static int	R_PPStackTop;	    /* The top of the stack */
 /* Miscellaneous Definitions */
 #define streql(s, t)	(!strcmp((s), (t)))
 
-static int	EatLines = 0;
-static int	EndOfFile = 0;
-static int	xxcharcount, xxcharsave;
-static int	xxlineno, xxbyteno, xxcolno,  xxlinesave, xxbytesave, xxcolsave;
-
-// static SEXP     SrcFile = NULL;
-// static SEXP	SrcRefs = NULL;
-// static PROTECT_INDEX srindex;
-
 #define PUSHBACK_BUFSIZE 16
-static int pushback[PUSHBACK_BUFSIZE];
-static unsigned int npush = 0;
-
-static int prevpos = 0;
-static int prevlines[PUSHBACK_BUFSIZE];
-static int prevcols[PUSHBACK_BUFSIZE];
-static int prevbytes[PUSHBACK_BUFSIZE];
 
 #define CONTEXTSTACK_SIZE 50
-static int	SavedToken;
-static SEXP	SavedLval;
-static char	contextstack[CONTEXTSTACK_SIZE], *contextp;
 
 int	R_fgetc(FILE*);
 int file_getc(void) ;
 FILE *	R_fopen(const char *filename, const char *mode);
-static FILE *fp_parse;
-static int (*ptr_getc)(void);
-
-
-
-/*{{{ Parsing entry points functions */
-/* function defined in parsing.c */
-static void ParseContextInit(void);
-static void ParseInit(void);
-static SEXP R_Parse1(ParseStatus *) ;
-static SEXP R_Parse(int, ParseStatus *, SEXP) ;
-attribute_hidden SEXP R_ParseFile(FILE *, int , ParseStatus *, SEXP, int) ;    
-/*}}}*/
-
-
 
 #endif
+

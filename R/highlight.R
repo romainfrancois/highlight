@@ -13,7 +13,7 @@ highlight <- function( file, output,
 		con <- output
 	}
 	write <- function( x ){
-		cat( x, file = con )
+		cat( x, file = con, sep = "\n" )
 	}
 	# }}}
 	
@@ -31,12 +31,11 @@ highlight <- function( file, output,
 	col2  <- data$col2
 	byte1 <- data$byte1
 	byte2 <- data$byte2
-	
 	line <- 1
 	byte <- 0
 	col  <- 0
 	
-	renderer$header( write, renderer$stylesheet )
+	write( renderer$header( ) )
 	for( i in 1:length( line1 ) ){
 		
 		if( line < line1[i] ){
@@ -61,12 +60,11 @@ highlight <- function( file, output,
 		line <- line2[i]
 	}
 	
-	renderer$newline( ) 
-	renderer$footer( write )
+	write( renderer$newline( ) ) 
+	write( renderer$footer( ) )
 	
 	invisible( NULL )
 }
-
 
 # :tabSize=4:indentSize=4:noTabs=false:folding=explicit:collapseFolds=1:
 

@@ -5,10 +5,62 @@
 
 #include "highlight.h"
 
+static int identifier ;
+static void incrementId(void);
+static void initId(void);
+static void record_( int, int, int, int, int, int, int, int ) ;
+
+static Rboolean known_to_be_utf8 = FALSE ;
+static Rboolean known_to_be_latin1 = FALSE ;
+
+static void yyerror(char *);
+static int yylex();
+int yyparse(void);
+
 #define YYERROR_VERBOSE 1
 
 static PROTECT_INDEX DATA_INDEX ;
 static PROTECT_INDEX ID_INDEX ;
+
+static int	R_ParseError = 0; /* Line where parse error occurred */
+static int	R_ParseErrorCol;    /* Column of start of token where parse error occurred */
+#define PARSE_ERROR_SIZE 256	    /* Parse error messages saved here */
+static char	R_ParseErrorMsg[PARSE_ERROR_SIZE]=  "";
+#define PARSE_CONTEXT_SIZE 256	    /* Recent parse context kept in a circular buffer */
+static char	R_ParseContext[PARSE_CONTEXT_SIZE] = "";
+static int	R_ParseContextLast = 0 ; /* last character in context buffer */
+static int	R_ParseContextLine; /* Line in file of the above */
+static Rboolean R_WarnEscapes = TRUE ;   /* Warn on unrecognized escapes */
+static SEXP	R_CurrentExpr;	    /* Currently evaluating expression */
+static int	R_PPStackTop;	    /* The top of the stack */
+
+static int	EatLines = 0;
+static int	EndOfFile = 0;
+static int	xxcharcount, xxcharsave;
+static int	xxlineno, xxbyteno, xxcolno,  xxlinesave, xxbytesave, xxcolsave;
+
+static int pushback[PUSHBACK_BUFSIZE];
+static unsigned int npush = 0;
+
+static int prevpos = 0;
+static int prevlines[PUSHBACK_BUFSIZE];
+static int prevcols[PUSHBACK_BUFSIZE];
+static int prevbytes[PUSHBACK_BUFSIZE];
+
+static FILE *fp_parse;
+static int (*ptr_getc)(void);
+
+static int	SavedToken;
+static SEXP	SavedLval;
+static char	contextstack[CONTEXTSTACK_SIZE], *contextp;
+
+/*{{{ Parsing entry points functions */
+static void ParseContextInit(void);
+static void ParseInit(void);
+static SEXP R_Parse1(ParseStatus *) ;
+static SEXP R_Parse(int, ParseStatus *, SEXP) ;
+attribute_hidden SEXP R_ParseFile(FILE *, int , ParseStatus *, SEXP, int) ;    
+/*}}}*/
 
 #define yyconst const
 typedef struct yyltype{
@@ -2913,9 +2965,7 @@ finish:
 	}
 	finalizeData() ;
 	setAttrib( rval, mkString( "data" ), data ) ;
-	UNPROTECT_PTR( data ) ;
-	UNPROTECT_PTR( ids ) ;
-	UNPROTECT( 1 ) ; // t 
+	UNPROTECT( 3 ) ; // t 
 	
     R_PPStackTop = savestack;
     *status = PARSE_OK;
@@ -3226,4 +3276,72 @@ static void growID( ){
 
 /*}}}*/
 
+/*{{{ do_parser */
+/** 
+ * R interface : 
+ *  highlight:::parser( file, encoding = "unknown" )
+ *
+ * Calls the R_ParseFile function from gram.y -> gram.c
+ */
+SEXP attribute_hidden do_parser(SEXP args){
+	
+	/*{{{ declarations */
+	SEXP result ;
+    Rboolean old_latin1=known_to_be_latin1,
+	old_utf8=known_to_be_utf8, allKnown = TRUE;
+    const char *encoding;
+	SEXP filename ;
+    ParseStatus status;
+	FILE *fp;
+	/*}}}
+
+	/*{{{ process arguments */
+    
+	filename = CADR(args) ;
+	if(!isString(CADDR(args)) ){
+		error(_("invalid '%s' value"), "encoding");
+	}
+	encoding = CHAR(STRING_ELT(CADDR(args), 0)); /* ASCII */
+    known_to_be_latin1 = known_to_be_utf8 = FALSE;
+
+	/* allow 'encoding' to override declaration on 'text'. */
+    if(streql(encoding, "latin1")) {
+		known_to_be_latin1 = TRUE;
+		allKnown = FALSE;
+    }
+    if(streql(encoding, "UTF-8"))  {
+		known_to_be_utf8 = TRUE;
+		allKnown = FALSE;
+    }
+	
+	/*}}}*/
+
+	/*{{{ Try to open the file */
+	const char* fname = CHAR(STRING_ELT(filename,0) ) ;
+	if((fp = R_fopen(R_ExpandFileName( fname ), "r")) == NULL){
+		error(_("unable to open file to read"), 0);
+	}
+	int nl = nlines( fname ) ;
+	
+	/*}}}*/
+
+	/*{{{ Call the parser */
+	R_ParseError = 0;
+    R_ParseErrorMsg[0] = '\0';
+	result = PROTECT(R_ParseFile(fp, -1, &status, filename, nl));
+	if (status != PARSE_OK) {
+		/* TODO : use the parseError function (in source.c) */
+		error(_("parsing error"), 0);
+	}
+	UNPROTECT( 1 ) ;
+    /*}}}*/
+	
+	/*{{{ reset encodings flags  */
+    known_to_be_latin1 = old_latin1;
+    known_to_be_utf8 = old_utf8;
+	/*}}}*/
+	
+    return result;
+}
+/*}}}*/
 

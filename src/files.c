@@ -1,6 +1,10 @@
 #include <Rinternals.h>
 #include "highlight.h"
 
+static Rboolean known_to_be_utf8 = FALSE ;
+static Rboolean known_to_be_latin1 = FALSE ;
+
+
 /*{{{ nlines */
 /** 
  * Get the number of lines from a file
