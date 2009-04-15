@@ -17,10 +17,10 @@
 # - generate a footer, e.g write </body></html>
 
 # {{{ renderer interface
-renderer <- function( translator, formatter, space, newline, header, footer, styler, ... ){
+renderer <- function( translator, formatter, space, newline, header, footer, ... ){
 	structure( list( translator = translator, 
 		formatter = formatter, space = space, newline = newline, 
-		header = header, footer = footer, styler = styler, ... ), 
+		header = header, footer = footer, ... ), 
 		class = "renderer" )
 }
 # }}}
@@ -65,23 +65,32 @@ styler_html <- function( stylesheet ){
 	}
 }
 
-header_html <- function( ){
-	"<pre>"
+header_html <- function( document, styler){
+	function(){
+		if( document ) c( '<html>\n<head>', styler , '</head>\n<body>\n<pre>' ) else "<pre>"
+	}
 }
 
-footer_html <- function( ){
-	"</pre>"
+footer_html <- function( document ){
+	function( ){
+		if( document) "</pre>\n</body>\n</html>" else "</pre>"
+	}
 }
 
-renderer_html <- function( translator = translator_html, 
-	formatter = formatter_html, space = space_html, newline = newline_html, 
-	header = header_html, footer = footer_html, styler = styler_html( "default" ) , ... ){
-	renderer( translator, formatter, space, newline, header, footer, styler, ... )
+renderer_html <- function( document = FALSE, 
+	translator = translator_html, formatter = formatter_html, 
+	space = space_html, newline = newline_html, 
+	header = header_html( document, styler_html( "default" ) ) , 
+	footer = footer_html( document ) , 
+	... ){
+	
+	renderer( translator = translator, formatter = formatter, 
+		space = space, newline = newline, 
+		header = header, footer = footer, ... )
 }
 # }}}
 
 # {{{ latex 
-# {{{ html
 formatter_latex <- function( tokens, styles, ... ){
 	ifelse( styles == "", 
 		tokens, 
@@ -93,11 +102,12 @@ translator_latex <- function( x ){
 	s <- function( rx, rep ){
 		x <<- gsub( rx, rep, x, fixed = TRUE )
 	}
-	s( "\\"     , "@@bs@@" )
-	s( "{"      , "@@{@@" )
-	s( "}"      , "\\usebox{\\hlboxclosebrace}" )
-	s( "@@{@@"  , "\\usebox{\\hlboxopenbrace}" )
-	s( "@@bs@@" , "\\usebox{\\hlboxbackslash}" )
+	s( "\\"     , "\\usebox{\\hlboxbackslash}" )
+	x <- gsubfn( "[{}]", function(b){
+		switch( b, 
+			"{" = "\\usebox{\\hlboxopenbrace}", 
+			"}" = "\\usebox{\\hlboxclosebrace}" )
+	} , x )
 	s( "<"      , "\\usebox{\\hlboxlessthan}" )
 	s( ">"      , "\\usebox{\\hlboxgreaterthan}" )
 	s( "$"      , "\\usebox{\\hlboxdollar}" )
@@ -107,7 +117,7 @@ translator_latex <- function( x ){
 	s( "@"      , "\\usebox{\\hlboxat}" )
 	s( "%"      , "\\usebox{\\hlboxpercent}" )
 	s( "^"      , "\\usebox{\\hlboxhat}" )
-	s( "~"      , "\\usebox{\\urltilda{}}" )
+	s( "~"      , "\\urltilda{}" )
 	s( " "      , "{\\ }" )
 	x
 }
@@ -126,7 +136,7 @@ styler_latex <- function( stylesheet ){
 		if( !file.exists( sty ) ){
 			sty <- sprintf( "%s.sty", sty )
 		}
-		if( !file.exists( css ) ){
+		if( !file.exists( sty ) ){
 			sty <- system.file( "stylesheet", 
 				sprintf( "%s.sty", stylesheet) , 
 				package = "highlight" )
@@ -137,7 +147,7 @@ styler_latex <- function( stylesheet ){
 	}
 }
 
-header_latex <- function( ){
+boxes_latex <- function( ){
 '
 \\newsavebox{\\hlboxclosebrace}%
 \\newsavebox{\\hlboxopenbrace}%
@@ -165,19 +175,48 @@ header_latex <- function( ){
 \\setbox\\hlboxpercent=\\hbox{\\verb.\\%.}%
 \\setbox\\hlboxhat=\\hbox{\\verb.^.}%
 \\def\\urltilda{\\kern -.15em\\lower .7ex\\hbox{\\~{}}\\kern .04em}
-\\noindent\\ttfamily\n
 '
-
 }
 
-footer_latex <- function( ){
-	"\\mbox{}\n\\normalfont\n"
+
+header_latex <- function( document, styler, boxes = TRUE ){
+	function( ){
+		txt <- ''
+		add <- function( ... ){
+			newtext <- paste( ..., sep = "\n" )
+			txt <<- if( txt == '' ) newtext else paste( txt, newtext, sep = "\n" )
+		}
+		txt <- if( document ){
+			add( '\\documentclass{article}\n\\usepackage{color}' )
+			add( '\\usepackage{alltt}\n\\usepackage{hyperref}' ) 
+			add( styler )
+		} else ''
+		if( boxes ) {
+			add( boxes_latex() )
+		}
+		if( document ){
+			add( '\\begin{document}' )
+		}
+		add( '\\noindent\\ttfamily' )
+		txt
+	}
 }
 
-renderer_latex <- function( translator = translator_latex, 
+footer_latex <- function( document ){
+	function( ){
+		end <- "\\mbox{}\n\\normalfont\n"
+		paste( end, if( document ) "\\end{document}" )  
+	}
+}
+
+renderer_latex <- function( document = FALSE, boxes = document, translator = translator_latex, 
 	formatter = formatter_latex, space = space_latex, newline = newline_latex, 
-	header = header_latex, footer = footer_latex, styler = styler_latex( "default" ) , ... ){
-	renderer( translator, formatter, space, newline, header, footer, styler, ... )
+	header = header_latex( document, styler = styler_latex( "default" ), boxes = boxes ), 
+	footer = footer_latex( document) , ... ){
+	
+	renderer( translator = translator, 
+		formatter = formatter, space = space , newline = newline, 
+		header = header, footer = footer, boxes = boxes_latex, ... )
 }
 # }}}
 

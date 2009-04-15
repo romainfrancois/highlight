@@ -13,7 +13,7 @@ highlight <- function( file, output,
 		con <- output
 	}
 	write <- function( x ){
-		cat( x, file = con, sep = "\n" )
+		cat( paste( x, collapse = "\n" ), file = con ) 
 	}
 	# }}}
 	
@@ -36,6 +36,7 @@ highlight <- function( file, output,
 	col  <- 0
 	
 	write( renderer$header( ) )
+	write( "\n" )
 	for( i in 1:length( line1 ) ){
 		
 		if( line < line1[i] ){
@@ -62,6 +63,7 @@ highlight <- function( file, output,
 	
 	write( renderer$newline( ) ) 
 	write( renderer$footer( ) )
+	write( "\n" )
 	
 	invisible( NULL )
 }
