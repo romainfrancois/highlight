@@ -119,8 +119,6 @@ SEXP attribute_hidden do_getTokens( SEXP args ){
 		
 	}
 	UNPROTECT(1);
-	free( buf ) ;
 	return tokens ;
 }
-
 

@@ -5,6 +5,10 @@
 
 #include "highlight.h"
 
+#define YYERROR_VERBOSE 1
+#define PARSE_ERROR_SIZE 256	    /* Parse error messages saved here */
+#define PARSE_CONTEXT_SIZE 256	    /* Recent parse context kept in a circular buffer */
+
 static int identifier ;
 static void incrementId(void);
 static void initId(void);
@@ -17,16 +21,12 @@ static void yyerror(char *);
 static int yylex();
 int yyparse(void);
 
-#define YYERROR_VERBOSE 1
-
 static PROTECT_INDEX DATA_INDEX ;
 static PROTECT_INDEX ID_INDEX ;
 
 static int	R_ParseError = 0; /* Line where parse error occurred */
 static int	R_ParseErrorCol;    /* Column of start of token where parse error occurred */
-#define PARSE_ERROR_SIZE 256	    /* Parse error messages saved here */
 static char	R_ParseErrorMsg[PARSE_ERROR_SIZE]=  "";
-#define PARSE_CONTEXT_SIZE 256	    /* Recent parse context kept in a circular buffer */
 static char	R_ParseContext[PARSE_CONTEXT_SIZE] = "";
 static int	R_ParseContextLast = 0 ; /* last character in context buffer */
 static int	R_ParseContextLine; /* Line in file of the above */
@@ -72,7 +72,7 @@ typedef struct yyltype{
   int last_column;
   int last_byte;
   
-  unsigned int id ;
+  int id ;
 } yyltype;
 
 static void setfirstloc( int, int, int ) ;
@@ -3048,11 +3048,8 @@ static void record_( int first_line, int first_column, int first_byte,
 	// 		_ID( data_count )          , 
 	// 		_PARENT(data_count)         
 	// 		) ;
-	ID_ID( id ) = data_count ; 
 	data_count++ ;
-	if( id == (id_size-1) ){
-		growID() ;
-	}
+	ID_ID( id ) = data_count ; 
 	if( data_count == data_size ){
 		growData( ) ;
 	}
@@ -3070,6 +3067,10 @@ static void record_( int first_line, int first_column, int first_byte,
  */
 static void recordParents( int parent, yyltype * childs, int nchilds){
 	
+	if( parent == ( id_size- 1) ){
+		growID() ;
+	}
+	
 	/* some of the childs might be an empty token (like cr)
 	   which we do not want to track */
 	int ii, jj;    /* loop index */
@@ -3080,7 +3081,7 @@ static void recordParents( int parent, yyltype * childs, int nchilds){
 		if( loc.first_line == loc.last_line && loc.first_byte == loc.last_byte ){
 			continue ;
 		}
-		ID_PARENT( (childs[ii]).id ) = parent ;
+		ID_PARENT( (childs[ii]).id ) = parent  ;
 	}
 	
 }
@@ -3097,7 +3098,8 @@ static void modif_token( yyltype* loc, int tok ){
 	if( tok == SYMBOL_FUNCTION_CALL ){
 		// looking for first child of id
 		int j = ID_ID( id ) ;
-		int parent = _ID( j ) ;
+		int parent = id ;
+	
 		while( ID_PARENT( _ID(j) ) != parent ){
 			j-- ;
 		}
@@ -3257,7 +3259,7 @@ static void growID( ){
 	id_size += NLINES * 15 ;
 	PROTECT( newid = allocVector( INTSXP, id_size * 2) ) ;
 	int i=0,j,k=0;
-	if( current_id_size > 0 ){
+	if( current_id_size > 0 ){ 
 		for( ; i<current_id_size; i++){
 			for(j=0;j<2; j++,k++){
 				INTEGER( newid )[k] = INTEGER( ids )[k] ;
