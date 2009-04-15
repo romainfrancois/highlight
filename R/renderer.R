@@ -182,7 +182,6 @@ boxes_latex <- function( ){
 '
 }
 
-
 header_latex <- function( document, styler, boxes = TRUE ){
 	function( ){
 		con <- textConnection( "txt", open = "w" )
