@@ -36,7 +36,6 @@ highlight <- function( file, output,
 	col  <- 0
 	
 	write( renderer$header( ) )
-	write( "\n" )
 	for( i in 1:length( line1 ) ){
 		
 		if( line < line1[i] ){

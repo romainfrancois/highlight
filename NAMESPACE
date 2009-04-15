@@ -8,3 +8,9 @@ export( grammar.symbols )
 export( nlines) 
 export( count.chars )
 
+export( simple_detective )
+
+exportPattern( "_latex$" )
+exportPattern( "_html$" )
+
+

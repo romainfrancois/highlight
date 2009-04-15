@@ -9,9 +9,9 @@
 # - apply the style decided by the detective, e.g surround the token
 #       with "<span>" tags for html. 
 #   this is the job of the formatter
-# 
-# - translate a number of spaces into the end format (space)
-# - translate a number of newline character into the end format (newline)
+#                                  
+# - translate a spaces into the end format (space)
+# - translate a newline character into the end format (newline)
 #
 # - generate a header, e.g write <html>, css definitions, <body>
 # - generate a footer, e.g write </body></html>
@@ -67,26 +67,29 @@ styler_html <- function( stylesheet ){
 
 header_html <- function( document, styler){
 	function(){
-		if( document ) c( '<html>\n<head>', styler , '</head>\n<body>\n<pre>' ) else "<pre>"
+		if( document ) c( '<html>\n<head>', styler , '</head>\n<body>\n<pre>\n' ) else "<pre>\n"
 	}
 }
 
 footer_html <- function( document ){
 	function( ){
-		if( document) "</pre>\n</body>\n</html>" else "</pre>"
+		if( document) "\n</pre>\n</body>\n</html>" else "\n</pre>"
 	}
 }
 
 renderer_html <- function( document = FALSE, 
 	translator = translator_html, formatter = formatter_html, 
 	space = space_html, newline = newline_html, 
-	header = header_html( document, styler_html( "default" ) ) , 
-	footer = footer_html( document ) , 
+	header = header_html( document, styler ) , 
+	footer = footer_html( document ) ,  
+	styler = styler_html( "default" ), 
 	... ){
 	
 	renderer( translator = translator, formatter = formatter, 
 		space = space, newline = newline, 
-		header = header, footer = footer, ... )
+		header = header, footer = footer, 
+		styler = styler, 
+		... )
 }
 # }}}
 
@@ -102,11 +105,11 @@ translator_latex <- function( x ){
 	s <- function( rx, rep ){
 		x <<- gsub( rx, rep, x, fixed = TRUE )
 	}
-	s( "\\"     , "\\usebox{\\hlboxbackslash}" )
-	x <- gsubfn( "[{}]", function(b){
+	x <- gsubfn( "[{}\\]", function(b){
 		switch( b, 
 			"{" = "\\usebox{\\hlboxopenbrace}", 
-			"}" = "\\usebox{\\hlboxclosebrace}" )
+			"}" = "\\usebox{\\hlboxclosebrace}", 
+			"\\" = "\\usebox{\\hlboxbackslash}" )
 	} , x )
 	s( "<"      , "\\usebox{\\hlboxlessthan}" )
 	s( ">"      , "\\usebox{\\hlboxgreaterthan}" )
@@ -127,7 +130,7 @@ space_latex <- function( ){
 }
 
 newline_latex <- function( ){
-	"\\hspace*{\\fill}\\\\\n" 
+	"\\hspace*{\\fill}\\\\\n\\hlstd{}" 
 }
 
 styler_latex <- function( stylesheet ){
@@ -159,7 +162,7 @@ boxes_latex <- function( ){
 \\newsavebox{\\hlboxand}%
 \\newsavebox{\\hlboxhash}%
 \\newsavebox{\\hlboxat}%
-\\newsavebox{\\hlboxpercent}%
+\\newsavebox{\\hlboxpercent}% 
 \\newsavebox{\\hlboxhat}%
 
 \\setbox\\hlboxopenbrace=\\hbox{\\verb.{.}%
@@ -175,44 +178,47 @@ boxes_latex <- function( ){
 \\setbox\\hlboxpercent=\\hbox{\\verb.\\%.}%
 \\setbox\\hlboxhat=\\hbox{\\verb.^.}%
 \\def\\urltilda{\\kern -.15em\\lower .7ex\\hbox{\\~{}}\\kern .04em}
+\\newcommand{\\hlstd}[1]{\\textcolor[rgb]{0,0,0}{#1}}
 '
 }
 
 
 header_latex <- function( document, styler, boxes = TRUE ){
 	function( ){
-		txt <- ''
+		con <- textConnection( "txt", open = "w" )
 		add <- function( ... ){
-			newtext <- paste( ..., sep = "\n" )
-			txt <<- if( txt == '' ) newtext else paste( txt, newtext, sep = "\n" )
+			cat( paste( ..., sep = "\n" ), file = con )
 		}
-		txt <- if( document ){
+		if( document ){
 			add( '\\documentclass{article}\n\\usepackage{color}' )
+			add( '\\setlength{\\textwidth}{14cm}' )
 			add( '\\usepackage{alltt}\n\\usepackage{hyperref}' ) 
 			add( styler )
-		} else ''
+		}
 		if( boxes ) {
 			add( boxes_latex() )
 		}
 		if( document ){
 			add( '\\begin{document}' )
 		}
-		add( '\\noindent\\ttfamily' )
+		add( '\\noindent','\\ttfamily', '\\hlstd{}' )
+		close( con )
 		txt
 	}
 }
 
 footer_latex <- function( document ){
 	function( ){
-		end <- "\\mbox{}\n\\normalfont\n"
-		paste( end, if( document ) "\\end{document}" )  
+		end <- "\\mbox{}\n\\normalfont"
+		paste( end, if( document ) "\n\\end{document}" )  
 	}
 }
 
 renderer_latex <- function( document = FALSE, boxes = document, translator = translator_latex, 
 	formatter = formatter_latex, space = space_latex, newline = newline_latex, 
-	header = header_latex( document, styler = styler_latex( "default" ), boxes = boxes ), 
-	footer = footer_latex( document) , ... ){
+	header = header_latex( document, styler = styler, boxes = boxes ), 
+	footer = footer_latex( document) , 
+	styler = styler_latex( "default" ), ... ){
 	
 	renderer( translator = translator, 
 		formatter = formatter, space = space , newline = newline, 
