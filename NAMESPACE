@@ -1,6 +1,7 @@
 useDynLib( highlight )
 
 import( codetools )
+import( utils )
 
 export( highlight )
 export( parser )

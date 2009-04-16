@@ -3048,8 +3048,8 @@ static void record_( int first_line, int first_column, int first_byte,
 	// 		_ID( data_count )          , 
 	// 		_PARENT(data_count)         
 	// 		) ;
-	data_count++ ;
 	ID_ID( id ) = data_count ; 
+	data_count++ ;
 	if( data_count == data_size ){
 		growData( ) ;
 	}

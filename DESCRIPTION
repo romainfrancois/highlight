@@ -9,5 +9,5 @@ Description: Syntax highlighter for R code based
 	on the results of the R parser and rendered in various 
 	formats: HTML, latex, ansi escape code, RTF, ...
 License: GPL version 3.0
-Depends: R (>= 2.9), codetools, gsubfn
+Depends: R (>= 2.9), codetools, gsubfn, utils
 
