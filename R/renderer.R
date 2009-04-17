@@ -48,16 +48,8 @@ newline_html <- function( ){
 
 styler_html <- function( stylesheet ){
 	if( !is.null( stylesheet ) ){
-		css <- stylesheet
-		if( !file.exists( css ) ){
-			css <- sprintf( "%s.css", css )
-		}
-		if( !file.exists( css ) ){
-			css <- system.file( "stylesheet", 
-				sprintf( "%s.css", stylesheet) , 
-				package = "highlight" )
-		}
-		if( file.exists( css ) ){
+		css <- getStyleFile( stylesheet, "css" )
+		if( !is.null( css ) ){
 			c( '<style type="text/css">\n', 
 				readLines( css ),	
 				'</style>\n' )
@@ -158,16 +150,8 @@ newline_latex <- function( ){
 
 styler_latex <- function( stylesheet ){
 	if( !is.null( stylesheet ) ){
-		sty <- stylesheet
-		if( !file.exists( sty ) ){
-			sty <- sprintf( "%s.sty", sty )
-		}
-		if( !file.exists( sty ) ){
-			sty <- system.file( "stylesheet", 
-				sprintf( "%s.sty", stylesheet) , 
-				package = "highlight" )
-		}
-		if( file.exists( sty ) ){
+		sty <- getStyleFile( stylesheet, "sty" )
+		if( !is.null(sty) ){
 			readLines( sty )	
 		}
 	}
@@ -250,12 +234,85 @@ renderer_latex <- function( document = FALSE, boxes = document, translator = tra
 }
 # }}}
 
-# {{{ ansi
-renderer_ansi <- function( ...){
-	.NotYetImplemented( ) 
+# {{{ xterm
+formatter_xterm <- function( tokens, styles, stylesheet = "default", ... ){
+	
+	rl <- NULL
+	xtr <- getStyleFile( stylesheet, "xterm" )
+	if( !is.null( xtr ) ){
+		rl <- readLines( xtr )	
+		rl <- grep( "=", rl, value = TRUE )
+		rx <- "^(.*?)=(.*)$"
+		values <- sub( rx, "\\2", rl )
+		ids <- sub( rx, "\\1", rl )
+		ifelse( styles == "", 
+			tokens, 
+			sprintf( '\033[%s%s\033[0m', values[ match( styles, ids ) ], tokens ) 
+		)
+	} else{
+		tokens
+	}
+	 
+}
+
+translator_xterm <- function( x ){
+	x
+}
+
+space_xterm <- function( ){
+	" "
+}
+
+newline_xterm <- function( ){
+	"\n" 
+}
+
+header_xterm <- function( ){
+	"" 
+}                     
+
+footer_xterm <- function( document ){
+	"\n"
+}
+
+renderer_xterm <- function(
+	translator = translator_xterm, formatter = formatter_xterm, 
+	space = space_xterm, newline = newline_xterm, 
+	header = header_xterm, footer = footer_xterm ,  
+	... ){
+	
+	renderer( translator = translator, formatter = formatter, 
+		space = space, newline = newline, 
+		header = header, footer = footer, 
+		... )
 }
 # }}}
-# }}}
+
+getStyleFile <- function( name = "default", extension = "css" ){
+	
+	filename <- sprintf( "%s.%s", name, extension ) 
+	
+	f <- filename
+	if( file.exists( f ) ){
+		return(f)
+	}
+	
+	f <- file.path( Sys.getenv("HOME"), ".R", "highlight", filename )
+	if( file.exists( f ) ){
+		return( f )
+	}
+
+	f <- system.file( "stylesheet", 
+		filename , package = "highlight" )
+	if( file.exists( f )){
+		return( f) 
+	}
+	
+	invisible( NULL )
+	
+}
+
+
 
 # :tabSize=4:indentSize=4:noTabs=false:folding=explicit:collapseFolds=1:
 

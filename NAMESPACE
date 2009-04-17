@@ -13,6 +13,8 @@ export( simple_detective )
 
 exportPattern( "_latex$" )
 exportPattern( "_html$" )
+exportPattern( "_xterm$" )
+
 
 export( HighlightWeaveLatex )
 
