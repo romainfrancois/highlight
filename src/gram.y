@@ -88,7 +88,7 @@ static SEXP data ;
 static SEXP ids ; 
 static void finalizeData( ) ;
 static void growData( ) ;
-static void growID( ) ;
+static void growID( int ) ;
 
 #define _FIRST_LINE( i )   INTEGER( data )[ 9*(i)     ]
 #define _FIRST_COLUMN( i ) INTEGER( data )[ 9*(i) + 1 ]
@@ -2868,7 +2868,7 @@ static void HighlightParseContextInit(void) {
 	PROTECT_WITH_INDEX( data = R_NilValue, &DATA_INDEX ) ;
 	PROTECT_WITH_INDEX( ids = R_NilValue, &ID_INDEX ) ;
 	growData( ) ;
-	growID();
+	growID(15*NLINES);
 	
 }
 /*}}}*/
@@ -2976,7 +2976,11 @@ finish:
 
 /*{{{ Highlight_ParseFile */
 attribute_hidden SEXP Highlight_ParseFile(FILE *fp, int n, ParseStatus *status, SEXP srcfile, int nl) {
-    NLINES = nl ;
+    if( nl < 5 ){
+		NLINES = 5 ;
+	} else { 
+		NLINES = nl ;
+	}
 	fp_parse = fp;
     ptr_getc = file_getc;
 	// yydebug = 1 ;
@@ -3049,7 +3053,11 @@ static void record_( int first_line, int first_column, int first_byte,
 	// 		_ID( data_count )          ,            
 	// 		_PARENT(data_count)         
 	// 		) ;
+	if( id > id_size ){
+		growID(id) ;
+	}
 	ID_ID( id ) = data_count ; 
+	
 	data_count++ ;
 	if( data_count == data_size ){
 		growData( ) ;
@@ -3068,8 +3076,8 @@ static void record_( int first_line, int first_column, int first_byte,
  */
 static void recordParents( int parent, yyltype * childs, int nchilds){
 	
-	if( parent == ( id_size- 1) ){
-		growID() ;
+	if( parent > id_size ){
+		growID(parent) ;
 	}
 	
 	/* some of the childs might be an empty token (like cr)
@@ -3238,7 +3246,7 @@ static void growData(){
 	PROTECT( bigger = allocVector( INTSXP, data_size * 9 ) ) ; 
 	int i,j,k;         
 	if( current_data_size > 0 ){
-		for( i=0,k=0; i<data_size; i++){
+		for( i=0,k=0; i<current_data_size; i++){
 			for( j=0; j<9; j++,k++){
 				INTEGER( bigger )[k] = INTEGER(data)[k] ;
 			}
@@ -3252,22 +3260,23 @@ static void growData(){
 
 /*{{{ growID*/
 /**
- * Grows the ids vector
+ * Grows the ids vector so that ID_ID(target) can be called
  */
-static void growID( ){
+static void growID( int target ){
+	
 	SEXP newid ;
 	int current_id_size = id_size ;
-	id_size += NLINES * 15 ;
-	PROTECT( newid = allocVector( INTSXP, id_size * 2) ) ;
+	id_size = target + NLINES * 15 ;
+	PROTECT( newid = allocVector( INTSXP, ( 1 + id_size ) * 2) ) ;
 	int i=0,j,k=0;
 	if( current_id_size > 0 ){ 
-		for( ; i<current_id_size; i++){
+		for( ; i<(current_id_size+1); i++){
 			for(j=0;j<2; j++,k++){
 				INTEGER( newid )[k] = INTEGER( ids )[k] ;
 			}
 		}
 	}
-	for( ;i<id_size;i++){
+	for( ;i<(id_size+1);i++){
 		for(j=0;j<2; j++,k++){
 			INTEGER( newid )[k] = 0 ;
 		}
