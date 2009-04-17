@@ -288,6 +288,18 @@ renderer_xterm <- function(
 }
 # }}}
 
+
+#' helper function to get a style file
+#'
+#' @param name the name of the style file to look for
+#' @param extension the file extension (css, sty, or xterm)
+#' 
+#' @details
+#' the search goes as follows: first the current working directory
+#' then the directory ~/.R/highlight, then the stylesheet directory
+#' in the installed package
+#' 
+#' @return the name of the first file that is found, or NULL
 getStyleFile <- function( name = "default", extension = "css" ){
 	
 	filename <- sprintf( "%s.%s", name, extension ) 
