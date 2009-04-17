@@ -7,13 +7,15 @@
 
 #' Dummy detective, gives the "nostyle" style to all tokens
 dummy_detective <- function( x, ... ){
-	rep( "" ,  length( attr( x, "tokens") ) )
+	rep( "" ,  nrow( sum( x$terminal) ) )
 }
 
 #' simple detective
 simple_detective <- function( x, ...){
-	tokens <- attr( x, "tokens" )
-	desc   <- subset( attr( x, "data" ), terminal )$token.desc
+	
+	term <- subset( attr( x, "data" ) , terminal )
+	tokens <- as.character( term$text )
+	desc   <- as.character( term$token.desc )
 	styles <- character( length( tokens ) )
 	
 	styles[ desc == "STR_CONST" ] <- "string"
@@ -21,7 +23,7 @@ simple_detective <- function( x, ...){
 	styles[ desc == "SYMBOL_FUNCTION_CALL" ] <- "functioncall"
 	styles[ desc %in% c( "FUNCTION", "FOR", "IN", "IF", 
 		"ELSE", "WHILE", "NEXT", "BREAK", "REPEAT" ) ] <- "keyword" 
-	styles[ desc %in% c("SYMBOL_FORMALS", "EQ_FORMALS")  ] <- "argument"
+	styles[ desc %in% c("SYMBOL_FORMALS", "EQ_FORMALS", "SYMBOL_SUB", "EQ_SUB" )  ] <- "argument"
 	styles[ desc %in% c("COMMENT", "ROXYGEN_COMMENT")  ] <- "comment"
 	
 	styles

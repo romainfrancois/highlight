@@ -105,12 +105,35 @@ translator_latex <- function( x ){
 	s <- function( rx, rep ){
 		x <<- gsub( rx, rep, x, fixed = TRUE )
 	}
-	x <- gsubfn( "[{}\\]", function(b){
-		switch( b, 
-			"{" = "\\usebox{\\hlboxopenbrace}", 
-			"}" = "\\usebox{\\hlboxclosebrace}", 
-			"\\" = "\\usebox{\\hlboxbackslash}" )
-	} , x )
+	# TODO: need to replace gsubfn with raw uses
+	#       of gregexpr somehow
+	# map <- list( 
+	# 	"{" = "\\usebox{\\hlboxopenbrace}", 
+	# 	"}" = "\\usebox{\\hlboxclosebrace}",
+	# 	"\\" = "\\usebox{\\hlboxbackslash}" )
+	# 	
+	# x <- gsubfn( "[{}\\]", function(b){
+	# 	map[[b]]
+	# } , x )
+	
+	# replacement contain open and close braces and backslash
+	# so we use this trick, gsubfn was more elegent (see above)
+	# but much slower
+	# there is probably some way to do it using conditional 
+	# regular expression
+	
+	# this wrap is used so that the replacement are not shown in this
+	# file, so that it can be rendered as well
+	wrap <- function( x ) {
+		sprintf( "%s%s%s", paste(rep("@", 3), collapse=""), x, paste(rep("@", 3), collapse="") )
+	}
+	s( "\\", wrap("bs") )
+	s( "{" , wrap("op") )
+	s( "}" , "\\usebox{\\hlboxclosebrace}" )
+	s( wrap("op") , "\\usebox{\\hlboxopenbrace}" )
+	s( wrap("bs") , "\\usebox{\\hlboxbackslash}" )
+	
+	
 	s( "<"      , "\\usebox{\\hlboxlessthan}" )
 	s( ">"      , "\\usebox{\\hlboxgreaterthan}" )
 	s( "$"      , "\\usebox{\\hlboxdollar}" )
