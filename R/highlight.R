@@ -5,6 +5,7 @@ highlight <- function( file, output,
 	parser.output = parser( file, encoding = encoding ),
 	styles = detective( parser.output ),
 	expr = NULL, 
+	final.newline = FALSE,
 	... ){
 	
 	# forcing the arguments in a certain order
@@ -75,9 +76,10 @@ highlight <- function( file, output,
 		byte <- byte2[i]
 		line <- line2[i]
 	}
-	
+	if( final.newline ){
+		write( renderer$newline() )
+	}
 	write( renderer$footer( ) )
-	write( "\n" )
 	
 	invisible( NULL )
 }

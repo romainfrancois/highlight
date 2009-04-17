@@ -175,6 +175,7 @@ styler_latex <- function( stylesheet ){
 
 boxes_latex <- function( ){
 '
+\\usepackage{color}%
 \\newsavebox{\\hlboxclosebrace}%
 \\newsavebox{\\hlboxopenbrace}%
 \\newsavebox{\\hlboxbackslash}%
@@ -198,7 +199,7 @@ boxes_latex <- function( ){
 \\setbox\\hlboxat=\\hbox{\\verb.@.}%
 \\setbox\\hlboxbackslash=\\hbox{\\verb.\\.}%
 \\setbox\\hlboxgreaterthan=\\hbox{\\verb.>.}%
-\\setbox\\hlboxpercent=\\hbox{\\verb.\\%.}%
+\\setbox\\hlboxpercent=\\hbox{\\verb.%.}%
 \\setbox\\hlboxhat=\\hbox{\\verb.^.}%
 \\def\\urltilda{\\kern -.15em\\lower .7ex\\hbox{\\~{}}\\kern .04em}
 \\newcommand{\\hlstd}[1]{\\textcolor[rgb]{0,0,0}{#1}}
@@ -244,7 +245,8 @@ renderer_latex <- function( document = FALSE, boxes = document, translator = tra
 	
 	renderer( translator = translator, 
 		formatter = formatter, space = space , newline = newline, 
-		header = header, footer = footer, boxes = boxes_latex, ... )
+		header = header, footer = footer, boxes = boxes_latex, 
+		styler = styler , ... )
 }
 # }}}
 
