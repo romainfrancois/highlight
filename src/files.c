@@ -4,7 +4,6 @@
 static Rboolean known_to_be_utf8 = FALSE ;
 static Rboolean known_to_be_latin1 = FALSE ;
 
-
 /*{{{ nlines */
 /** 
  * Get the number of lines from a file
@@ -13,13 +12,13 @@ static Rboolean known_to_be_latin1 = FALSE ;
  */
 int nlines( const char* fname ){
 	FILE *fp;
-	if((fp = R_fopen(R_ExpandFileName( fname ), "r")) == NULL){
+	if((fp = _fopen(R_ExpandFileName( fname ), "r")) == NULL){
 		error(_("unable to open file to read"), 0);
 	}
 	
 	int c, previous = 0 ;
 	int n = 0 ; 
-	while( c = R_fgetc(fp) ){
+	while( c = _fgetc(fp) ){
 		if( c ==  R_EOF ){
 			break ;
 		}
@@ -28,6 +27,7 @@ int nlines( const char* fname ){
 		}
 		previous = c ;
 	}
+	fclose( fp ) ;
 	if( previous != '\n' ){
 		n++;
 	}
@@ -55,14 +55,14 @@ SEXP countchars( const char* fname, int nl){
 	SEXP result ;
 	PROTECT( result = allocVector( INTSXP, nl*2) ) ;
 	FILE *fp;
-	if((fp = R_fopen(R_ExpandFileName( fname ), "r")) == NULL){
+	if((fp = _fopen(R_ExpandFileName( fname ), "r")) == NULL){
 		error(_("unable to open file to read"), 0);
 	}
 	int c ;
 	int col = 0 ;
 	int bytes = 0; 
 	int i =0;
-	while( c = R_fgetc(fp) ){
+	while( c = _fgetc(fp) ){
 		if( c ==  R_EOF ){
 			break ;
 		}
@@ -83,6 +83,7 @@ SEXP countchars( const char* fname, int nl){
 			
 		}
 	}
+	fclose( fp ) ;
 	SEXP dims ;
 	PROTECT( dims = allocVector( INTSXP, 2 ) ) ;
 	INTEGER(dims)[0]=nl;

@@ -205,7 +205,7 @@ static int	R_ParseContextLast = 0 ; /* last character in context buffer */
 static int	R_ParseContextLine; /* Line in file of the above */
 static Rboolean R_WarnEscapes = TRUE ;   /* Warn on unrecognized escapes */
 static SEXP	R_CurrentExpr;	    /* Currently evaluating expression */
-static int	R_PPStackTop;	    /* The top of the stack */
+// static int	R_PPStackTop;	    /* The top of the stack */
 
 static int	EatLines = 0;
 static int	EndOfFile = 0;
@@ -228,11 +228,11 @@ static SEXP	SavedLval;
 static char	contextstack[CONTEXTSTACK_SIZE], *contextp;
 
 /*{{{ Parsing entry points functions */
-static void ParseContextInit(void);
-static void ParseInit(void);
-static SEXP R_Parse1(ParseStatus *) ;
-static SEXP R_Parse(int, ParseStatus *, SEXP) ;
-attribute_hidden SEXP R_ParseFile(FILE *, int , ParseStatus *, SEXP, int) ;    
+static void HighlightParseContextInit(void);
+static void HighlightParseInit(void);
+static SEXP Highlight_Parse1(ParseStatus *) ;
+static SEXP Highlight_Parse(int, ParseStatus *, SEXP) ;
+attribute_hidden SEXP Highlight_ParseFile(FILE *, int , ParseStatus *, SEXP, int) ;    
 /*}}}*/
 
 #define yyconst const
@@ -287,7 +287,6 @@ static void recordParents( int, yyltype*, int) ;
  */
 static char yytext_[MAXELTSIZE];
 
-static SEXP idSXP ; // "id" 
 static int _current_token ;
 
 /**
@@ -304,12 +303,11 @@ static void setId( SEXP expr, yyltype loc){
 			(loc).last_line, (loc).last_column, (loc).last_byte, 
 			_current_token, (loc).id ) ;
 	
-		SEXP ids ;
-		PROTECT( ids = allocVector( INTSXP, 1) ) ;
-		INTEGER( ids)[0] = (loc).id ;
-		PROTECT( expr ) ;
-		setAttrib( expr , idSXP , ids);
-		UNPROTECT( 2 ) ;
+		SEXP id_ ;
+		PROTECT( id_ = allocVector( INTSXP, 1) ) ;
+		INTEGER( id_)[0] = (loc).id ;
+		setAttrib( expr , mkString("id") , id_ );
+		UNPROTECT( 1 ) ;
 	}
 	
 }
@@ -528,7 +526,7 @@ typedef struct YYLTYPE
 
 
 /* Line 216 of yacc.c.  */
-#line 532 "highlight/src/gram.c"
+#line 530 "highlight/src/gram.c"
 
 #ifdef short
 # undef short
@@ -856,16 +854,16 @@ static const yytype_int8 yyrhs[] =
 /* YYRLINE[YYN] -- source line where rule number YYN was defined.  */
 static const yytype_uint16 yyrline[] =
 {
-       0,   358,   358,   359,   360,   361,   362,   365,   366,   369,
-     372,   373,   374,   375,   377,   378,   380,   381,   382,   383,
-     384,   386,   387,   388,   389,   390,   391,   392,   393,   394,
-     395,   396,   397,   398,   399,   400,   401,   402,   403,   404,
-     405,   407,   408,   409,   412,   413,   414,   417,   419,   420,
-     421,   422,   423,   424,   425,   426,   427,   428,   429,   430,
-     431,   432,   433,   434,   435,   436,   440,   443,   446,   450,
-     451,   452,   453,   454,   455,   458,   459,   462,   463,   464,
-     465,   466,   467,   468,   469,   472,   473,   474,   475,   476,
-     480
+       0,   356,   356,   357,   358,   359,   360,   363,   364,   367,
+     370,   371,   372,   373,   375,   376,   378,   379,   380,   381,
+     382,   384,   385,   386,   387,   388,   389,   390,   391,   392,
+     393,   394,   395,   396,   397,   398,   399,   400,   401,   402,
+     403,   405,   406,   407,   410,   411,   412,   415,   417,   418,
+     419,   420,   421,   422,   423,   424,   425,   426,   427,   428,
+     429,   430,   431,   432,   433,   434,   438,   441,   444,   448,
+     449,   450,   451,   452,   453,   456,   457,   460,   461,   462,
+     463,   464,   465,   466,   467,   470,   471,   472,   473,   474,
+     478
 };
 #endif
 
@@ -2033,453 +2031,453 @@ yyreduce:
   switch (yyn)
     {
         case 2:
-#line 358 "highlight/src/gram.y"
+#line 356 "highlight/src/gram.y"
     { return 0; ;}
     break;
 
   case 3:
-#line 359 "highlight/src/gram.y"
+#line 357 "highlight/src/gram.y"
     { return xxvalue(NULL,2); ;}
     break;
 
   case 4:
-#line 360 "highlight/src/gram.y"
+#line 358 "highlight/src/gram.y"
     { return xxvalue((yyvsp[(1) - (2)]),3); ;}
     break;
 
   case 5:
-#line 361 "highlight/src/gram.y"
+#line 359 "highlight/src/gram.y"
     { return xxvalue((yyvsp[(1) - (2)]),4); ;}
     break;
 
   case 6:
-#line 362 "highlight/src/gram.y"
+#line 360 "highlight/src/gram.y"
     { YYABORT; ;}
     break;
 
   case 7:
-#line 365 "highlight/src/gram.y"
+#line 363 "highlight/src/gram.y"
     { (yyval) = (yyvsp[(1) - (1)]); ;}
     break;
 
   case 8:
-#line 366 "highlight/src/gram.y"
+#line 364 "highlight/src/gram.y"
     { (yyval) = (yyvsp[(1) - (1)]); ;}
     break;
 
   case 9:
-#line 369 "highlight/src/gram.y"
+#line 367 "highlight/src/gram.y"
     { (yyval) = xxbinary((yyvsp[(2) - (3)]),(yyvsp[(1) - (3)]),(yyvsp[(3) - (3)])); setId( (yyval), (yyloc) ) ; ;}
     break;
 
   case 10:
-#line 372 "highlight/src/gram.y"
+#line 370 "highlight/src/gram.y"
     { (yyval) = (yyvsp[(1) - (1)]);  setId( (yyval), (yyloc)); ;}
     break;
 
   case 11:
-#line 373 "highlight/src/gram.y"
+#line 371 "highlight/src/gram.y"
     { (yyval) = (yyvsp[(1) - (1)]);  setId( (yyval), (yyloc)); ;}
     break;
 
   case 12:
-#line 374 "highlight/src/gram.y"
+#line 372 "highlight/src/gram.y"
     { (yyval) = (yyvsp[(1) - (1)]);  setId( (yyval), (yyloc)); ;}
     break;
 
   case 13:
-#line 375 "highlight/src/gram.y"
+#line 373 "highlight/src/gram.y"
     { (yyval) = (yyvsp[(1) - (1)]);  setId( (yyval), (yyloc)); ;}
     break;
 
   case 14:
-#line 377 "highlight/src/gram.y"
+#line 375 "highlight/src/gram.y"
     { (yyval) = xxexprlist((yyvsp[(1) - (3)]),(yyvsp[(2) - (3)]));  setId( (yyval), (yyloc)); ;}
     break;
 
   case 15:
-#line 378 "highlight/src/gram.y"
+#line 376 "highlight/src/gram.y"
     { (yyval) = xxparen((yyvsp[(1) - (3)]),(yyvsp[(2) - (3)]));		setId( (yyval), (yyloc)); ;}
     break;
 
   case 16:
-#line 380 "highlight/src/gram.y"
+#line 378 "highlight/src/gram.y"
     { (yyval) = xxunary((yyvsp[(1) - (2)]),(yyvsp[(2) - (2)]));     setId( (yyval), (yyloc)); ;}
     break;
 
   case 17:
-#line 381 "highlight/src/gram.y"
+#line 379 "highlight/src/gram.y"
     { (yyval) = xxunary((yyvsp[(1) - (2)]),(yyvsp[(2) - (2)]));     setId( (yyval), (yyloc)); ;}
     break;
 
   case 18:
-#line 382 "highlight/src/gram.y"
+#line 380 "highlight/src/gram.y"
     { (yyval) = xxunary((yyvsp[(1) - (2)]),(yyvsp[(2) - (2)]));     setId( (yyval), (yyloc)); ;}
     break;
 
   case 19:
-#line 383 "highlight/src/gram.y"
+#line 381 "highlight/src/gram.y"
     { (yyval) = xxunary((yyvsp[(1) - (2)]),(yyvsp[(2) - (2)]));     setId( (yyval), (yyloc)); ;}
     break;
 
   case 20:
-#line 384 "highlight/src/gram.y"
+#line 382 "highlight/src/gram.y"
     { (yyval) = xxunary((yyvsp[(1) - (2)]),(yyvsp[(2) - (2)]));     setId( (yyval), (yyloc)); ;}
     break;
 
   case 21:
-#line 386 "highlight/src/gram.y"
+#line 384 "highlight/src/gram.y"
     { (yyval) = xxbinary((yyvsp[(2) - (3)]),(yyvsp[(1) - (3)]),(yyvsp[(3) - (3)]));     setId( (yyval), (yyloc)); ;}
     break;
 
   case 22:
-#line 387 "highlight/src/gram.y"
+#line 385 "highlight/src/gram.y"
     { (yyval) = xxbinary((yyvsp[(2) - (3)]),(yyvsp[(1) - (3)]),(yyvsp[(3) - (3)]));     setId( (yyval), (yyloc)); ;}
     break;
 
   case 23:
-#line 388 "highlight/src/gram.y"
+#line 386 "highlight/src/gram.y"
     { (yyval) = xxbinary((yyvsp[(2) - (3)]),(yyvsp[(1) - (3)]),(yyvsp[(3) - (3)]));     setId( (yyval), (yyloc)); ;}
     break;
 
   case 24:
-#line 389 "highlight/src/gram.y"
+#line 387 "highlight/src/gram.y"
     { (yyval) = xxbinary((yyvsp[(2) - (3)]),(yyvsp[(1) - (3)]),(yyvsp[(3) - (3)]));     setId( (yyval), (yyloc)); ;}
     break;
 
   case 25:
-#line 390 "highlight/src/gram.y"
+#line 388 "highlight/src/gram.y"
     { (yyval) = xxbinary((yyvsp[(2) - (3)]),(yyvsp[(1) - (3)]),(yyvsp[(3) - (3)]));     setId( (yyval), (yyloc)); ;}
     break;
 
   case 26:
-#line 391 "highlight/src/gram.y"
+#line 389 "highlight/src/gram.y"
     { (yyval) = xxbinary((yyvsp[(2) - (3)]),(yyvsp[(1) - (3)]),(yyvsp[(3) - (3)]));     setId( (yyval), (yyloc)); ;}
     break;
 
   case 27:
-#line 392 "highlight/src/gram.y"
+#line 390 "highlight/src/gram.y"
     { (yyval) = xxbinary((yyvsp[(2) - (3)]),(yyvsp[(1) - (3)]),(yyvsp[(3) - (3)]));     setId( (yyval), (yyloc)); ;}
     break;
 
   case 28:
-#line 393 "highlight/src/gram.y"
+#line 391 "highlight/src/gram.y"
     { (yyval) = xxbinary((yyvsp[(2) - (3)]),(yyvsp[(1) - (3)]),(yyvsp[(3) - (3)]));     setId( (yyval), (yyloc)); ;}
     break;
 
   case 29:
-#line 394 "highlight/src/gram.y"
+#line 392 "highlight/src/gram.y"
     { (yyval) = xxbinary((yyvsp[(2) - (3)]),(yyvsp[(1) - (3)]),(yyvsp[(3) - (3)]));     setId( (yyval), (yyloc)); ;}
     break;
 
   case 30:
-#line 395 "highlight/src/gram.y"
+#line 393 "highlight/src/gram.y"
     { (yyval) = xxbinary((yyvsp[(2) - (3)]),(yyvsp[(1) - (3)]),(yyvsp[(3) - (3)]));     setId( (yyval), (yyloc)); ;}
     break;
 
   case 31:
-#line 396 "highlight/src/gram.y"
+#line 394 "highlight/src/gram.y"
     { (yyval) = xxbinary((yyvsp[(2) - (3)]),(yyvsp[(1) - (3)]),(yyvsp[(3) - (3)]));     setId( (yyval), (yyloc)); ;}
     break;
 
   case 32:
-#line 397 "highlight/src/gram.y"
+#line 395 "highlight/src/gram.y"
     { (yyval) = xxbinary((yyvsp[(2) - (3)]),(yyvsp[(1) - (3)]),(yyvsp[(3) - (3)]));     setId( (yyval), (yyloc)); ;}
     break;
 
   case 33:
-#line 398 "highlight/src/gram.y"
+#line 396 "highlight/src/gram.y"
     { (yyval) = xxbinary((yyvsp[(2) - (3)]),(yyvsp[(1) - (3)]),(yyvsp[(3) - (3)]));     setId( (yyval), (yyloc)); ;}
     break;
 
   case 34:
-#line 399 "highlight/src/gram.y"
+#line 397 "highlight/src/gram.y"
     { (yyval) = xxbinary((yyvsp[(2) - (3)]),(yyvsp[(1) - (3)]),(yyvsp[(3) - (3)]));     setId( (yyval), (yyloc)); ;}
     break;
 
   case 35:
-#line 400 "highlight/src/gram.y"
+#line 398 "highlight/src/gram.y"
     { (yyval) = xxbinary((yyvsp[(2) - (3)]),(yyvsp[(1) - (3)]),(yyvsp[(3) - (3)]));     setId( (yyval), (yyloc)); ;}
     break;
 
   case 36:
-#line 401 "highlight/src/gram.y"
+#line 399 "highlight/src/gram.y"
     { (yyval) = xxbinary((yyvsp[(2) - (3)]),(yyvsp[(1) - (3)]),(yyvsp[(3) - (3)]));     setId( (yyval), (yyloc)); ;}
     break;
 
   case 37:
-#line 402 "highlight/src/gram.y"
+#line 400 "highlight/src/gram.y"
     { (yyval) = xxbinary((yyvsp[(2) - (3)]),(yyvsp[(1) - (3)]),(yyvsp[(3) - (3)]));     setId( (yyval), (yyloc)); ;}
     break;
 
   case 38:
-#line 403 "highlight/src/gram.y"
+#line 401 "highlight/src/gram.y"
     { (yyval) = xxbinary((yyvsp[(2) - (3)]),(yyvsp[(1) - (3)]),(yyvsp[(3) - (3)]));     setId( (yyval), (yyloc)); ;}
     break;
 
   case 39:
-#line 404 "highlight/src/gram.y"
+#line 402 "highlight/src/gram.y"
     { (yyval) = xxbinary((yyvsp[(2) - (3)]),(yyvsp[(1) - (3)]),(yyvsp[(3) - (3)]));     setId( (yyval), (yyloc)); ;}
     break;
 
   case 40:
-#line 405 "highlight/src/gram.y"
+#line 403 "highlight/src/gram.y"
     { (yyval) = xxbinary((yyvsp[(2) - (3)]),(yyvsp[(1) - (3)]),(yyvsp[(3) - (3)]));     setId( (yyval), (yyloc)); ;}
     break;
 
   case 41:
-#line 407 "highlight/src/gram.y"
+#line 405 "highlight/src/gram.y"
     { (yyval) = xxbinary((yyvsp[(2) - (3)]),(yyvsp[(1) - (3)]),(yyvsp[(3) - (3)])); setId( (yyval), (yyloc)); ;}
     break;
 
   case 42:
-#line 408 "highlight/src/gram.y"
+#line 406 "highlight/src/gram.y"
     { (yyval) = xxbinary((yyvsp[(2) - (3)]),(yyvsp[(3) - (3)]),(yyvsp[(1) - (3)])); setId( (yyval), (yyloc)); ;}
     break;
 
   case 43:
-#line 410 "highlight/src/gram.y"
+#line 408 "highlight/src/gram.y"
     { (yyval) = xxdefun((yyvsp[(1) - (6)]),(yyvsp[(3) - (6)]),(yyvsp[(6) - (6)]));             setId( (yyval), (yyloc)); ;}
     break;
 
   case 44:
-#line 412 "highlight/src/gram.y"
+#line 410 "highlight/src/gram.y"
     { (yyval) = xxfuncall((yyvsp[(1) - (4)]),(yyvsp[(3) - (4)]));  setId( (yyval), (yyloc)); modif_token( &(yylsp[(1) - (4)]), SYMBOL_FUNCTION_CALL ) ; ;}
     break;
 
   case 45:
-#line 413 "highlight/src/gram.y"
+#line 411 "highlight/src/gram.y"
     { (yyval) = xxif((yyvsp[(1) - (3)]),(yyvsp[(2) - (3)]),(yyvsp[(3) - (3)]));    setId( (yyval), (yyloc)); ;}
     break;
 
   case 46:
-#line 415 "highlight/src/gram.y"
+#line 413 "highlight/src/gram.y"
     { (yyval) = xxifelse((yyvsp[(1) - (5)]),(yyvsp[(2) - (5)]),(yyvsp[(3) - (5)]),(yyvsp[(5) - (5)])); setId( (yyval), (yyloc)); ;}
     break;
 
   case 47:
-#line 418 "highlight/src/gram.y"
+#line 416 "highlight/src/gram.y"
     { (yyval) = xxfor((yyvsp[(1) - (3)]),(yyvsp[(2) - (3)]),(yyvsp[(3) - (3)])); setId( (yyval), (yyloc)); ;}
     break;
 
   case 48:
-#line 419 "highlight/src/gram.y"
+#line 417 "highlight/src/gram.y"
     { (yyval) = xxwhile((yyvsp[(1) - (3)]),(yyvsp[(2) - (3)]),(yyvsp[(3) - (3)]));   setId( (yyval), (yyloc)); ;}
     break;
 
   case 49:
-#line 420 "highlight/src/gram.y"
+#line 418 "highlight/src/gram.y"
     { (yyval) = xxrepeat((yyvsp[(1) - (2)]),(yyvsp[(2) - (2)]));         setId( (yyval), (yyloc));;}
     break;
 
   case 50:
-#line 421 "highlight/src/gram.y"
+#line 419 "highlight/src/gram.y"
     { (yyval) = xxsubscript((yyvsp[(1) - (5)]),(yyvsp[(2) - (5)]),(yyvsp[(3) - (5)]));       setId( (yyval), (yyloc)); ;}
     break;
 
   case 51:
-#line 422 "highlight/src/gram.y"
+#line 420 "highlight/src/gram.y"
     { (yyval) = xxsubscript((yyvsp[(1) - (4)]),(yyvsp[(2) - (4)]),(yyvsp[(3) - (4)]));       setId( (yyval), (yyloc)); ;}
     break;
 
   case 52:
-#line 423 "highlight/src/gram.y"
+#line 421 "highlight/src/gram.y"
     { (yyval) = xxbinary((yyvsp[(2) - (3)]),(yyvsp[(1) - (3)]),(yyvsp[(3) - (3)]));      	 setId( (yyval), (yyloc)); modif_token( &(yylsp[(1) - (3)]), SYMBOL_PACKAGE ) ; ;}
     break;
 
   case 53:
-#line 424 "highlight/src/gram.y"
+#line 422 "highlight/src/gram.y"
     { (yyval) = xxbinary((yyvsp[(2) - (3)]),(yyvsp[(1) - (3)]),(yyvsp[(3) - (3)]));      setId( (yyval), (yyloc));modif_token( &(yylsp[(1) - (3)]), SYMBOL_PACKAGE ) ; ;}
     break;
 
   case 54:
-#line 425 "highlight/src/gram.y"
+#line 423 "highlight/src/gram.y"
     { (yyval) = xxbinary((yyvsp[(2) - (3)]),(yyvsp[(1) - (3)]),(yyvsp[(3) - (3)]));      setId( (yyval), (yyloc)); ;}
     break;
 
   case 55:
-#line 426 "highlight/src/gram.y"
+#line 424 "highlight/src/gram.y"
     { (yyval) = xxbinary((yyvsp[(2) - (3)]),(yyvsp[(1) - (3)]),(yyvsp[(3) - (3)]));          setId( (yyval), (yyloc)); ;}
     break;
 
   case 56:
-#line 427 "highlight/src/gram.y"
+#line 425 "highlight/src/gram.y"
     { (yyval) = xxbinary((yyvsp[(2) - (3)]),(yyvsp[(1) - (3)]),(yyvsp[(3) - (3)]));          setId( (yyval), (yyloc)); modif_token( &(yylsp[(1) - (3)]), SYMBOL_PACKAGE ) ;;}
     break;
 
   case 57:
-#line 428 "highlight/src/gram.y"
+#line 426 "highlight/src/gram.y"
     { (yyval) = xxbinary((yyvsp[(2) - (3)]),(yyvsp[(1) - (3)]),(yyvsp[(3) - (3)]));      setId( (yyval), (yyloc)); modif_token( &(yylsp[(1) - (3)]), SYMBOL_PACKAGE ) ;;}
     break;
 
   case 58:
-#line 429 "highlight/src/gram.y"
+#line 427 "highlight/src/gram.y"
     { (yyval) = xxbinary((yyvsp[(2) - (3)]),(yyvsp[(1) - (3)]),(yyvsp[(3) - (3)]));      setId( (yyval), (yyloc)); ;}
     break;
 
   case 59:
-#line 430 "highlight/src/gram.y"
+#line 428 "highlight/src/gram.y"
     { (yyval) = xxbinary((yyvsp[(2) - (3)]),(yyvsp[(1) - (3)]),(yyvsp[(3) - (3)]) );     setId( (yyval), (yyloc));;}
     break;
 
   case 60:
-#line 431 "highlight/src/gram.y"
+#line 429 "highlight/src/gram.y"
     { (yyval) = xxbinary((yyvsp[(2) - (3)]),(yyvsp[(1) - (3)]),(yyvsp[(3) - (3)]));              setId( (yyval), (yyloc)); ;}
     break;
 
   case 61:
-#line 432 "highlight/src/gram.y"
+#line 430 "highlight/src/gram.y"
     { (yyval) = xxbinary((yyvsp[(2) - (3)]),(yyvsp[(1) - (3)]),(yyvsp[(3) - (3)]));              setId( (yyval), (yyloc)); ;}
     break;
 
   case 62:
-#line 433 "highlight/src/gram.y"
+#line 431 "highlight/src/gram.y"
     { (yyval) = xxbinary((yyvsp[(2) - (3)]),(yyvsp[(1) - (3)]),(yyvsp[(3) - (3)]));              setId( (yyval), (yyloc)); ;}
     break;
 
   case 63:
-#line 434 "highlight/src/gram.y"
+#line 432 "highlight/src/gram.y"
     { (yyval) = xxbinary((yyvsp[(2) - (3)]),(yyvsp[(1) - (3)]),(yyvsp[(3) - (3)]));              setId( (yyval), (yyloc)); ;}
     break;
 
   case 64:
-#line 435 "highlight/src/gram.y"
+#line 433 "highlight/src/gram.y"
     { (yyval) = xxnxtbrk((yyvsp[(1) - (1)]));                       setId( (yyval), (yyloc)); ;}
     break;
 
   case 65:
-#line 436 "highlight/src/gram.y"
+#line 434 "highlight/src/gram.y"
     { (yyval) = xxnxtbrk((yyvsp[(1) - (1)]));                       setId( (yyval), (yyloc)); ;}
     break;
 
   case 66:
-#line 440 "highlight/src/gram.y"
+#line 438 "highlight/src/gram.y"
     { (yyval) = xxcond((yyvsp[(2) - (3)])); ;}
     break;
 
   case 67:
-#line 443 "highlight/src/gram.y"
+#line 441 "highlight/src/gram.y"
     { (yyval) = xxifcond((yyvsp[(2) - (3)])); ;}
     break;
 
   case 68:
-#line 446 "highlight/src/gram.y"
+#line 444 "highlight/src/gram.y"
     { (yyval) = xxforcond((yyvsp[(2) - (5)]),(yyvsp[(4) - (5)])); ;}
     break;
 
   case 69:
-#line 450 "highlight/src/gram.y"
+#line 448 "highlight/src/gram.y"
     { (yyval) = xxexprlist0(); ;}
     break;
 
   case 70:
-#line 451 "highlight/src/gram.y"
+#line 449 "highlight/src/gram.y"
     { (yyval) = xxexprlist1((yyvsp[(1) - (1)])); ;}
     break;
 
   case 71:
-#line 452 "highlight/src/gram.y"
+#line 450 "highlight/src/gram.y"
     { (yyval) = xxexprlist2((yyvsp[(1) - (3)]), (yyvsp[(3) - (3)])); ;}
     break;
 
   case 72:
-#line 453 "highlight/src/gram.y"
+#line 451 "highlight/src/gram.y"
     { (yyval) = (yyvsp[(1) - (2)]); ;}
     break;
 
   case 73:
-#line 454 "highlight/src/gram.y"
+#line 452 "highlight/src/gram.y"
     { (yyval) = xxexprlist2((yyvsp[(1) - (3)]), (yyvsp[(3) - (3)])); ;}
     break;
 
   case 74:
-#line 455 "highlight/src/gram.y"
+#line 453 "highlight/src/gram.y"
     { (yyval) = (yyvsp[(1) - (2)]);;}
     break;
 
   case 75:
-#line 458 "highlight/src/gram.y"
+#line 456 "highlight/src/gram.y"
     { (yyval) = xxsublist1((yyvsp[(1) - (1)])); ;}
     break;
 
   case 76:
-#line 459 "highlight/src/gram.y"
+#line 457 "highlight/src/gram.y"
     { (yyval) = xxsublist2((yyvsp[(1) - (4)]),(yyvsp[(4) - (4)])); ;}
     break;
 
   case 77:
-#line 462 "highlight/src/gram.y"
+#line 460 "highlight/src/gram.y"
     { (yyval) = xxsub0(); 				;}
     break;
 
   case 78:
-#line 463 "highlight/src/gram.y"
+#line 461 "highlight/src/gram.y"
     { (yyval) = xxsub1((yyvsp[(1) - (1)]), &(yylsp[(1) - (1)])); 		;}
     break;
 
   case 79:
-#line 464 "highlight/src/gram.y"
+#line 462 "highlight/src/gram.y"
     { (yyval) = xxsymsub0((yyvsp[(1) - (2)]), &(yylsp[(1) - (2)])); 	modif_token( &(yylsp[(2) - (2)]), EQ_SUB ) ; modif_token( &(yylsp[(1) - (2)]), SYMBOL_SUB ) ; ;}
     break;
 
   case 80:
-#line 465 "highlight/src/gram.y"
+#line 463 "highlight/src/gram.y"
     { (yyval) = xxsymsub1((yyvsp[(1) - (3)]),(yyvsp[(3) - (3)]), &(yylsp[(1) - (3)])); 	modif_token( &(yylsp[(2) - (3)]), EQ_SUB ) ; modif_token( &(yylsp[(1) - (3)]), SYMBOL_SUB ) ; ;}
     break;
 
   case 81:
-#line 466 "highlight/src/gram.y"
+#line 464 "highlight/src/gram.y"
     { (yyval) = xxsymsub0((yyvsp[(1) - (2)]), &(yylsp[(1) - (2)])); 	modif_token( &(yylsp[(2) - (2)]), EQ_SUB ) ; ;}
     break;
 
   case 82:
-#line 467 "highlight/src/gram.y"
+#line 465 "highlight/src/gram.y"
     { (yyval) = xxsymsub1((yyvsp[(1) - (3)]),(yyvsp[(3) - (3)]), &(yylsp[(1) - (3)])); 	modif_token( &(yylsp[(2) - (3)]), EQ_SUB ) ; ;}
     break;
 
   case 83:
-#line 468 "highlight/src/gram.y"
+#line 466 "highlight/src/gram.y"
     { (yyval) = xxnullsub0(&(yylsp[(1) - (2)])); 		modif_token( &(yylsp[(2) - (2)]), EQ_SUB ) ; ;}
     break;
 
   case 84:
-#line 469 "highlight/src/gram.y"
+#line 467 "highlight/src/gram.y"
     { (yyval) = xxnullsub1((yyvsp[(3) - (3)]), &(yylsp[(1) - (3)])); 	modif_token( &(yylsp[(2) - (3)]), EQ_SUB ) ; ;}
     break;
 
   case 85:
-#line 472 "highlight/src/gram.y"
+#line 470 "highlight/src/gram.y"
     { (yyval) = xxnullformal(); ;}
     break;
 
   case 86:
-#line 473 "highlight/src/gram.y"
+#line 471 "highlight/src/gram.y"
     { (yyval) = xxfirstformal0((yyvsp[(1) - (1)])); 			modif_token( &(yylsp[(1) - (1)]), SYMBOL_FORMALS ) ; ;}
     break;
 
   case 87:
-#line 474 "highlight/src/gram.y"
+#line 472 "highlight/src/gram.y"
     { (yyval) = xxfirstformal1((yyvsp[(1) - (3)]),(yyvsp[(3) - (3)])); 			modif_token( &(yylsp[(1) - (3)]), SYMBOL_FORMALS ) ; modif_token( &(yylsp[(2) - (3)]), EQ_FORMALS ) ; ;}
     break;
 
   case 88:
-#line 475 "highlight/src/gram.y"
+#line 473 "highlight/src/gram.y"
     { (yyval) = xxaddformal0((yyvsp[(1) - (3)]),(yyvsp[(3) - (3)]), &(yylsp[(3) - (3)])); 		modif_token( &(yylsp[(3) - (3)]), SYMBOL_FORMALS ) ; ;}
     break;
 
   case 89:
-#line 477 "highlight/src/gram.y"
+#line 475 "highlight/src/gram.y"
     { (yyval) = xxaddformal1((yyvsp[(1) - (5)]),(yyvsp[(3) - (5)]),(yyvsp[(5) - (5)]),&(yylsp[(3) - (5)]));		modif_token( &(yylsp[(3) - (5)]), SYMBOL_FORMALS ) ; modif_token( &(yylsp[(4) - (5)]), EQ_FORMALS ) ;;}
     break;
 
   case 90:
-#line 480 "highlight/src/gram.y"
+#line 478 "highlight/src/gram.y"
     { EatLines = 1; ;}
     break;
 
 
 /* Line 1267 of yacc.c.  */
-#line 2483 "highlight/src/gram.c"
+#line 2481 "highlight/src/gram.c"
       default: break;
     }
   YY_SYMBOL_PRINT ("-> $$ =", yyr1[yyn], &yyval, &yyloc);
@@ -2699,7 +2697,7 @@ yyreturn:
 }
 
 
-#line 482 "highlight/src/gram.y"
+#line 480 "highlight/src/gram.y"
 
 /*}}}*/
 /*}}}*/
@@ -5069,17 +5067,16 @@ static int yylex(void){
 
 /*{{{ file_getc */
 int file_getc(void){
-    return R_fgetc(fp_parse);
+    return _fgetc(fp_parse);
 }
 /*}}}*/
 
 /*{{{ Parsing entry points */
 
-/*{{{ ParseContextInit */
-static void ParseContextInit(void) {
+/*{{{ HighlightParseContextInit */
+static void HighlightParseContextInit(void) {
     R_ParseContextLast = 0;
     R_ParseContext[0] = '\0';
-	idSXP = mkString( "id" ) ;
 	colon = 0 ;
 	
 	/* starts the identifier counter*/
@@ -5098,7 +5095,7 @@ static void ParseContextInit(void) {
 /*}}}*/
            
 /*{{{ ParseInit */
-static void ParseInit(void) {
+static void HighlightParseInit(void) {
     contextp = contextstack;
     *contextp = ' ';
     SavedToken = 0;
@@ -5111,7 +5108,7 @@ static void ParseInit(void) {
 /*}}}*/
 
 /*{{{ R_Parse1 */
-static SEXP R_Parse1(ParseStatus *status) {
+static SEXP Highlight_Parse1(ParseStatus *status) {
 	
 	int res = yyparse() ;
 	switch(res) {
@@ -5139,15 +5136,15 @@ static SEXP R_Parse1(ParseStatus *status) {
 }
 /*}}}*/
 
-/*{{{ R_Parse */
-static SEXP R_Parse(int n, ParseStatus *status, SEXP srcfile){
+/*{{{ Highlight_Parse */
+static SEXP Highlight_Parse(int n, ParseStatus *status, SEXP srcfile){
 	
-    volatile int savestack;
+    // volatile int savestack;
 	int i;
     SEXP t, rval;
 
-    ParseContextInit();
-    savestack = R_PPStackTop;
+    HighlightParseContextInit();
+    // savestack = R_PPStackTop;
     PROTECT(t = NewList());
 	
     xxlineno = 1;
@@ -5156,8 +5153,8 @@ static SEXP R_Parse(int n, ParseStatus *status, SEXP srcfile){
     
     for(i = 0; ; ) {
 		if(n >= 0 && i >= n) break;
-		ParseInit();
-		rval = R_Parse1(status);
+		HighlightParseInit();
+		rval = Highlight_Parse1(status);
 		
 		switch(*status) {
 			case PARSE_NULL:
@@ -5168,7 +5165,7 @@ static SEXP R_Parse(int n, ParseStatus *status, SEXP srcfile){
 			    break;
 			case PARSE_INCOMPLETE:
 			case PARSE_ERROR:
-			    R_PPStackTop = savestack;
+				//  R_PPStackTop = savestack;
 			    return R_NilValue;
 			    break;
 			case PARSE_EOF:
@@ -5180,28 +5177,32 @@ static SEXP R_Parse(int n, ParseStatus *status, SEXP srcfile){
 finish:
 
     t = CDR(t);
-    rval = allocVector(EXPRSXP, length(t));
+    PROTECT( rval = allocVector(EXPRSXP, length(t)) );
     for (n = 0 ; n < LENGTH(rval) ; n++, t = CDR(t)){
 		SET_VECTOR_ELT(rval, n, CAR(t));
 	}
 	finalizeData() ;
 	setAttrib( rval, mkString( "data" ), data ) ;
-	UNPROTECT( 3 ) ; // t 
 	
-    R_PPStackTop = savestack;
+	// R_PPStackTop = savestack;
     *status = PARSE_OK;
+	
+	UNPROTECT_PTR( data ) ;
+	UNPROTECT_PTR( ids ) ;
+	UNPROTECT( 2 ) ;  // t
 	
     return rval;
 }
 /*}}}*/
 
-/*{{{ R_ParseFile */
-attribute_hidden SEXP R_ParseFile(FILE *fp, int n, ParseStatus *status, SEXP srcfile, int nl) {
+/*{{{ Highlight_ParseFile */
+attribute_hidden SEXP Highlight_ParseFile(FILE *fp, int n, ParseStatus *status, SEXP srcfile, int nl) {
     NLINES = nl ;
 	fp_parse = fp;
     ptr_getc = file_getc;
 	// yydebug = 1 ;
-    return R_Parse(n, status, srcfile);
+	
+    return Highlight_Parse(n, status, srcfile);
 }
 /*}}}*/
 
@@ -5266,7 +5267,7 @@ static void record_( int first_line, int first_column, int first_byte,
 	// 		_LAST_COLUMN( data_count ) , 
 	// 		_LAST_BYTE( data_count )   , 
 	// 		_TOKEN( data_count )       , 
-	// 		_ID( data_count )          , 
+	// 		_ID( data_count )          ,            
 	// 		_PARENT(data_count)         
 	// 		) ;
 	ID_ID( id ) = data_count ; 
@@ -5416,7 +5417,7 @@ static void finalizeData( ){
 		}
 		_PARENT(i) = parent ;
 	}
-	
+
 	/* now rework the parents of comments, we try to attach 
 	comments that are not already attached (parent=0) to the next
 	enclosing top-level expression */ 
@@ -5441,7 +5442,7 @@ static void finalizeData( ){
 	INTEGER(dims)[1] = data_count ;
 	setAttrib( data, mkString( "dim" ), dims ) ;
 	UNPROTECT(1) ; // dims
-	
+
 }
 /*}}}*/
 
@@ -5504,7 +5505,7 @@ static void growID( ){
  * R interface : 
  *  highlight:::parser( file, encoding = "unknown" )
  *
- * Calls the R_ParseFile function from gram.y -> gram.c
+ * Calls the Highlight_ParseFile function from gram.y -> gram.c
  */
 SEXP attribute_hidden do_parser(SEXP args){
 	
@@ -5541,7 +5542,7 @@ SEXP attribute_hidden do_parser(SEXP args){
 
 	/*{{{ Try to open the file */
 	const char* fname = CHAR(STRING_ELT(filename,0) ) ;
-	if((fp = R_fopen(R_ExpandFileName( fname ), "r")) == NULL){
+	if((fp = _fopen(R_ExpandFileName( fname ), "r")) == NULL){
 		error(_("unable to open file to read"), 0);
 	}
 	int nl = nlines( fname ) ;
@@ -5551,19 +5552,20 @@ SEXP attribute_hidden do_parser(SEXP args){
 	/*{{{ Call the parser */
 	R_ParseError = 0;
     R_ParseErrorMsg[0] = '\0';
-	result = PROTECT(R_ParseFile(fp, -1, &status, filename, nl));
+	PROTECT(result = Highlight_ParseFile(fp, -1, &status, filename, nl));
 	if (status != PARSE_OK) {
 		/* TODO : use the parseError function (in source.c) */
 		error(_("parsing error"), 0);
 	}
-	UNPROTECT( 1 ) ;
-    /*}}}*/
+	fclose( fp ) ;
+	/*}}}*/
 	
 	/*{{{ reset encodings flags  */
     known_to_be_latin1 = old_latin1;
     known_to_be_utf8 = old_utf8;
 	/*}}}*/
 	
+    UNPROTECT( 1 ) ;
     return result;
 }
 /*}}}*/

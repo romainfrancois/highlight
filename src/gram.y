@@ -32,7 +32,7 @@ static int	R_ParseContextLast = 0 ; /* last character in context buffer */
 static int	R_ParseContextLine; /* Line in file of the above */
 static Rboolean R_WarnEscapes = TRUE ;   /* Warn on unrecognized escapes */
 static SEXP	R_CurrentExpr;	    /* Currently evaluating expression */
-static int	R_PPStackTop;	    /* The top of the stack */
+// static int	R_PPStackTop;	    /* The top of the stack */
 
 static int	EatLines = 0;
 static int	EndOfFile = 0;
@@ -55,11 +55,11 @@ static SEXP	SavedLval;
 static char	contextstack[CONTEXTSTACK_SIZE], *contextp;
 
 /*{{{ Parsing entry points functions */
-static void ParseContextInit(void);
-static void ParseInit(void);
-static SEXP R_Parse1(ParseStatus *) ;
-static SEXP R_Parse(int, ParseStatus *, SEXP) ;
-attribute_hidden SEXP R_ParseFile(FILE *, int , ParseStatus *, SEXP, int) ;    
+static void HighlightParseContextInit(void);
+static void HighlightParseInit(void);
+static SEXP Highlight_Parse1(ParseStatus *) ;
+static SEXP Highlight_Parse(int, ParseStatus *, SEXP) ;
+attribute_hidden SEXP Highlight_ParseFile(FILE *, int , ParseStatus *, SEXP, int) ;    
 /*}}}*/
 
 #define yyconst const
@@ -114,7 +114,6 @@ static void recordParents( int, yyltype*, int) ;
  */
 static char yytext_[MAXELTSIZE];
 
-static SEXP idSXP ; // "id" 
 static int _current_token ;
 
 /**
@@ -131,12 +130,11 @@ static void setId( SEXP expr, yyltype loc){
 			(loc).last_line, (loc).last_column, (loc).last_byte, 
 			_current_token, (loc).id ) ;
 	
-		SEXP ids ;
-		PROTECT( ids = allocVector( INTSXP, 1) ) ;
-		INTEGER( ids)[0] = (loc).id ;
-		PROTECT( expr ) ;
-		setAttrib( expr , idSXP , ids);
-		UNPROTECT( 2 ) ;
+		SEXP id_ ;
+		PROTECT( id_ = allocVector( INTSXP, 1) ) ;
+		INTEGER( id_)[0] = (loc).id ;
+		setAttrib( expr , mkString("id") , id_ );
+		UNPROTECT( 1 ) ;
 	}
 	
 }
@@ -2848,17 +2846,16 @@ static int yylex(void){
 
 /*{{{ file_getc */
 int file_getc(void){
-    return R_fgetc(fp_parse);
+    return _fgetc(fp_parse);
 }
 /*}}}*/
 
 /*{{{ Parsing entry points */
 
-/*{{{ ParseContextInit */
-static void ParseContextInit(void) {
+/*{{{ HighlightParseContextInit */
+static void HighlightParseContextInit(void) {
     R_ParseContextLast = 0;
     R_ParseContext[0] = '\0';
-	idSXP = mkString( "id" ) ;
 	colon = 0 ;
 	
 	/* starts the identifier counter*/
@@ -2877,7 +2874,7 @@ static void ParseContextInit(void) {
 /*}}}*/
            
 /*{{{ ParseInit */
-static void ParseInit(void) {
+static void HighlightParseInit(void) {
     contextp = contextstack;
     *contextp = ' ';
     SavedToken = 0;
@@ -2890,7 +2887,7 @@ static void ParseInit(void) {
 /*}}}*/
 
 /*{{{ R_Parse1 */
-static SEXP R_Parse1(ParseStatus *status) {
+static SEXP Highlight_Parse1(ParseStatus *status) {
 	
 	int res = yyparse() ;
 	switch(res) {
@@ -2918,15 +2915,15 @@ static SEXP R_Parse1(ParseStatus *status) {
 }
 /*}}}*/
 
-/*{{{ R_Parse */
-static SEXP R_Parse(int n, ParseStatus *status, SEXP srcfile){
+/*{{{ Highlight_Parse */
+static SEXP Highlight_Parse(int n, ParseStatus *status, SEXP srcfile){
 	
-    volatile int savestack;
+    // volatile int savestack;
 	int i;
     SEXP t, rval;
 
-    ParseContextInit();
-    savestack = R_PPStackTop;
+    HighlightParseContextInit();
+    // savestack = R_PPStackTop;
     PROTECT(t = NewList());
 	
     xxlineno = 1;
@@ -2935,8 +2932,8 @@ static SEXP R_Parse(int n, ParseStatus *status, SEXP srcfile){
     
     for(i = 0; ; ) {
 		if(n >= 0 && i >= n) break;
-		ParseInit();
-		rval = R_Parse1(status);
+		HighlightParseInit();
+		rval = Highlight_Parse1(status);
 		
 		switch(*status) {
 			case PARSE_NULL:
@@ -2947,7 +2944,7 @@ static SEXP R_Parse(int n, ParseStatus *status, SEXP srcfile){
 			    break;
 			case PARSE_INCOMPLETE:
 			case PARSE_ERROR:
-			    R_PPStackTop = savestack;
+				//  R_PPStackTop = savestack;
 			    return R_NilValue;
 			    break;
 			case PARSE_EOF:
@@ -2959,28 +2956,32 @@ static SEXP R_Parse(int n, ParseStatus *status, SEXP srcfile){
 finish:
 
     t = CDR(t);
-    rval = allocVector(EXPRSXP, length(t));
+    PROTECT( rval = allocVector(EXPRSXP, length(t)) );
     for (n = 0 ; n < LENGTH(rval) ; n++, t = CDR(t)){
 		SET_VECTOR_ELT(rval, n, CAR(t));
 	}
 	finalizeData() ;
 	setAttrib( rval, mkString( "data" ), data ) ;
-	UNPROTECT( 3 ) ; // t 
 	
-    R_PPStackTop = savestack;
+	// R_PPStackTop = savestack;
     *status = PARSE_OK;
+	
+	UNPROTECT_PTR( data ) ;
+	UNPROTECT_PTR( ids ) ;
+	UNPROTECT( 2 ) ;  // t
 	
     return rval;
 }
 /*}}}*/
 
-/*{{{ R_ParseFile */
-attribute_hidden SEXP R_ParseFile(FILE *fp, int n, ParseStatus *status, SEXP srcfile, int nl) {
+/*{{{ Highlight_ParseFile */
+attribute_hidden SEXP Highlight_ParseFile(FILE *fp, int n, ParseStatus *status, SEXP srcfile, int nl) {
     NLINES = nl ;
 	fp_parse = fp;
     ptr_getc = file_getc;
 	// yydebug = 1 ;
-    return R_Parse(n, status, srcfile);
+	
+    return Highlight_Parse(n, status, srcfile);
 }
 /*}}}*/
 
@@ -3045,7 +3046,7 @@ static void record_( int first_line, int first_column, int first_byte,
 	// 		_LAST_COLUMN( data_count ) , 
 	// 		_LAST_BYTE( data_count )   , 
 	// 		_TOKEN( data_count )       , 
-	// 		_ID( data_count )          , 
+	// 		_ID( data_count )          ,            
 	// 		_PARENT(data_count)         
 	// 		) ;
 	ID_ID( id ) = data_count ; 
@@ -3195,7 +3196,7 @@ static void finalizeData( ){
 		}
 		_PARENT(i) = parent ;
 	}
-	
+
 	/* now rework the parents of comments, we try to attach 
 	comments that are not already attached (parent=0) to the next
 	enclosing top-level expression */ 
@@ -3220,7 +3221,7 @@ static void finalizeData( ){
 	INTEGER(dims)[1] = data_count ;
 	setAttrib( data, mkString( "dim" ), dims ) ;
 	UNPROTECT(1) ; // dims
-	
+
 }
 /*}}}*/
 
@@ -3283,7 +3284,7 @@ static void growID( ){
  * R interface : 
  *  highlight:::parser( file, encoding = "unknown" )
  *
- * Calls the R_ParseFile function from gram.y -> gram.c
+ * Calls the Highlight_ParseFile function from gram.y -> gram.c
  */
 SEXP attribute_hidden do_parser(SEXP args){
 	
@@ -3320,7 +3321,7 @@ SEXP attribute_hidden do_parser(SEXP args){
 
 	/*{{{ Try to open the file */
 	const char* fname = CHAR(STRING_ELT(filename,0) ) ;
-	if((fp = R_fopen(R_ExpandFileName( fname ), "r")) == NULL){
+	if((fp = _fopen(R_ExpandFileName( fname ), "r")) == NULL){
 		error(_("unable to open file to read"), 0);
 	}
 	int nl = nlines( fname ) ;
@@ -3330,19 +3331,20 @@ SEXP attribute_hidden do_parser(SEXP args){
 	/*{{{ Call the parser */
 	R_ParseError = 0;
     R_ParseErrorMsg[0] = '\0';
-	result = PROTECT(R_ParseFile(fp, -1, &status, filename, nl));
+	PROTECT(result = Highlight_ParseFile(fp, -1, &status, filename, nl));
 	if (status != PARSE_OK) {
 		/* TODO : use the parseError function (in source.c) */
 		error(_("parsing error"), 0);
 	}
-	UNPROTECT( 1 ) ;
-    /*}}}*/
+	fclose( fp ) ;
+	/*}}}*/
 	
 	/*{{{ reset encodings flags  */
     known_to_be_latin1 = old_latin1;
     known_to_be_utf8 = old_utf8;
 	/*}}}*/
 	
+    UNPROTECT( 1 ) ;
     return result;
 }
 /*}}}*/

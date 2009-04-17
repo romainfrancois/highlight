@@ -38,7 +38,6 @@ SEXP	Insert(SEXP, SEXP);
 extern "C" {
 #endif
 
-/* PARSE_NULL will not be returned by R_ParseVector */
 typedef enum {
     PARSE_NULL,
     PARSE_OK,
@@ -76,12 +75,11 @@ typedef enum {
 #define streql(s, t)	(!strcmp((s), (t)))
 
 #define PUSHBACK_BUFSIZE 16
-
 #define CONTEXTSTACK_SIZE 50
 
-int	R_fgetc(FILE*);
 int file_getc(void) ;
-FILE *	R_fopen(const char *filename, const char *mode);
+FILE *	_fopen(const char *filename, const char *mode);
+int	_fgetc(FILE*);
 
 #endif
 

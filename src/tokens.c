@@ -21,11 +21,11 @@ static int byte ;
 	*(bp)++ = (c); \
 } while(0) ;
 
-//	if ((bp) - buf >= sizeof(buf) - 1){ \
+//	if ((bp) - buf >= sizeof(buf) ){ \
 //		old_bufsize=buf_size ; \
 //		buf_size*=2 ; \
 //		buf = (char*) realloc( buf, buf_size ) ; \
-//		bp = buf + buf_size ; \
+//		bp = buf + old_bufsize ; \
 //	} \
 
 
@@ -36,7 +36,7 @@ static int byte ;
  * @param fp file stream to read from
  */
 static int _getc( FILE* fp){
-	int c = R_fgetc(fp) ;
+	int c = _fgetc(fp) ;
 	if( c == '\n' ) {
 		line++ ;
 		byte=0;
@@ -51,6 +51,7 @@ static int _getc( FILE* fp){
  * Builds the token vector
  */ 
 SEXP attribute_hidden do_getTokens( SEXP args ){
+	
 	args = CDR( args ) ; const char* fname = CHAR(STRING_ELT(CAR(args),0) ) ;
 	args = CDR(args) ; 
 	const char* encoding = CHAR(STRING_ELT(CAR(args), 0)) ;
@@ -73,7 +74,7 @@ SEXP attribute_hidden do_getTokens( SEXP args ){
 	int old_bufsize ;
 	
 	FILE* fp ;
-	if((fp = R_fopen(R_ExpandFileName( fname ), "r")) == NULL){
+	if((fp = _fopen(R_ExpandFileName( fname ), "r")) == NULL){
 		error(_("unable to open file to read"), 0);
 	}
 	char *yyp ;
@@ -119,6 +120,8 @@ SEXP attribute_hidden do_getTokens( SEXP args ){
 		
 	}
 	UNPROTECT(1);
+	fclose( fp ) ;
+	free( buf ) ;
 	return tokens ;
 }
 
