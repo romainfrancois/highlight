@@ -302,22 +302,27 @@ HighlightWeaveLatexWritedoc <- function(object, chunk) {
 	if (length(which)) {
 		renderer <- renderer_latex( )
 		replacement <- paste(
-'\\\\newenvironment{Hinput}%
-{}%
-{}%', 
-'\\\\newenvironment{Houtput}%
-{}%
-{}%', 
-'\\\\newenvironment{Hchunk}%
-{\\\\vspace{0.5em}\\\\par\\\\begin{flushleft}}%
-{\\\\end{flushleft}}%', 
-
 				paste( gsub( "\\\\" , "\\\\\\\\", renderer$styler), collapse = "\n"), 
 				paste( gsub( "\\\\", "\\\\\\\\", renderer$boxes()), collapse = "\n"),  
 				"\\\\begin{document}" , sep = "\n" )
 		chunk[which] <- sub( begindoc, replacement, chunk[which] )
 	}
 	
+	environments <- 
+'\\newenvironment{Hinput}%
+{}%
+{}%
+\\newenvironment{Houtput}%
+{}%
+{}%
+\\newenvironment{Hchunk}%
+{\\vspace{0.5em}\\par\\begin{flushleft}}%
+{\\end{flushleft}}%'
+	documentclass <- "\\\\documentclass.*$"
+ 	which <- grep( documentclass, chunk )
+	if( length( which ) ){
+		chunk[which] <- paste( chunk[which], environments, sep = "\n" )
+	}
 	
     while(length(pos <- grep(object$syntax$docexpr, chunk)))
     {
