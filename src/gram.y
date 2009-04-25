@@ -3129,21 +3129,6 @@ static void finalizeData( ){
 	
 	int nloc = data_count ;
 	
-	// int loop ;
-	// int iii ;
-	// for( loop = 0; loop<data_count; loop++){
-	// 	Rprintf("%d,%d,%d,%d,%d,%d,%d,%d,%d\n", 
-	// 		_FIRST_LINE( loop )  , 
-	// 		_FIRST_COLUMN( loop ), 
-	// 		_FIRST_BYTE( loop )  , 
-	// 		_LAST_LINE( loop )   , 
-	// 		_LAST_COLUMN( loop ) , 
-	// 		_LAST_BYTE( loop )   , 
-	// 		_TOKEN( loop )       , 
-	// 		_ID( loop )          , 
-	// 		_PARENT(loop)         
-	// 	) ;
-	// }
 	SETLENGTH( data, data_count * 9 ) ;
 	
 	int maxId = _ID(nloc-1) ;

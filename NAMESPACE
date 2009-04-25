@@ -10,16 +10,15 @@ export( parser )
 export( grammar.symbols )
 export( nlines) 
 export( count.chars )
-
+export( css.parser )
 export( simple_detective )
+
+export( getStyleFile )
 
 exportPattern( "_latex$" )
 exportPattern( "_html$" )
-exportPattern( "_xterm$" )
 
 export( HighlightWeaveLatex )
-
-export( css.parser )
 
 # export( print.function )
 

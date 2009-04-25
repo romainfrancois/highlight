@@ -111,7 +111,6 @@ translator_latex <- function( x ){
 	s( wrap("op") , "\\usebox{\\hlboxopenbrace}" )
 	s( wrap("bs") , "\\usebox{\\hlboxbackslash}" )
 	
-	
 	s( "<"      , "\\usebox{\\hlboxlessthan}" )
 	s( ">"      , "\\usebox{\\hlboxgreaterthan}" )
 	s( "$"      , "\\usebox{\\hlboxdollar}" )
@@ -132,16 +131,6 @@ space_latex <- function( ){
 
 newline_latex <- function( ){
 	"\\hspace*{\\fill}\\\\\n\\hlstd{}" 
-}
-
-styler_latex <- function( stylesheet ){
-	if( !is.null( stylesheet ) ){
-		# first try to find a sty file
-		sty <- getStyleFile( stylesheet, "sty" )
-		if( !is.null(sty) ){
-			return( readLines( sty ) ) 
-		}
-	}
 }
 
 boxes_latex <- function( ){
@@ -177,23 +166,24 @@ boxes_latex <- function( ){
 '
 }
 
-header_latex <- function( document, styler, boxes = TRUE ){
+header_latex <- function( document, styles, boxes = TRUE ){
 	function( ){
 		con <- textConnection( "txt", open = "w" )
 		add <- function( ... ){
 			cat( paste( ..., sep = "\n" ), file = con )
 		}
 		if( document ){
-			add( '\\documentclass{article}\n\\usepackage{color}' )
-			add( '\\setlength{\\textwidth}{14cm}' )
-			add( '\\usepackage{alltt}\n\\usepackage{hyperref}' ) 
-			add( styler )
+			add( '\\documentclass{article}',
+				'\\usepackage{color}', 
+				'\\usepackage{alltt}\n\\usepackage{hyperref}',
+				paste( styles, collapse = "\n")
+				)
 		}
 		if( boxes ) {
 			add( boxes_latex() )
 		}
 		if( document ){
-			add( '\\begin{document}' )
+			add( '\\begin{document}\n' )
 		}
 		add( '\\noindent','\\ttfamily', '\\hlstd{}' )
 		close( con )
@@ -250,19 +240,16 @@ col2latexrgb <- function( hex ){
 renderer_latex <- function( document = FALSE, boxes = document, 
 	translator = translator_latex, 
 	formatter = formatter_latex, space = space_latex, newline = newline_latex, 
-	header = header_latex( document, styler = styler, boxes = boxes ), 
-	footer = footer_latex( document) , 
-	styler = styler( stylesheet, "sty", styler_assistant_latex ), 
 	stylesheet = "default", 
+	styles = styler( stylesheet, "sty", styler_assistant_latex ), 
+	header = header_latex( document, styles = styles, boxes = boxes ), 
+	footer = footer_latex( document) , 
 	... ){
-	
 	renderer( translator = translator, 
 		formatter = formatter, space = space , newline = newline, 
 		header = header, footer = footer, boxes = boxes_latex, 
-		styler = styler , ... )
+		styles = styles, ... )
 }
-# }}}
-
 # }}}
 
 # {{{ verbatim 
@@ -358,7 +345,6 @@ styler <- function( stylesheet, extension = "css", assistant ){
 	}
 }
 # }}}
-
 
 # :tabSize=4:indentSize=4:noTabs=false:folding=explicit:collapseFolds=1:
 

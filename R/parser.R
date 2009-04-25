@@ -8,6 +8,7 @@ parser <- function( file, encoding = "unknown", text ){
 	colnames( data ) <- c( "line1", "col1", "byte1", 
 		 	"line2", "col2", "byte2", "token", "id", "parent" )
 	m <- match( data$token, symbols$token )
+	symbols <- grammar.symbols()
 	data$token.desc <- as.character(symbols$desc)[ m ]
 	data$terminal <- symbols$terminal[m]
 	data$text     <- rep( "", nrow(data) )

@@ -302,7 +302,7 @@ HighlightWeaveLatexWritedoc <- function(object, chunk) {
 	if (length(which)) {
 		renderer <- renderer_latex( )
 		replacement <- paste(
-				paste( gsub( "\\\\" , "\\\\\\\\", renderer$styler), collapse = "\n"), 
+				paste( gsub( "\\\\" , "\\\\\\\\", renderer$styles), collapse = "\n"), 
 				paste( gsub( "\\\\", "\\\\\\\\", renderer$boxes()), collapse = "\n"),  
 				"\\\\begin{document}" , sep = "\n" )
 		chunk[which] <- sub( begindoc, replacement, chunk[which] )
