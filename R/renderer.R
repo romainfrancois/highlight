@@ -342,7 +342,11 @@ renderer_verbatim <- function(
 #' @return the name of the first file that is found, or NULL
 getStyleFile <- function( name = "default", extension = "css" ){
 	
-	filename <- sprintf( "%s.%s", name, extension ) 
+	filename <- if( grepl( sprintf( "%s$", extension, ignore.case = TRUE), name ) ){
+		name
+	} else { 
+		sprintf( "%s.%s", name, extension )
+	}
 	
 	f <- filename
 	if( file.exists( f ) ){

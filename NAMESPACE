@@ -2,6 +2,8 @@ useDynLib( highlight )
 
 import( codetools )
 import( utils )
+importFrom( grDevices, rgb )
+importFrom( grDevices, colors )
 
 export( highlight )
 export( parser )
@@ -15,8 +17,9 @@ exportPattern( "_latex$" )
 exportPattern( "_html$" )
 exportPattern( "_xterm$" )
 
-
 export( HighlightWeaveLatex )
+
+export( css.parser )
 
 # export( print.function )
 
