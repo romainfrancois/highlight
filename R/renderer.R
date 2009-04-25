@@ -288,7 +288,47 @@ renderer_xterm <- function(
 }
 # }}}
 
+# {{{ verbatim 
+formatter_verbatim <- function( tokens, styles, ... ){
+	tokens
+}
 
+translator_verbatim <- function( x ){
+	x
+}
+
+space_verbatim <- function( ){
+	" "
+}
+
+newline_verbatim <- function( ){
+	"\n" 
+}
+
+header_verbatim <- function( ){
+	"" 
+}                     
+
+footer_verbatim <- function( ){
+	"\n"
+}
+
+renderer_verbatim <- function(
+	translator = translator_verbatim, formatter = formatter_verbatim, 
+	space = space_verbatim, newline = newline_verbatim, 
+	header = header_verbatim, footer = footer_verbatim ,  
+	... ){
+	
+	renderer( translator = translator, formatter = formatter, 
+		space = space, newline = newline, 
+		header = header, footer = footer, 
+		... )
+}
+
+# }}}
+# }}}
+
+# {{{ getStyleFile
 #' helper function to get a style file
 #'
 #' @param name the name of the style file to look for
@@ -323,8 +363,7 @@ getStyleFile <- function( name = "default", extension = "css" ){
 	invisible( NULL )
 	
 }
-
-
+# }}}
 
 # :tabSize=4:indentSize=4:noTabs=false:folding=explicit:collapseFolds=1:
 

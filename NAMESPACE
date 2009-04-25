@@ -18,3 +18,5 @@ exportPattern( "_xterm$" )
 
 export( HighlightWeaveLatex )
 
+# export( print.function )
+

@@ -1,4 +1,5 @@
 .onAttach <- function( libname, pkgname ){
-	data( symbols ) 
+	data( symbols )
+	options( detective = simple_detective )
 }
 
