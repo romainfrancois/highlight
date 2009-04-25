@@ -14,6 +14,7 @@ export( css.parser )
 export( simple_detective )
 
 export( getStyleFile )
+export( renderer )
 
 exportPattern( "_latex$" )
 exportPattern( "_html$" )
