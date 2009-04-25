@@ -97,22 +97,8 @@ translator_latex <- function( x ){
 	s <- function( rx, rep ){
 		x <<- gsub( rx, rep, x, fixed = TRUE )
 	}
-	# TODO: need to replace gsubfn with raw uses
-	#       of gregexpr somehow
-	# map <- list( 
-	# 	"{" = "\\usebox{\\hlboxopenbrace}", 
-	# 	"}" = "\\usebox{\\hlboxclosebrace}",
-	# 	"\\" = "\\usebox{\\hlboxbackslash}" )
-	# 	
-	# x <- gsubfn( "[{}\\]", function(b){
-	# 	map[[b]]
-	# } , x )
-	
 	# replacement contain open and close braces and backslash
-	# so we use this trick, gsubfn was more elegent (see above)
-	# but much slower
-	# there is probably some way to do it using conditional 
-	# regular expression
+	# so we use this trick
 	
 	# this wrap is used so that the replacement are not shown in this
 	# file, so that it can be rendered as well
@@ -150,9 +136,10 @@ newline_latex <- function( ){
 
 styler_latex <- function( stylesheet ){
 	if( !is.null( stylesheet ) ){
+		# first try to find a sty file
 		sty <- getStyleFile( stylesheet, "sty" )
 		if( !is.null(sty) ){
-			readLines( sty )	
+			return( readLines( sty ) ) 
 		}
 	}
 }
@@ -221,11 +208,53 @@ footer_latex <- function( document ){
 	}
 }
 
-renderer_latex <- function( document = FALSE, boxes = document, translator = translator_latex, 
+#' styler assistant for latex
+#' 
+#' @param x output of css parser
+styler_assistant_latex <- function( x ){
+	
+	styles <- sapply( x, function( declaration ) {
+		settings <- names( declaration )
+		has <- function( setting, value ){
+			setting %in% settings && grepl( value, declaration[[ setting ]] )
+		}
+		start <- ''
+		end <- ''
+		if( "color" %in% settings ){
+			start <- paste( start, '\\textcolor[rgb]{', col2latexrgb( declaration[[ "color" ]] ) , '}{' , sep = "" )
+			end <- paste( end, "}", sep = "" )
+		}
+		if( has( "font-weight", "bold" ) ){
+			start <- paste( start, "\\textbf{", sep = "" )
+			end <- paste( "}", end, sep = "" )
+		}
+		if( has( "font-style", "italic" ) ){
+			start <- paste( start, "\\textit{", sep = "" )
+			end <- paste( "}", end , sep = "" )
+		}
+		if( has( "text-decoration", "underline" ) ){
+			start <- paste( start, "\\underline{", sep = "" )
+			end <- paste( "}", end, sep = "" )
+		}
+		sprintf( "%s#1%s", start, end )
+	} )
+	sprintf( "\\newcommand{\\hl%s}[1]{%s}%%", names( x ), styles )
+}
+
+col2latexrgb <- function( hex ){
+	col <- col2rgb(hex)[,1] / 255
+	paste( col, collapse = "," )
+}
+
+
+renderer_latex <- function( document = FALSE, boxes = document, 
+	translator = translator_latex, 
 	formatter = formatter_latex, space = space_latex, newline = newline_latex, 
 	header = header_latex( document, styler = styler, boxes = boxes ), 
 	footer = footer_latex( document) , 
-	styler = styler_latex( "default" ), ... ){
+	styler = styler( stylesheet, "sty", styler_assistant_latex ), 
+	stylesheet = "default", 
+	... ){
 	
 	renderer( translator = translator, 
 		formatter = formatter, space = space , newline = newline, 
@@ -234,58 +263,6 @@ renderer_latex <- function( document = FALSE, boxes = document, translator = tra
 }
 # }}}
 
-# {{{ xterm
-formatter_xterm <- function( tokens, styles, stylesheet = "default", ... ){
-	
-	rl <- NULL
-	xtr <- getStyleFile( stylesheet, "xterm" )
-	if( !is.null( xtr ) ){
-		rl <- readLines( xtr )	
-		rl <- grep( "=", rl, value = TRUE )
-		rx <- "^(.*?)=(.*)$"
-		values <- sub( rx, "\\2", rl )
-		ids <- sub( rx, "\\1", rl )
-		ifelse( styles == "", 
-			tokens, 
-			sprintf( '\033[%s%s\033[0m', values[ match( styles, ids ) ], tokens ) 
-		)
-	} else{
-		tokens
-	}
-	 
-}
-
-translator_xterm <- function( x ){
-	x
-}
-
-space_xterm <- function( ){
-	" "
-}
-
-newline_xterm <- function( ){
-	"\n" 
-}
-
-header_xterm <- function( ){
-	"" 
-}                     
-
-footer_xterm <- function( document ){
-	"\n"
-}
-
-renderer_xterm <- function(
-	translator = translator_xterm, formatter = formatter_xterm, 
-	space = space_xterm, newline = newline_xterm, 
-	header = header_xterm, footer = footer_xterm ,  
-	... ){
-	
-	renderer( translator = translator, formatter = formatter, 
-		space = space, newline = newline, 
-		header = header, footer = footer, 
-		... )
-}
 # }}}
 
 # {{{ verbatim 
@@ -365,9 +342,23 @@ getStyleFile <- function( name = "default", extension = "css" ){
 	}
 	
 	invisible( NULL )
-	
 }
 # }}}
+
+# {{{ styler
+styler <- function( stylesheet, extension = "css", assistant ){
+	f <- getStyleFile( stylesheet, extension )
+	if( !is.null( f ) ){
+		return( readLines( f ) )
+	}
+	f <- getStyleFile( stylesheet, "css" )
+	p <- css.parser( f )
+	if( !missing( assistant ) ){
+		match.fun(assistant)( p )
+	}
+}
+# }}}
+
 
 # :tabSize=4:indentSize=4:noTabs=false:folding=explicit:collapseFolds=1:
 

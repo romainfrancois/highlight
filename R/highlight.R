@@ -52,6 +52,7 @@ highlight <- function( file, output,
 	# in C, although I would need to be able to write 
 	# in any connection from C which does not seem 
 	# possible right now
+	
 	write( renderer$header( ) )
 	for( i in seq_len(ntoks) ){
 		
