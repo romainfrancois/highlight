@@ -71,8 +71,10 @@ header_html <- function( document, stylesheet){
 }
 
 footer_html <- function( document ){
-	function( ){
-		if( document) "\n</pre>\n</body>\n</html>" else "\n</pre>"
+	if( document ){
+		function() "\n</pre>\n</body>\n</html>"
+	} else{
+		function() "\n</pre>"
 	}
 }
 
