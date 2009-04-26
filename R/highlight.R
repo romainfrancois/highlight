@@ -34,9 +34,9 @@ highlight <- function( file, output = stdout(),
 		on.exit( sink( ) )
 	}
 	
-	# this would be better to pass the connection to C
+	# this would be better to pass the connection to C instead of sinking to it
 	# but the R connections are not part of the C API
-	# maybe some day
+	# ... maybe some day
 	.External( "do_render", 
 		header  = renderer$header(), 
 		footer  = renderer$footer(), 
@@ -51,7 +51,7 @@ highlight <- function( file, output = stdout(),
 		byte2   = data$byte2, 
 		startline = startline )
 	
-	# the C version does the same but faster, this is retained
+	# {{{ the C version does the same but faster, this is retained
 	# here in case we need additional functionality which 
 	# is not doable in C
 	# 
@@ -83,6 +83,7 @@ highlight <- function( file, output = stdout(),
 	# 	write( renderer$newline() )
 	# }
 	# write( renderer$footer( ) )
+	# }}}
 	
 	invisible( NULL )
 }

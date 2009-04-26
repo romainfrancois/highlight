@@ -33,6 +33,7 @@ Romain Francois <francoisromain@free.fr>
 }
 \seealso{
 \code{\link{renderer_html}} uses these functions to create a renderer
+suitable for the \samp{renderer} argument of \code{\link{highlight}}
 }
 \examples{
 	h <- header_html( document = F )
