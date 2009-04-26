@@ -57,9 +57,16 @@ styler_html <- function( stylesheet ){
 	}
 }
 
-header_html <- function( document, styler){
-	function(){
-		if( document ) c( '<html>\n<head>', styler , '</head>\n<body>\n<pre>\n' ) else "<pre>\n"
+header_html <- function( document, stylesheet){
+	if( document ){
+		cssfile <- getStyleFile( stylesheet )
+		function(){
+			c( '<html>\n<head>', 
+				if( !is.null(cssfile) ) readLines(cssfile) , 
+				'</head>\n<body>\n<pre>\n' )
+		}
+	} else {
+		function() "<pre>\n"
 	}
 }
 
@@ -72,15 +79,15 @@ footer_html <- function( document ){
 renderer_html <- function( document = FALSE, 
 	translator = translator_html, formatter = formatter_html, 
 	space = space_html, newline = newline_html, 
-	header = header_html( document, styler ) , 
+	header = header_html( document, stylesheet ) , 
 	footer = footer_html( document ) ,  
-	styler = styler_html( "default" ), 
+	stylesheet = "default"
 	... ){
 	
 	renderer( translator = translator, formatter = formatter, 
 		space = space, newline = newline, 
 		header = header, footer = footer, 
-		styler = styler, 
+		stylesheet= stylesheet, 
 		... )
 }
 # }}}

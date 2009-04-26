@@ -14,9 +14,9 @@ html renderer using span tags and CSS
 \usage{
 renderer_html(document = FALSE, translator = translator_html, 
 	formatter = formatter_html, space = space_html, 
-	newline = newline_html, header = header_html(document, styler), 
+	newline = newline_html, header = header_html(document, stylesheet), 
 	footer = footer_html(document), 
-	styler = styler_html("default"), ...)
+	stylesheet = "default" , ...)
 translator_html( x )
 space_html()
 newline_html()
@@ -55,55 +55,35 @@ html footer. Depending on the \samp{document} argument, this will
 either close the full document (close the \samp{</html>} tag)
 or simply close the \samp{</pre>} tag.
 }
-  \item{styler}{
-styler. 
+  \item{stylesheet}{
+stylesheet to use. This is used by the header when document is TRUE.
+The content of the stylesheet is copied verbatim into a \samp{<style>}
+tag in that case. See \code{\link{getStyleFile}} for details
+on where the stylesheet can be located
 }
   \item{\dots}{
-%%     ~~Describe \code{\dots} here~~
+Additional arguments. unused.
 }
-}
-\details{
-%%  ~~ If necessary, more details than the description above ~~
 }
 \value{
-%%  ~Describe the value returned
-%%  If it is a LIST, use
-%%  \item{comp1 }{Description of 'comp1'}
-%%  \item{comp2 }{Description of 'comp2'}
-%% ...
-}
-\references{
-%% ~put references to the literature/web site here ~
+	A renderer capable suitable for the \samp{renderer} argument
+	of \code{\link{highlight}}
 }
 \author{
-%%  ~~who you are~~
+Romain Francois <francoisromain@free.fr>
 }
-\note{
-%%  ~~further notes~~
-}
-
-%% ~Make other sections like Warning with \section{Warning }{....} ~
-
 \seealso{
-%% ~~objects to See Also as \code{\link{help}}, ~~~
+	\code{\link{renderer}} for a description of the interface
+	this renderer is implementing. 
+	
+	\code{\link{highlight}} takes a renderer argument to which it 
+	delegates rendering.
+	
 }
 \examples{
-##---- Should be DIRECTLY executable !! ----
-##-- ==>  Define data, use random,
-##--	or do  help(data=index)  for the standard data sets.
-
-## The function is currently defined as
-function (document = FALSE, translator = translator_html, formatter = formatter_html, 
-    space = space_html, newline = newline_html, header = header_html(document, 
-        styler), footer = footer_html(document), styler = styler_html("default"), 
-    ...) 
-{
-    renderer(translator = translator, formatter = formatter, 
-        space = space, newline = newline, header = header, footer = footer, 
-        styler = styler, ...)
-  }
+	\dontrun{
+		r <- renderer_html()
+	}
 }
-% Add one or more standard keywords, see file 'KEYWORDS' in the
-% R documentation directory.
-\keyword{ ~kwd1 }
-\keyword{ ~kwd2 }% __ONLY ONE__ keyword per line
+\keyword{ manip }
+
