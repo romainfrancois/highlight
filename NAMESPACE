@@ -11,7 +11,9 @@ export( grammar.symbols )
 export( nlines) 
 export( count.chars )
 export( css.parser )
+
 export( simple_detective )
+export( dummy_detective )
 
 export( getStyleFile )
 export( renderer )

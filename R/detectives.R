@@ -5,9 +5,9 @@
 # this vector associates each token with a style
 # 
 
-#' Dummy detective, gives the "nostyle" style to all tokens
+#' Dummy detective, gives the "" style to all tokens
 dummy_detective <- function( x, ... ){
-	rep( "" ,  nrow( sum( x$terminal) ) )
+	rep( "" ,  sum( attr(x, "data")$terminal) )
 }
 
 #' simple detective
