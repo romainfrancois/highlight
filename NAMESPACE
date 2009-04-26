@@ -18,6 +18,7 @@ export( renderer )
 
 exportPattern( "_latex$" )
 exportPattern( "_html$" )
+exportPattern( "_verbatim$" )
 
 export( HighlightWeaveLatex )
 
