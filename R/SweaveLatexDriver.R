@@ -63,7 +63,7 @@ makeHighlightWeaveLatexCodeRunner <- function(evalFunc=RweaveEvalWithOpt) {
           parser.output <- try( parser(text = chunk ), silent = TRUE )
 		  
 		  styles <- simple_detective( parser.output )
-		  renderer <- renderer_latex( document = F )
+		  renderer <- renderer_latex( document = FALSE )
 		  
           openSinput <- FALSE
           openSchunk <- FALSE

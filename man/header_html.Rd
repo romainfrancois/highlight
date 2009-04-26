@@ -36,13 +36,13 @@ Romain Francois <francoisromain@free.fr>
 suitable for the \samp{renderer} argument of \code{\link{highlight}}
 }
 \examples{
-	h <- header_html( document = F )
+	h <- header_html( document = FALSE )
 	h()
-	h <- header_html( document = T, stylesheet = "default") 
+	h <- header_html( document = TRUE, stylesheet = "default") 
 	h()
-	f <- footer_html( document = T )
+	f <- footer_html( document = TRUE )
 	f()
-	f <- footer_html( document = F )
+	f <- footer_html( document = FALSE )
 	f()
 }
 \keyword{ manip }

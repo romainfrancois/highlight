@@ -19,6 +19,12 @@ renderer_verbatim(translator = translator_verbatim,
 	formatter = formatter_verbatim, space = space_verbatim, 
 	newline = newline_verbatim, header = header_verbatim, 
 	footer = footer_verbatim, ...)
+translator_verbatim(x)
+formatter_verbatim( tokens, styles, ...)
+space_verbatim()
+newline_verbatim()
+header_verbatim()
+footer_verbatim()
 }
 \arguments{
   \item{translator}{

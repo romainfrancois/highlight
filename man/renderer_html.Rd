@@ -12,7 +12,7 @@ html renderer using span tags and CSS
 	the information as a series of \samp{<span>} html tags
 }
 \usage{
-renderer_html(document = FALSE, translator = translator_html, 
+renderer_html(document = TRUE, translator = translator_html, 
 	formatter = formatter_html, space = space_html, 
 	newline = newline_html, header = header_html(document, stylesheet), 
 	footer = footer_html(document), 
@@ -60,6 +60,9 @@ stylesheet to use. This is used by the header when document is TRUE.
 The content of the stylesheet is copied verbatim into a \samp{<style>}
 tag in that case. See \code{\link{getStyleFile}} for details
 on where the stylesheet can be located
+}
+\item{x}{
+	argument to the translator. Returned as is.
 }
   \item{\dots}{
 Additional arguments. unused.

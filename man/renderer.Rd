@@ -10,15 +10,17 @@ of the highlight function. In the highlight process, renderers
 are responsible to render the information in the target markup 
 language. 
 }
+
 \usage{
 renderer(translator, formatter, space, newline, header, footer, ...)
 }
+
 \arguments{
   \item{translator}{
 This argument should be a function with one argument. The translator 
 needs to work token characters so that they display nicely 
 in the target markup language. For example the translator 
-used in the latex renderer translates \samp{%} into 
+used in the latex renderer translates \samp{\%} into 
 \samp{\usebox{hlboxpercent}}
 }
   \item{formatter}{
