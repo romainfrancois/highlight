@@ -36,7 +36,8 @@ SEXP attribute_hidden do_render(SEXP args){
 	args = CDR(args);  SEXP byte1  = CAR(args) ;
 	args = CDR(args);  SEXP byte2  = CAR(args) ;
 	args = CDR(args);  int startline  = INTEGER( CAR(args) )[0] ;
-
+	args = CDR(args);  Rboolean final = LOGICAL( CAR(args) )[0] ;
+	
 	int n = length( tokens );
 	int line = startline ;
 	int col = 0; 
@@ -73,8 +74,10 @@ SEXP attribute_hidden do_render(SEXP args){
 		byte = BYTE2(i);
 		line = LINE2(i);
 	}
+	if( final ){
+		Rprintf( "%s", newline ); 
+	}
 	write_sexp( footer );
-	Rprintf( "\n" );
 	
 	return R_NilValue ;
 }

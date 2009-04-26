@@ -72,9 +72,9 @@ header_html <- function( document, stylesheet){
 
 footer_html <- function( document ){
 	if( document ){
-		function() "\n</pre>\n</body>\n</html>"
+		function() "\n</pre>\n</body>\n</html>\n"
 	} else{
-		function() "\n</pre>"
+		function() "\n</pre>\n"
 	}
 }
 
@@ -83,7 +83,7 @@ renderer_html <- function( document = FALSE,
 	space = space_html, newline = newline_html, 
 	header = header_html( document, stylesheet ) , 
 	footer = footer_html( document ) ,  
-	stylesheet = "default"
+	stylesheet = "default", 
 	... ){
 	
 	renderer( translator = translator, formatter = formatter, 
@@ -201,9 +201,10 @@ header_latex <- function( document, styles, boxes = TRUE ){
 }
 
 footer_latex <- function( document ){
-	function( ){
-		end <- "\\mbox{}\n\\normalfont"
-		paste( end, if( document ) "\n\\end{document}" )  
+	if( document ) {
+		function() "\\mbox{}\n\\normalfont\n\\end{document}\n"
+	} else{
+		function() "\\mbox{}\n\\normalfont\n"
 	}
 }
 

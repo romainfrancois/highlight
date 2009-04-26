@@ -49,7 +49,8 @@ highlight <- function( file, output = stdout(),
 		col2    = data$col2, 
 		byte1   = data$byte1, 
 		byte2   = data$byte2, 
-		startline = startline )
+		startline = startline, 
+		final   = final.newline )
 	
 	# {{{ the C version does the same but faster, this is retained
 	# here in case we need additional functionality which 
