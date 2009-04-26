@@ -324,6 +324,7 @@ static int mbcs_get_next(int c, wchar_t *wc){
 %token		SYMBOL_FUNCTION_CALL
 %token		SYMBOL_PACKAGE
 %token		COLON_ASSIGN
+%token		SLOT
 /*}}}*/
 
 /*{{{ This is the precedence table, low to high */
@@ -428,7 +429,7 @@ expr	: 	NUM_CONST					{ $$ = $1;  setId( $$, @$); }
 	|	STR_CONST NS_GET_INT STR_CONST	{ $$ = xxbinary($2,$1,$3 );     setId( $$, @$);}
 	|	expr '$' SYMBOL					{ $$ = xxbinary($2,$1,$3);              setId( $$, @$); }
 	|	expr '$' STR_CONST				{ $$ = xxbinary($2,$1,$3);              setId( $$, @$); }
-	|	expr '@' SYMBOL					{ $$ = xxbinary($2,$1,$3);              setId( $$, @$); }
+	|	expr '@' SYMBOL					{ $$ = xxbinary($2,$1,$3);              setId( $$, @$); modif_token( &@3, SLOT ) ; }
 	|	expr '@' STR_CONST				{ $$ = xxbinary($2,$1,$3);              setId( $$, @$); }
 	|	NEXT							{ $$ = xxnxtbrk($1);                       setId( $$, @$); }
 	|	BREAK							{ $$ = xxnxtbrk($1);                       setId( $$, @$); }

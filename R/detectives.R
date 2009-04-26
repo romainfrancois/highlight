@@ -38,7 +38,7 @@ simple_detective <- function( x, ...){
 	
 	styles[ desc %in% c("EQ_ASSIGN", "LEFT_ASSIGN" )] <- "assignement"
 	styles[ desc == "SYMBOL" ] <- "symbol"
-	
+	styles[ desc == "SLOT" ] <- "slot"
 	styles
 	
 }

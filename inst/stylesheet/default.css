@@ -44,3 +44,7 @@
 .package{
 	color: rgb(150,182,37);
 }
+
+.slot{
+	font-style:italic;
+}
