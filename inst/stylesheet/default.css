@@ -1,5 +1,5 @@
 .number{
-	color: orange ;
+	color: rgb(21,20,181) ;
 }
 
 .functioncall{
@@ -7,7 +7,7 @@
 }
 
 .string{
-	color: rgb(255,204,51) ;
+	color: rgb(153,153,255) ;
 }
 
 .keyword{
@@ -16,11 +16,31 @@
 }
 
 .argument{
-	color: blue ;
+	color: rgb( 177,63,5) ;
 }
 
 .comment{
 	color: rgb( 204,204,204) ;
 }
 
+.roxygencomment{
+	color: rgb(0,151,255);
+}
 
+.formalargs{
+	color: rgb(18,182,18);
+	text-decoration: underline;
+}
+
+.eqformalargs{
+	color: rgb(18,182,18);
+}
+
+.assignement{
+	font-weight: bolder;
+	color: rgb(55,55,98);
+}
+
+.package{
+	color: rgb(150,182,37);
+}

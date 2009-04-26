@@ -61,9 +61,9 @@ header_html <- function( document, stylesheet){
 	if( document ){
 		cssfile <- getStyleFile( stylesheet )
 		function(){
-			c( '<html>\n<head>', 
+			c( '<html>\n<head>\n<style type="text/css">\n', 
 				if( !is.null(cssfile) ) readLines(cssfile) , 
-				'</head>\n<body>\n<pre>\n' )
+				'</style>\n</head>\n<body>\n<pre>\n' )
 		}
 	} else {
 		function() "<pre>\n"
@@ -78,7 +78,7 @@ footer_html <- function( document ){
 	}
 }
 
-renderer_html <- function( document = FALSE, 
+renderer_html <- function( document = TRUE, 
 	translator = translator_html, formatter = formatter_html, 
 	space = space_html, newline = newline_html, 
 	header = header_html( document, stylesheet ) , 

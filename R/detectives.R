@@ -13,18 +13,31 @@ dummy_detective <- function( x, ... ){
 #' simple detective
 simple_detective <- function( x, ...){
 	
-	term <- subset( attr( x, "data" ) , terminal )
-	tokens <- as.character( term$text )
-	desc   <- as.character( term$token.desc )
-	styles <- character( length( tokens ) )
+	desc   <- as.character( subset( attr( x, "data" ) , terminal )$token.desc )
+	styles <- character( length( desc ) )
+	
+	styles[ desc == "COMMENT"  ] <- "comment"
+	styles[ desc == "ROXYGEN_COMMENT" ] <- "roxygencomment"
+	
+	styles[ grepl( "^'.*?'$", desc ) ] <- "keyword"
+	styles[ desc %in% c( "FUNCTION", "FOR", "IN", "IF", 
+		"ELSE", "WHILE", "NEXT", "BREAK", "REPEAT", 
+		"AND", "AND2", "OR", "OR2", "GT", 
+		"LT", "GE", "LBB", "NE", "SPECIAL", 
+		"NS_GET_INT", "NS_GET") ] <- "keyword" 
 	
 	styles[ desc == "STR_CONST" ] <- "string"
 	styles[ desc == "NUM_CONST" ] <- "number"
+	
 	styles[ desc == "SYMBOL_FUNCTION_CALL" ] <- "functioncall"
-	styles[ desc %in% c( "FUNCTION", "FOR", "IN", "IF", 
-		"ELSE", "WHILE", "NEXT", "BREAK", "REPEAT" ) ] <- "keyword" 
-	styles[ desc %in% c("SYMBOL_FORMALS", "EQ_FORMALS", "SYMBOL_SUB", "EQ_SUB" )  ] <- "argument"
-	styles[ desc %in% c("COMMENT", "ROXYGEN_COMMENT")  ] <- "comment"
+	styles[ desc %in% c("SYMBOL_SUB", "EQ_SUB" )  ] <- "argument"
+	styles[ desc == "SYMBOL_PACKAGE" ] <- "package"
+	
+	styles[ desc %in% c("SYMBOL_FORMALS") ] <- "formalargs" 
+	styles[ desc %in% "EQ_FORMALS" ] <- "eqformalargs" 
+	
+	styles[ desc %in% c("EQ_ASSIGN", "LEFT_ASSIGN" )] <- "assignement"
+	styles[ desc == "SYMBOL" ] <- "symbol"
 	
 	styles
 	
