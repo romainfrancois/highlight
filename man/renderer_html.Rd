@@ -1,0 +1,109 @@
+\name{renderer_html}
+\Rdversion{1.1}
+\alias{renderer_html}
+\alias{translator_html}
+\alias{space_html}
+\alias{newline_html}
+\title{
+html renderer using span tags and CSS
+}
+\description{
+	implementation of the \code{\link{renderer}} that renders
+	the information as a series of \samp{<span>} html tags
+}
+\usage{
+renderer_html(document = FALSE, translator = translator_html, 
+	formatter = formatter_html, space = space_html, 
+	newline = newline_html, header = header_html(document, styler), 
+	footer = footer_html(document), 
+	styler = styler_html("default"), ...)
+translator_html( x )
+space_html()
+newline_html()
+}
+\arguments{
+  \item{document}{
+logical. Indicates if the renderer should render a full document
+or simply a \samp{<pre>} section containing the highlighted
+tokens. This argument is used by the \code{\link{header_html}} and 
+\code{\link{footer_html}} to build appropriate header and footer.
+}
+  \item{translator}{
+Since the highlighted tokens are wrapped in a \samp{<pre>} tag, 
+no further translation is needed. 
+}
+  \item{formatter}{
+html formatter. creates \samp{<span>} tags for all tokens.
+See \code{\link{formatter_html}}
+}
+  \item{space}{
+returns a space character (\samp{" "} )
+}
+  \item{newline}{
+returns a newline character (\samp{"\n"})
+}
+  \item{header}{
+html header. Depending on the \samp{document} argument, this will be a 
+function building a the beginning of a 
+complete html document (starting with \samp{<html>}) including 
+css definitions or simply a function returning \samp{<pre>} 
+enabling the renderer to be used to just render the syntax 
+as part of a bigger document.
+}
+  \item{footer}{
+html footer. Depending on the \samp{document} argument, this will 
+either close the full document (close the \samp{</html>} tag)
+or simply close the \samp{</pre>} tag.
+}
+  \item{styler}{
+styler. 
+}
+  \item{\dots}{
+%%     ~~Describe \code{\dots} here~~
+}
+}
+\details{
+%%  ~~ If necessary, more details than the description above ~~
+}
+\value{
+%%  ~Describe the value returned
+%%  If it is a LIST, use
+%%  \item{comp1 }{Description of 'comp1'}
+%%  \item{comp2 }{Description of 'comp2'}
+%% ...
+}
+\references{
+%% ~put references to the literature/web site here ~
+}
+\author{
+%%  ~~who you are~~
+}
+\note{
+%%  ~~further notes~~
+}
+
+%% ~Make other sections like Warning with \section{Warning }{....} ~
+
+\seealso{
+%% ~~objects to See Also as \code{\link{help}}, ~~~
+}
+\examples{
+##---- Should be DIRECTLY executable !! ----
+##-- ==>  Define data, use random,
+##--	or do  help(data=index)  for the standard data sets.
+
+## The function is currently defined as
+function (document = FALSE, translator = translator_html, formatter = formatter_html, 
+    space = space_html, newline = newline_html, header = header_html(document, 
+        styler), footer = footer_html(document), styler = styler_html("default"), 
+    ...) 
+{
+    renderer(translator = translator, formatter = formatter, 
+        space = space, newline = newline, header = header, footer = footer, 
+        styler = styler, ...)
+  }
+}
+% Add one or more standard keywords, see file 'KEYWORDS' in the
+% R documentation directory.
+\keyword{ ~kwd1 }
+\keyword{ ~kwd2 }% __ONLY ONE__ keyword per line
