@@ -166,6 +166,7 @@ boxes_latex <- function( ){
 
 header_latex <- function( document, styles, boxes ){
 	function( ){
+		txt <- character()
 		con <- textConnection( "txt", open = "w" )
 		add <- function( ... ){
 			cat( paste( ..., sep = "\n" ), file = con )

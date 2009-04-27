@@ -10,7 +10,7 @@ These functions return appropriate header and footer functions
 for the latex renderer
 }
 \usage{
-header_latex(document, styles, boxes = TRUE)
+header_latex(document, styles, boxes)
 }
 \arguments{
   \item{document}{
