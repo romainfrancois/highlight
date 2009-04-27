@@ -123,20 +123,19 @@ makeHighlightWeaveLatexCodeRunner <- function(evalFunc=RweaveEvalWithOpt) {
 						openSinput <- TRUE
 					 }
 					
-					 cat("\\begin{Hinput}",
-							file=chunkout, append=TRUE)
-					 cat("\n", file = chunkout, append = TRUE )
-					 highlight( output = chunkout, 
-	 						parser.output = parser.output, 
-	 						styles = styles, 
-	 						expr = nce, 
-	 						renderer = renderer, 
-							final.newline = FALSE )
-					 cat("\n\\end{Hinput}\n", file=chunkout, append=TRUE)
-                    	
-					
-		    		linesout[thisline + 1L:length(dce)] <- srcline
-		    		thisline <- thisline + length(dce)
+					cat("\\begin{Hinput}",
+						file=chunkout, append=TRUE)
+					cat("\n", file = chunkout, append = TRUE )
+					highlight( output = chunkout, 
+	 					parser.output = parser.output, 
+	 					styles = styles, 
+	 					expr = nce, 
+	 					renderer = renderer, 
+						final.newline = FALSE )
+					cat("\n\\end{Hinput}\n", file=chunkout, append=TRUE)
+                   
+					linesout[thisline + 1L:length(dce)] <- srcline
+					thisline <- thisline + length(dce)
                 }
 
                 tmpcon <- file()
@@ -303,7 +302,7 @@ HighlightWeaveLatexWritedoc <- function(object, chunk) {
 		renderer <- renderer_latex( )
 		replacement <- paste(
 				paste( gsub( "\\\\" , "\\\\\\\\", renderer$styles), collapse = "\n"), 
-				paste( gsub( "\\\\", "\\\\\\\\", renderer$boxes()), collapse = "\n"),  
+				paste( gsub( "\\\\", "\\\\\\\\", renderer$boxes ), collapse = "\n"),  
 				"\\\\begin{document}" , sep = "\n" )
 		chunk[which] <- sub( begindoc, replacement, chunk[which] )
 	}

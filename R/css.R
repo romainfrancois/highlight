@@ -32,9 +32,8 @@ css.parse.color <- function( txt, default = "#000000" ){
 	
 	# first we try to match against w3c standard colors
 	if( !grepl( "[^a-z]", txt) ){
-		res <- txt %in% names(w3c.colors)
-		if( any( res ) ) {
-			return( w3c.colors[[ res ]] )
+		if( txt %in% names(w3c.colors) ) {
+			return( w3c.colors[[txt]] )
 		}
 	}
 	

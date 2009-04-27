@@ -164,9 +164,8 @@ boxes_latex <- function( ){
 '
 }
 
-header_latex <- function( document, styles, boxes = TRUE ){
+header_latex <- function( document, styles, boxes ){
 	function( ){
-		txt <- character()
 		con <- textConnection( "txt", open = "w" )
 		add <- function( ... ){
 			cat( paste( ..., sep = "\n" ), file = con )
@@ -178,9 +177,7 @@ header_latex <- function( document, styles, boxes = TRUE ){
 				paste( styles, collapse = "\n")
 				)
 		}
-		if( boxes ) {
-			add( boxes_latex() )
-		}
+		add( boxes )
 		if( document ){
 			add( '\\begin{document}\n' )
 		}
@@ -237,7 +234,8 @@ col2latexrgb <- function( hex ){
 }
 
 
-renderer_latex <- function( document = TRUE, boxes = document, 
+renderer_latex <- function( document = TRUE, 
+	boxes = if(document) boxes_latex(),
 	translator = translator_latex, 
 	formatter = formatter_latex, space = space_latex, newline = newline_latex, 
 	stylesheet = "default", 
@@ -247,7 +245,7 @@ renderer_latex <- function( document = TRUE, boxes = document,
 	... ){
 	renderer( translator = translator, 
 		formatter = formatter, space = space , newline = newline, 
-		header = header, footer = footer, boxes = boxes_latex, 
+		header = header, footer = footer, boxes = boxes, 
 		styles = styles, ... )
 }
 # }}}

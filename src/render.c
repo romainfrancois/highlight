@@ -9,6 +9,7 @@
 #define TOKEN( i ) CHAR(STRING_ELT(tokens,(i) ) ) 
 
 void write_sexp( SEXP x ){
+	if( x == R_NilValue || length(x) == 0) return ;
 	int n = length( x ) - 1;
 	int i=0; 
 	for( i=0; i<n; i++){
