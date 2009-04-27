@@ -1,6 +1,8 @@
 \name{renderer_latex}
 \Rdversion{1.1}
 \alias{renderer_latex}
+\alias{newline_latex}
+\alias{space_latex}
 \title{
 LaTeX renderer
 }
@@ -17,6 +19,8 @@ renderer_latex(document = TRUE, boxes = document,
 	styles = styler(stylesheet, "sty", styler_assistant_latex), 
 	header = header_latex(document, styles = styles, boxes = boxes), 
 	footer = footer_latex(document), ...)
+newline_latex()
+space_latex()
 }
 \arguments{
   \item{document}{
@@ -50,7 +54,8 @@ returns a newline character
 stylesheet to use. 
 }
   \item{styles}{
-style definitions inferred from the parsing of the stylesheet.
+style definitions inferred from the parsing of the stylesheet. See \code{\link{styler}} and
+\code{\link{styler_assistant_latex}}. 
 }
   \item{header}{
 returns the header. If the document argument is TRUE, the header contains

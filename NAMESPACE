@@ -17,6 +17,7 @@ export( dummy_detective )
 
 export( getStyleFile )
 export( renderer )
+export( styler )
 
 exportPattern( "_latex$" )
 exportPattern( "_html$" )
