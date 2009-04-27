@@ -28,6 +28,7 @@ Romain Francois <francoisromain@free.fr>
 }
 \examples{
 	\dontrun{
+		# the code is probably the best description of what this does
 		translator_latex
 		translator_latex( "#<" )
 	}
