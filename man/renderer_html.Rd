@@ -37,10 +37,10 @@ html formatter. creates \samp{<span>} tags for all tokens.
 See \code{\link{formatter_html}}
 }
   \item{space}{
-returns a space character (\samp{" "} )
+returns a space character
 }
   \item{newline}{
-returns a newline character (\samp{"\n"})
+returns a newline character
 }
   \item{header}{
 html header. Depending on the \samp{document} argument, this will be a 

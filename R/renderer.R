@@ -46,17 +46,6 @@ newline_html <- function( ){
 	"\n" 
 }
 
-styler_html <- function( stylesheet ){
-	if( !is.null( stylesheet ) ){
-		css <- getStyleFile( stylesheet, "css" )
-		if( !is.null( css ) ){
-			c( '<style type="text/css">\n', 
-				readLines( css ),	
-				'</style>\n' )
-		}
-	}
-}
-
 header_html <- function( document, stylesheet){
 	if( document ){
 		cssfile <- getStyleFile( stylesheet )
@@ -177,6 +166,7 @@ boxes_latex <- function( ){
 
 header_latex <- function( document, styles, boxes = TRUE ){
 	function( ){
+		txt <- character()
 		con <- textConnection( "txt", open = "w" )
 		add <- function( ... ){
 			cat( paste( ..., sep = "\n" ), file = con )

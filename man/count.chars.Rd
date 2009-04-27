@@ -22,8 +22,8 @@ encoding to assume for the file
 \value{
 	A matrix with 2 columns and one line per line in the input file
 	Each line of the matrix gives :
-	\item{the number of characters in the same line in the file}
-	\item{the number of bytes in the same line in the file}
+	\item{}{the number of characters in the same line in the file}
+	\item{}{the number of bytes in the same line in the file}
 }
 \author{
 	Romain Francois <francoisromain@free.fr>

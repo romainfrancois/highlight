@@ -19,9 +19,7 @@ renderer(translator, formatter, space, newline, header, footer, ...)
   \item{translator}{
 This argument should be a function with one argument. The translator 
 needs to work token characters so that they display nicely 
-in the target markup language. For example the translator 
-used in the latex renderer translates \samp{\%} into 
-\samp{\usebox{hlboxpercent}}
+in the target markup language. 
 }
   \item{formatter}{
 The formatter should be a function with at least two arguments: the
