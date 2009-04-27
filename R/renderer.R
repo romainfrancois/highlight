@@ -247,7 +247,7 @@ col2latexrgb <- function( hex ){
 }
 
 
-renderer_latex <- function( document = FALSE, boxes = document, 
+renderer_latex <- function( document = TRUE, boxes = document, 
 	translator = translator_latex, 
 	formatter = formatter_latex, space = space_latex, newline = newline_latex, 
 	stylesheet = "default", 

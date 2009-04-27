@@ -69,6 +69,10 @@ css.parse.font_weight <- function ( txt ){
 	txt
 }
 
+css.parse.font_style <- function(txt){
+	txt
+}
+
 css.parse.text_decoration <- function ( txt ){
 	txt
 }
