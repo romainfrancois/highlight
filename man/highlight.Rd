@@ -10,7 +10,8 @@ results of the \code{\link{parser}} and the investigation
 of a detective. 
 }
 \usage{
-highlight(file, output = stdout(), detective, renderer, 
+highlight(file, output = stdout(), 
+	detective = simple_detective, renderer, 
 	encoding = "unknown", 
 	parser.output = parser(file, encoding = encoding), 
 	styles = detective(parser.output), 

@@ -1,7 +1,7 @@
 
 #' highlights the content of the file x
 highlight <- function( file, output = stdout(), 
-	detective, renderer, encoding = "unknown",
+	detective = simple_detective, renderer, encoding = "unknown",
 	parser.output = parser( file, encoding = encoding ),
 	styles = detective( parser.output ),
 	expr = NULL, 
