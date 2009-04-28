@@ -35,11 +35,11 @@ Romain Francois <francoisromain@free.fr>
 \code{\link{styler}}
 }
 \examples{
-	\dontrun{
-		styler( "default", "sty", styler_assistant_latex )
-		css.out <- css.parser( getStyleFile( "default" ) )
-		styler_assistant_latex( css.out )
-	}
+\dontrun{
+styler( "default", "sty", styler_assistant_latex )
+css.out <- css.parser( getStyleFile( "default" ) )
+styler_assistant_latex( css.out )
+}
 }
 \keyword{ manip }
 

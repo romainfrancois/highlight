@@ -49,13 +49,13 @@ Romain Francois <francoisromain@free.fr>
 the standard sweave latex driver: \code{\link{RweaveLatex}}
 }
 \examples{
-	\dontrun{
-		# using the driver on the grid vignette
-		require( grid )
-		v <- vignette( "grid", package = "grid" )$file
-		file.copy( v, "grid.Snw" )
-		Sweave( "grid.Snw", driver= HighlightWeaveLatex() )
-	}
+\dontrun{
+# using the driver on the grid vignette
+require( grid )
+v <- vignette( "grid", package = "grid" )$file
+file.copy( v, "grid.Snw" )
+Sweave( "grid.Snw", driver= HighlightWeaveLatex() )
+}
 }
 \keyword{ manip }
 

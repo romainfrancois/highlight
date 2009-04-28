@@ -35,11 +35,11 @@ implementation.
 Actual detective: \code{\link{simple_detective}}
 }
 \examples{
-	\dontrun{
-		tf <- tempfile()
-		dump( "jitter", file = tf )
-		highlight( file = tf, detective = dummy_detective, 
-			renderer = renderer_html( document = TRUE ) )
-	}
+\dontrun{
+tf <- tempfile()
+dump( "jitter", file = tf )
+highlight( file = tf, detective = dummy_detective, 
+	renderer = renderer_html( document = TRUE ) )
+}
 }
 \keyword{ manip }

@@ -25,9 +25,9 @@ Romain Francois <francoisromain@free.fr>
 makes use of these boxes.
 }
 \examples{
-	\dontrun{
-		boxes_latex()
-	}
+\dontrun{
+boxes_latex()
+}
 }
 \keyword{ manip }
 

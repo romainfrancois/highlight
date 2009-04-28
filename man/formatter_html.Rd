@@ -32,10 +32,10 @@ Romain Francois <francoisromain@free.fr>
 \code{\link{renderer_html}}
 }
 \examples{
-	\dontrun{
-			f <- formatter_html( )
-			f( "hello world", "blue")
-	}
+\dontrun{
+f <- formatter_html( )
+f( "hello world", "blue")
+}
 }
 \keyword{ manip }
 

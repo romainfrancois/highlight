@@ -64,10 +64,10 @@ Romain Francois <francoisromain@free.fr>
 	
 }
 \examples{
-	\dontrun{
-		cssfile <- system.file( "stylesheet", "default.css", package="highlight")
-		css.parser( cssfile )
-	}
+\dontrun{
+cssfile <- system.file( "stylesheet", "default.css", package="highlight")
+css.parser( cssfile )
+}
 }
 \keyword{ manip }
 

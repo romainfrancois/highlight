@@ -32,10 +32,10 @@ The first file found is returned. If no file is found, the function returns NULL
 Romain Francois <francoisromain@free.fr>
 }
 \examples{
-	\dontrun{
-		getwd()
-		file.path(Sys.getenv("HOME"), ".R", "highlight" )
-		system.file("stylesheet", package = "highlight")
-	}
+\dontrun{
+getwd()
+file.path(Sys.getenv("HOME"), ".R", "highlight" )
+system.file("stylesheet", package = "highlight")
+}
 }
 \keyword{ manip }

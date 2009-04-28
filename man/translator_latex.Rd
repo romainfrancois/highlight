@@ -27,11 +27,11 @@ Romain Francois <francoisromain@free.fr>
 	this translator.
 }
 \examples{
-	\dontrun{
-		# the code is probably the best description of what this does
-		translator_latex
-		translator_latex( "#<" )
-	}
+\dontrun{
+# the code is probably the best description of what this does
+translator_latex
+translator_latex( "#<" )
+}
 }
 \keyword{ manip }
 

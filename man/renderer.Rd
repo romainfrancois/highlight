@@ -89,16 +89,15 @@ based on the 256 color mode of xterm suitable for rendering the
 information in an xterm console.
 }
 \examples{
-	\dontrun{
-		# html renderer which will render the content as a document
-		# (starting with <html> tags
-		r <- renderer_html( document = T )
-		
-		# html renderer suitable to render the information within 
-		# an already built document
-		r <- renderer_html( document = F )
-		
-	}
+\dontrun{
+# html renderer which will render the content as a document
+# (starting with <html> tags
+r <- renderer_html( document = T )
+
+# html renderer suitable to render the information within 
+# an already built document
+r <- renderer_html( document = F )
+}
 }
 \keyword{ manip }
 

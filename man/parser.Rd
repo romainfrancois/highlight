@@ -60,19 +60,18 @@ returns the information as an offset to the start of the line. }
 \seealso{
 	The usual R parser \code{\link{parse}}
 }
-\examples{
-	
-	\dontrun{
-		tf <- tempfile( ) 
-		dump( "jitter", file = tf ) 
-		out <- parser( tf )
-		data <- attr( out, "data" )
-		head( data )
-		unlink(tf)
-		
-		eval( out )
-		jitter( 1:10 )
-	}
+\examples{	
+\dontrun{
+tf <- tempfile( ) 
+dump( "jitter", file = tf ) 
+out <- parser( tf )
+data <- attr( out, "data" )
+head( data )
+unlink(tf)
+
+eval( out )
+jitter( 1:10 )
+}
 	
 }
 \keyword{ manip }

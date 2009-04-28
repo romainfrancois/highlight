@@ -35,12 +35,12 @@ Romain Francois <francoisromain@free.fr>
 \code{\link{renderer_latex}}
 }
 \examples{
-	\dontrun{
-		h <- header_latex( document = FALSE )
-		h()
-		f <- footer_latex( document = FALSE )
-		f()
-	}
+\dontrun{
+h <- header_latex( document = FALSE )
+h()
+f <- footer_latex( document = FALSE )
+f()
+}
 }
 \keyword{ manip }
 

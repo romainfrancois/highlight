@@ -32,10 +32,10 @@ encoding to assume for the file
 	\code{\link{nlines}}, \code{\link{parse}}
 }
 \examples{
-	\dontrun{
-		f <- system.file( "grammar.output", package= "highlight" )
-		head( count.chars( f ) ) 
-	}
+\dontrun{
+f <- system.file( "grammar.output", package= "highlight" )
+head( count.chars( f ) ) 
+}
 }
 \keyword{ manip }
 

@@ -32,10 +32,10 @@ Romain Francois <francoisromain@free.fr>
 \code{\link{dummy_detective}}
 }
 \examples{
-	\dontrun{
-		p <- parser( text = deparse( jitter ) )
-		simple_detective( p )
-	}
+\dontrun{
+p <- parser( text = deparse( jitter ) )
+simple_detective( p )
+}
 }
 \keyword{ manip }
 

@@ -23,12 +23,12 @@ grammar.symbols()
 	The data frame \code{\link{symbols}} is generated using this function
 }
 \examples{
-	\dontrun{
-		# the bison generated grammar output
-		system.file( "grammar.output", package = "highlight" )
-		data( symbols )
-		identical( symbols, grammar.symbols( ) )
-	}
+\dontrun{
+# the bison generated grammar output
+system.file( "grammar.output", package = "highlight" )
+data( symbols )
+identical( symbols, grammar.symbols( ) )
+}
 }
 \keyword{ manip }
 

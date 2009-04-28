@@ -44,37 +44,37 @@ Maintainer: Romain Francois <francoisromain@free.fr>
 	highlighting of R code chunks.
 }
 \examples{
-	\dontrun{
-		tf <- tempfile()
-		dump( "glm" , file = tf )
-		
-		# modified R parser
-		p <- parser( tf )
-		
-		# rendering in html
-		highlight( tf, output = stdout(), 
-			renderer = renderer_html() )
-		
-		# rendering in latex
-		highlight( tf, output = stdout(), 
-			renderer = renderer_latex() )
-		
-		# Sweave driver using syntax highlighting
-		if( require( grid ) ){
-			v <- vignette( "grid", package = "grid" )$file
-			file.copy( v, "grid.Snw" )
-			Sweave( "grid.Snw", driver= HighlightWeaveLatex() )
-			system( "pdflatex grid.tex" )
-			if (.Platform$OS.type == "windows"){ 
-				shell.exec( "grid.pdf" )
-			} else {
-				system(paste(shQuote(getOption("pdfviewer")), "grid.pdf" ), 
-					wait = FALSE)
-			}
-		}
-		
-		unlink( tf )
+\dontrun{
+tf <- tempfile()
+dump( "glm" , file = tf )
+
+# modified R parser
+p <- parser( tf )
+
+# rendering in html
+highlight( tf, output = stdout(), 
+	renderer = renderer_html() )
+
+# rendering in latex
+highlight( tf, output = stdout(), 
+	renderer = renderer_latex() )
+
+# Sweave driver using syntax highlighting
+if( require( grid ) ){
+	v <- vignette( "grid", package = "grid" )$file
+	file.copy( v, "grid.Snw" )
+	Sweave( "grid.Snw", driver= HighlightWeaveLatex() )
+	system( "pdflatex grid.tex" )
+	if (.Platform$OS.type == "windows"){ 
+		shell.exec( "grid.pdf" )
+	} else {
+		system(paste(shQuote(getOption("pdfviewer")), "grid.pdf" ), 
+			wait = FALSE)
 	}
+}
+
+unlink( tf )
+}
 }
 \keyword{ package }
 

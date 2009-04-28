@@ -23,11 +23,11 @@ a character string giving the name of the file
 	Romain Francois <francoisromain@free.fr>
 }
 \examples{
-	\dontrun{
-		f <- system.file( "grammar.output", package = "highlight" )
-		nlines( f )
-		length( readLines( f ) )
-	}
+\dontrun{
+f <- system.file( "grammar.output", package = "highlight" )
+nlines( f )
+length( readLines( f ) )
+}
 }
 \keyword{ manip }
 

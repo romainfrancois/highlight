@@ -65,13 +65,13 @@ A \samp{renderer} object.
 Romain Francois <francoisromain@free.fr>
 }
 \examples{
-	\dontrun{
-		r <- renderer_verbatim()
-		r$space()
-		r$header()
-		r$translator( "rnorm" )
-		r$formatter( "rnorm", "blue")
-	}
+\dontrun{
+r <- renderer_verbatim()
+r$space()
+r$header()
+r$translator( "rnorm" )
+r$formatter( "rnorm", "blue")
+}
 }
 \keyword{ manip }
 

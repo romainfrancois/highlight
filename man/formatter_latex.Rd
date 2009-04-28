@@ -31,9 +31,9 @@ Romain Francois <francoisromain@free.fr>
 \code{\link{renderer_latex}}
 }
 \examples{
-	\dontrun{
-		formatter_latex( "hello world", "blue" )
-	}
+\dontrun{
+formatter_latex( "hello world", "blue" )
+}
 }
 \keyword{ manip }
 
