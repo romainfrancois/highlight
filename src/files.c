@@ -18,7 +18,7 @@ int nlines( const char* fname ){
 	
 	int c, previous = 0 ;
 	int n = 0 ; 
-	while( c = _fgetc(fp) ){
+	while( (c = _fgetc(fp)) ){
 		if( c ==  R_EOF ){
 			break ;
 		}
@@ -62,7 +62,7 @@ SEXP countchars( const char* fname, int nl){
 	int col = 0 ;
 	int bytes = 0; 
 	int i =0;
-	while( c = _fgetc(fp) ){
+	while( (c = _fgetc(fp)) ){
 		if( c ==  R_EOF ){
 			break ;
 		}

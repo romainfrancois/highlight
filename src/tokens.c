@@ -21,13 +21,13 @@ static int byte ;
 	*(bp)++ = (c); \
 } while(0) ;
 
-//	if ((bp) - buf >= sizeof(buf) ){ \
-//		old_bufsize=buf_size ; \
-//		buf_size*=2 ; \
-//		buf = (char*) realloc( buf, buf_size ) ; \
-//		bp = buf + old_bufsize ; \
-//	} \
-
+/*	if ((bp) - buf >= sizeof(buf) ){ \
+ *		old_bufsize=buf_size ; \
+ *		buf_size*=2 ; \
+ *		buf = (char*) realloc( buf, buf_size ) ; \
+ *		bp = buf + old_bufsize ; \
+ *	} \
+ */
 
 /**
  * gets a character from the file and keep track of the current line
@@ -71,8 +71,6 @@ SEXP attribute_hidden do_getTokens( SEXP args ){
 	line=1; 
 	byte=0;
 	
-	int old_bufsize ;
-	
 	FILE* fp ;
 	if((fp = _fopen(R_ExpandFileName( fname ), "r")) == NULL){
 		error(_("unable to open file to read"), 0);
@@ -81,9 +79,8 @@ SEXP attribute_hidden do_getTokens( SEXP args ){
 	
 	SEXP tokens ;
 	PROTECT( tokens = allocVector( STRSXP, n) );
-	int j;
 	int line1,line2,byte1,byte2 ;
-	int c, previous ;
+	int c ;
 	for( int i=0; i<n; i++){
 		
 		line1  = INTEGER( _line1 )[i] ;
