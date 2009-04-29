@@ -3153,7 +3153,7 @@ static void finalizeData( ){
 				
 				/* the comment needs to start after the current symbol */
 				if( comment_line < this_first_line ) continue ;
-				if( comment_line == this_first_line & comment_first_byte < this_first_byte ) continue ;
+				if( (comment_line == this_first_line) & (comment_first_byte < this_first_byte) ) continue ;
 				
 				/* the current symbol must finish after the comment */
 				if( this_last_line <= comment_line ) continue ; 
