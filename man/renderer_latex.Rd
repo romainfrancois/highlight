@@ -12,7 +12,7 @@ markup uses the latex \samp{alltt} package to achieve true type
 renderering and therefore does not depend on verbatim-like environments. 
 }
 \usage{
-renderer_latex(document = TRUE, boxes = if (document) boxes_latex(), 
+renderer_latex(document = TRUE, boxes = boxes_latex(), 
 	translator = translator_latex, formatter = formatter_latex, 
 	space = space_latex, newline = newline_latex, 
 	stylesheet = "default", 

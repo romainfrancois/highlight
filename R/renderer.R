@@ -166,7 +166,6 @@ boxes_latex <- function( ){
 
 header_latex <- function( document, styles, boxes ){
 	function( ){
-		txt <- character()
 		con <- textConnection( "txt", open = "w" )
 		add <- function( ... ){
 			cat( paste( ..., sep = "\n" ), file = con )
@@ -178,8 +177,8 @@ header_latex <- function( document, styles, boxes ){
 				paste( styles, collapse = "\n")
 				)
 		}
-		add( boxes )
 		if( document ){
+			add( boxes )
 			add( '\\begin{document}\n' )
 		}
 		add( '\\noindent','\\ttfamily', '\\hlstd{}' )
@@ -236,7 +235,7 @@ col2latexrgb <- function( hex ){
 
 
 renderer_latex <- function( document = TRUE, 
-	boxes = if(document) boxes_latex(),
+	boxes = boxes_latex(),
 	translator = translator_latex, 
 	formatter = formatter_latex, space = space_latex, newline = newline_latex, 
 	stylesheet = "default", 

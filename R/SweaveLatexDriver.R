@@ -323,8 +323,20 @@ HighlightWeaveLatexWritedoc <- function(object, chunk) {
 		chunk[which] <- paste( chunk[which], environments, sep = "\n" )
 	}
 	
-    while(length(pos <- grep(object$syntax$docexpr, chunk)))
-    {
+	# if( "rtex" %in% names(object$syntax) ){
+	# 	while(length(pos <- grep(object$syntax$rtex, chunk))){
+	#     	cmdloc <- regexpr(object$syntax$rtex, chunk[pos[1L]])
+	#     	cmd <- substr(chunk[pos[1L]], cmdloc,
+	#     	              cmdloc+attr(cmdloc, "match.length")-1L)
+	#     	macro <- sub(object$syntax$rtex, "\\1", cmd)
+	#     	arguments <- sub(object$syntax$rtex, "\\2", cmd)
+	# 		arguments <- gsub( "(\\{\\{|\\}\\})", "", strsplit( arguments, "\\}\\}\\{\\{" )[[1]] )
+	# 		cmd <- sprint( "\\Sexpr{ %s( %s ) }", macro, paste( arguments, collapse = "," ) )
+	# 		chunk[pos[1L]] <- sub(object$syntax$rtex, val, chunk[pos[1L]])
+	# 	}
+	# }
+	
+	while(length(pos <- grep(object$syntax$docexpr, chunk))){
         cmdloc <- regexpr(object$syntax$docexpr, chunk[pos[1L]])
         cmd <- substr(chunk[pos[1L]], cmdloc,
                       cmdloc+attr(cmdloc, "match.length")-1L)
@@ -339,8 +351,8 @@ HighlightWeaveLatexWritedoc <- function(object, chunk) {
 
         chunk[pos[1L]] <- sub(object$syntax$docexpr, val, chunk[pos[1L]])
     }
-    while(length(pos <- grep(object$syntax$docopt, chunk)))
-    {
+	
+    while(length(pos <- grep(object$syntax$docopt, chunk))){
         opts <- sub(paste(".*", object$syntax$docopt, ".*", sep=""),
                     "\\1", chunk[pos[1L]])
         object$options <- utils:::SweaveParseOptions(opts, object$options,
@@ -365,7 +377,6 @@ HighlightWeaveLatexWritedoc <- function(object, chunk) {
 
     return(object)
 }
-
 
 # :tabSize=4:indentSize=4:noTabs=false:folding=explicit:collapseFolds=1:
 
