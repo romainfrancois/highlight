@@ -3613,7 +3613,7 @@ static int NumericValue(int c) {
 }
 /*}}}*/
 
-/*{{{ SkipSpace
+/*{{{ SkipSpace */
 /**
  * Keeping track of the last character of a SPACES token
  */
@@ -3703,7 +3703,6 @@ static int SkipSpace(void) {
 static int SkipSpace_(void){
 	int c ;
 	int _space_first_line = xxlineno ;
-	int _space_first_col = xxcolno ;
 	int _space_first_byte = xxbyteno ;
 	c = SkipSpace();
 	
@@ -5291,9 +5290,8 @@ static void recordParents( int parent, yyltype * childs, int nchilds){
 	
 	/* some of the childs might be an empty token (like cr)
 	   which we do not want to track */
-	int ii, jj;    /* loop index */
+	int ii;    /* loop index */
 	yyltype loc ;
-	int size = nchilds + 1 ;
 	for( ii=0; ii<nchilds; ii++){
 		loc = childs[ii] ;
 		if( loc.first_line == loc.last_line && loc.first_byte == loc.last_byte ){
@@ -5341,7 +5339,7 @@ static void finalizeData( ){
 	SETLENGTH( data, data_count * 9 ) ;
 	
 	int maxId = _ID(nloc-1) ;
-	int i, j, n, id ;
+	int i, j, id ;
 	int parent ; 
 	
 	/* attach comments to closest enclosing symbol */
@@ -5363,7 +5361,7 @@ static void finalizeData( ){
 				
 				/* the comment needs to start after the current symbol */
 				if( comment_line < this_first_line ) continue ;
-				if( comment_line == this_first_line & comment_first_byte < this_first_byte ) continue ;
+				if( (comment_line == this_first_line) & (comment_first_byte < this_first_byte) ) continue ;
 				
 				/* the current symbol must finish after the comment */
 				if( this_last_line <= comment_line ) continue ; 
