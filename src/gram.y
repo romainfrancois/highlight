@@ -2976,8 +2976,8 @@ finish:
 
 /*{{{ Highlight_ParseFile */
 attribute_hidden SEXP Highlight_ParseFile(FILE *fp, int n, ParseStatus *status, SEXP srcfile, int nl) {
-    if( nl < 5 ){
-		NLINES = 5 ;
+    if( nl < 1000 ){
+		NLINES = 1000 ;
 	} else { 
 		NLINES = nl ;
 	}
