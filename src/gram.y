@@ -24,12 +24,12 @@ int yyparse(void);
 static PROTECT_INDEX DATA_INDEX ;
 static PROTECT_INDEX ID_INDEX ;
 
-static int	R_ParseError = 0; /* Line where parse error occurred */
-static int	R_ParseErrorCol;    /* Column of start of token where parse error occurred */
-static char	R_ParseErrorMsg[PARSE_ERROR_SIZE]=  "";
-static char	R_ParseContext[PARSE_CONTEXT_SIZE] = "";
-static int	R_ParseContextLast = 0 ; /* last character in context buffer */
-static int	R_ParseContextLine; /* Line in file of the above */
+static int	H_ParseError = 0; /* Line where parse error occurred */
+static int	H_ParseErrorCol;    /* Column of start of token where parse error occurred */
+static char	H_ParseErrorMsg[PARSE_ERROR_SIZE]=  "";
+static char	H_ParseContext[PARSE_CONTEXT_SIZE] = "";
+static int	H_ParseContextLast = 0 ; /* last character in context buffer */
+static int	H_ParseContextLine; /* Line in file of the above */
 static Rboolean R_WarnEscapes = TRUE ;   /* Warn on unrecognized escapes */
 static SEXP	R_CurrentExpr;	    /* Currently evaluating expression */
 // static int	R_PPStackTop;	    /* The top of the stack */
@@ -521,8 +521,8 @@ static int xxgetc(void) {
 		EndOfFile = 1;
 		return R_EOF;
     }
-    R_ParseContextLast = (R_ParseContextLast + 1) % PARSE_CONTEXT_SIZE;
-    R_ParseContext[R_ParseContextLast] = c;
+    H_ParseContextLast = (H_ParseContextLast + 1) % PARSE_CONTEXT_SIZE;
+    H_ParseContext[H_ParseContextLast] = c;
 
     if (c == '\n') {
 		xxlineno += 1;
@@ -541,7 +541,7 @@ static int xxgetc(void) {
 		xxcolno = ((xxcolno + 7) & ~7);
 	}
     
-    R_ParseContextLine = xxlineno;    
+    H_ParseContextLine = xxlineno;    
 
     xxcharcount++;
     return c;
@@ -560,12 +560,12 @@ static int xxungetc(int c) {
     xxcolno  = prevcols[prevpos];
     prevpos = (prevpos + PUSHBACK_BUFSIZE - 1) % PUSHBACK_BUFSIZE;
 
-    R_ParseContextLine = xxlineno;
+    H_ParseContextLine = xxlineno;
     xxcharcount--;
-    R_ParseContext[R_ParseContextLast] = '\0';
+    H_ParseContext[H_ParseContextLast] = '\0';
     
 	/* precaution as to how % is implemented for < 0 numbers */
-    R_ParseContextLast = (R_ParseContextLast + PARSE_CONTEXT_SIZE -1) % PARSE_CONTEXT_SIZE;
+    H_ParseContextLast = (H_ParseContextLast + PARSE_CONTEXT_SIZE -1) % PARSE_CONTEXT_SIZE;
     if(npush >= PUSHBACK_BUFSIZE) return EOF;
     pushback[npush++] = c;
     return c;
@@ -1772,8 +1772,8 @@ static void yyerror(char *s) {
     _("end of line");
 #endif
 
-    R_ParseError     = yylloc.first_line;
-    R_ParseErrorCol  = yylloc.first_column;
+    H_ParseError     = yylloc.first_line;
+    H_ParseErrorCol  = yylloc.first_column;
     
     if (!strncmp(s, yyunexpected, sizeof yyunexpected -1)) {
 		int i;
@@ -1784,15 +1784,15 @@ static void yyerror(char *s) {
 		}
 		for (i = 0; yytname_translations[i]; i += 2) {
 		    if (!strcmp(s + sizeof yyunexpected - 1, yytname_translations[i])) {
-				sprintf(R_ParseErrorMsg, _("unexpected %s"),
+				sprintf(H_ParseErrorMsg, _("unexpected %s"),
 				    i/2 < YYENGLISH ? _(yytname_translations[i+1])
 						    : yytname_translations[i+1]);
 				return;
 		    }
 		}
-		sprintf(R_ParseErrorMsg, _("unexpected %s"), s + sizeof yyunexpected - 1);
+		sprintf(H_ParseErrorMsg, _("unexpected %s"), s + sizeof yyunexpected - 1);
     } else {
-		strncpy(R_ParseErrorMsg, s, PARSE_ERROR_SIZE - 1);
+		strncpy(H_ParseErrorMsg, s, PARSE_ERROR_SIZE - 1);
     }
 }
 /*}}}*/
@@ -2854,8 +2854,8 @@ int file_getc(void){
 
 /*{{{ HighlightParseContextInit */
 static void HighlightParseContextInit(void) {
-    R_ParseContextLast = 0;
-    R_ParseContext[0] = '\0';
+    H_ParseContextLast = 0;
+    H_ParseContext[0] = '\0';
 	colon = 0 ;
 	
 	/* starts the identifier counter*/
@@ -3322,12 +3322,11 @@ SEXP attribute_hidden do_parser(SEXP args){
 	/*}}}*/
 
 	/*{{{ Call the parser */
-	R_ParseError = 0;
-    R_ParseErrorMsg[0] = '\0';
+	H_ParseError = 0;
+    H_ParseErrorMsg[0] = '\0';
 	PROTECT(result = Highlight_ParseFile(fp, -1, &status, filename, nl));
 	if (status != PARSE_OK) {
-		/* TODO : use the parseError function (in source.c) */
-		error(_("parsing error"), 0);
+		error("\n%s:%d:%d\n\t%s\n", fname, xxlineno, H_ParseErrorCol, H_ParseErrorMsg);
 	}
 	fclose( fp ) ;
 	/*}}}*/
