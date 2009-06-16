@@ -278,6 +278,7 @@ HighlightWeaveLatexRuncode <- makeHighlightWeaveLatexCodeRunner()
 HighlightWeaveLatexWritedoc <- function(object, chunk) {
 	
 	linesout <- attr(chunk, "srclines")
+	renderer <- renderer_latex( )
 
     if(length(grep("\\usepackage[^\\}]*Sweave.*\\}", chunk)))
         object$havesty <- TRUE
@@ -295,18 +296,6 @@ HighlightWeaveLatexWritedoc <- function(object, chunk) {
     	        object$havesty <- TRUE
     	    }
     }
-
-	# add highlight specific things in the preamble
-	begindoc <- "\\\\begin\\{document\\}"
- 	which <- grep(begindoc, chunk)
-	if (length(which)) {
-		renderer <- renderer_latex( )
-		replacement <- paste(
-				paste( gsub( "\\\\" , "\\\\\\\\", renderer$styles), collapse = "\n"), 
-				paste( gsub( "\\\\", "\\\\\\\\", renderer$boxes ), collapse = "\n"),  
-				"\\\\begin{document}" , sep = "\n" )
-		chunk[which] <- sub( begindoc, replacement, chunk[which] )
-	}
 	
 	environments <- 
 '\\newenvironment{Hinput}%
@@ -321,21 +310,28 @@ HighlightWeaveLatexWritedoc <- function(object, chunk) {
 	documentclass <- "\\\\documentclass.*$"
  	which <- grep( documentclass, chunk )
 	if( length( which ) ){
-		chunk[which] <- paste( chunk[which], environments, sep = "\n" )
+		replacement <- paste(
+				chunk[which], 
+				environments, 
+				paste( renderer$boxes , collapse = "\n"),  
+				paste( renderer$styles, collapse = "\n"), 
+				sep = "\n" )
+		chunk[which] <- replacement
 	}
-	
-	# if( "rtex" %in% names(object$syntax) ){
-	# 	while(length(pos <- grep(object$syntax$rtex, chunk))){
-	#     	cmdloc <- regexpr(object$syntax$rtex, chunk[pos[1L]])
-	#     	cmd <- substr(chunk[pos[1L]], cmdloc,
-	#     	              cmdloc+attr(cmdloc, "match.length")-1L)
-	#     	macro <- sub(object$syntax$rtex, "\\1", cmd)
-	#     	arguments <- sub(object$syntax$rtex, "\\2", cmd)
-	# 		arguments <- gsub( "(\\{\\{|\\}\\})", "", strsplit( arguments, "\\}\\}\\{\\{" )[[1]] )
-	# 		cmd <- sprint( "\\Sexpr{ %s( %s ) }", macro, paste( arguments, collapse = "," ) )
-	# 		chunk[pos[1L]] <- sub(object$syntax$rtex, val, chunk[pos[1L]])
-	# 	}
+
+	# add highlight specific things in the preamble
+	# which <- grep(documentclass, chunk)
+	# if (length(which)) {
+	# 	renderer <- renderer_latex( )
+	# 	replacement <- paste(
+	# 			paste( gsub( "\\\\" , "\\\\\\\\", renderer$styles), collapse = "\n"), 
+	# 			paste( gsub( "\\\\", "\\\\\\\\", renderer$boxes ), collapse = "\n"),  
+	# 			"\\\\begin{document}" , sep = "\n" )
+	# 	chunk[which] <- sub( documentclass, replacement, chunk[which] )
 	# }
+
+
+
 	
 	while(length(pos <- grep(object$syntax$docexpr, chunk))){
         cmdloc <- regexpr(object$syntax$docexpr, chunk[pos[1L]])
