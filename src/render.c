@@ -80,7 +80,7 @@ SEXP attribute_hidden do_render(SEXP args){
 			byte = 0 ;
 			afterLine = 1; 
 		}
-		
+		                 
 		/* move right as many spaces as needed */
 		if( byte < BYTE1(i) ){
 			nspaces = COL1(i) - col ;

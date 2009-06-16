@@ -185,12 +185,12 @@ makeHighlightWeaveLatexCodeRunner <- function(evalFunc=RweaveEvalWithOpt) {
                     }
                     
 					if( options$results == "verbatim" ){
-						cat( renderer$header(), file = chunkout, append = T, sep = "\n" )
+						cat( paste( renderer$header(), collapse = "\n" ), file = chunkout, append = TRUE)
 						output. <- strsplit( output, "\n" )[[1]]
-						cat( paste( renderer$translator(output.), renderer$newline(), sep = "") , 
-							file=chunkout, append=TRUE, sep = "\n" )
+						cat( paste( paste( renderer$translator(output.), renderer$newline(), sep = ""), collapse = "") , 
+							file=chunkout, append=TRUE )
 						remove( output.) 
-						cat(renderer$footer(), file = chunkout, append = T, sep = "\n" )
+						cat( paste( renderer$footer(), collapse = "\n" ), file = chunkout, append = TRUE )
 					 } else{
 						cat( output, file=chunkout, append=TRUE)
 					}
