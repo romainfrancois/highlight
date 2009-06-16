@@ -6,7 +6,12 @@
 #define COL2( i ) INTEGER( col2 )[ i ] 
 #define BYTE1( i ) INTEGER( byte1 )[ i ] 
 #define BYTE2( i ) INTEGER( byte2 )[ i ] 
-#define TOKEN( i ) CHAR(STRING_ELT(tokens,(i) ) ) 
+#define TOKEN( i ) CHAR(STRING_ELT(tokens,(i) ) )
+#define TOKEN_TYPE( i ) INTEGER( token_type )[i]
+
+/* TODO: need something better */
+#define COMMENT 289
+#define ROXYGEN_COMMENT 291
 
 void write_sexp( SEXP x ){
 	if( x == R_NilValue || length(x) == 0) return ;
@@ -38,6 +43,11 @@ SEXP attribute_hidden do_render(SEXP args){
 	args = CDR(args);  SEXP byte2  = CAR(args) ;
 	args = CDR(args);  int startline  = INTEGER( CAR(args) )[0] ;
 	args = CDR(args);  Rboolean final = LOGICAL( CAR(args) )[0] ;
+	args = CDR(args);  SEXP token_type  = CAR(args) ;
+	args = CDR(args);  
+	const char* prompt = CHAR(STRING_ELT(CAR(args),0) ) ;
+	args = CDR(args);  
+	const char* continue_prompt = CHAR(STRING_ELT(CAR(args),0) ) ;
 	
 	int n = length( tokens );
 	int line = startline ;
@@ -46,17 +56,29 @@ SEXP attribute_hidden do_render(SEXP args){
 	int i, j ;
 	int nspaces ;
 	
+	int useContinuePrompt = 0;
+	int afterLine ;
+	int noMoreRegularPrompt = 0; 
 	write_sexp( header );
 	
+	Rprintf( "%s", prompt ) ; 
 	for( i=0; i<n; i++){
-	/* move down as many lines as needed */
+		/* move down as many lines as needed */
 		if( line < LINE1(i) ){
 			for( ; line < LINE1(i); line++ ){
 				Rprintf( "%s", newline ) ;
+				if( noMoreRegularPrompt || useContinuePrompt ){
+					Rprintf( "%s", continue_prompt ) ;
+					noMoreRegularPrompt = 1; 
+				} else{
+					Rprintf( "%s", prompt ) ;
+				}
+				useContinuePrompt = 1; 
 			}
 			line = LINE1(i);
 			col  = 0 ;
 			byte = 0 ;
+			afterLine = 1; 
 		}
 		
 		/* move right as many spaces as needed */
@@ -68,6 +90,14 @@ SEXP attribute_hidden do_render(SEXP args){
 		}
 		
 		/* write the token */ 
+		if( !noMoreRegularPrompt){
+			if( afterLine ){
+				if( TOKEN_TYPE(i) == COMMENT || TOKEN_TYPE(i) == ROXYGEN_COMMENT ){
+					useContinuePrompt = 0 ;
+				}
+				afterLine = 0; 
+			}
+		}
 		Rprintf( "%s", TOKEN(i) ) ;
 		
 		/* set the current positions */ 

@@ -131,7 +131,8 @@ makeHighlightWeaveLatexCodeRunner <- function(evalFunc=RweaveEvalWithOpt) {
 	 					styles = styles, 
 	 					expr = nce, 
 	 					renderer = renderer, 
-						final.newline = FALSE )
+						final.newline = FALSE, 
+						showPrompts = TRUE)
 					cat("\n\\end{Hinput}\n", file=chunkout, append=TRUE)
                    
 					linesout[thisline + 1L:length(dce)] <- srcline

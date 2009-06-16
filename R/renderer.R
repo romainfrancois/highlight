@@ -119,6 +119,8 @@ translator_latex <- function( x ){
 	s( "%"      , "\\usebox{\\hlboxpercent}" )
 	s( "^"      , "\\usebox{\\hlboxhat}" )
 	s( "~"      , "\\urltilda{}" )
+	s( "'"      , "\\usebox{\\hlboxsinglequote}" )
+	s( "`"      , "\\usebox{\\hlboxbacktick}" )
 	s( " "      , "{\\ }" )
 	x
 }
@@ -146,6 +148,8 @@ boxes_latex <- function( ){
 \\newsavebox{\\hlboxat}%
 \\newsavebox{\\hlboxpercent}% 
 \\newsavebox{\\hlboxhat}%
+\\newsavebox{\\hlboxsinglequote}%
+\\newsavebox{\\hlboxbacktick}%
 
 \\setbox\\hlboxopenbrace=\\hbox{\\verb.{.}%
 \\setbox\\hlboxclosebrace=\\hbox{\\verb.}.}%
@@ -158,6 +162,9 @@ boxes_latex <- function( ){
 \\setbox\\hlboxbackslash=\\hbox{\\verb.\\.}%
 \\setbox\\hlboxgreaterthan=\\hbox{\\verb.>.}%
 \\setbox\\hlboxpercent=\\hbox{\\verb.%.}%
+\\setbox\\hlboxhat=\\hbox{\\verb.^.}%
+\\setbox\\hlboxsinglequote=\\hbox{\\verb.\'.}%
+\\setbox\\hlboxbacktick=\\hbox{\\verb.`.}%
 \\setbox\\hlboxhat=\\hbox{\\verb.^.}%
 \\def\\urltilda{\\kern -.15em\\lower .7ex\\hbox{\\~{}}\\kern .04em}
 \\newcommand{\\hlstd}[1]{\\textcolor[rgb]{0,0,0}{#1}}

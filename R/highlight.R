@@ -6,6 +6,9 @@ highlight <- function( file, output = stdout(),
 	styles = detective( parser.output ),
 	expr = NULL, 
 	final.newline = FALSE,
+	showPrompts = FALSE, 
+	prompt = getOption( "prompt" ) , 
+	continue = getOption( "continue"), 
 	... ){
 	   
 	# forcing the arguments in a certain order
@@ -50,7 +53,10 @@ highlight <- function( file, output = stdout(),
 		byte1   = data$byte1, 
 		byte2   = data$byte2, 
 		startline = startline, 
-		final   = final.newline )
+		final   = final.newline,
+		type    = data$token, 
+		prompt  = if( showPrompts) renderer$formatter( renderer$translator( prompt ) , "prompt" ) else "" , 
+		continue = if( showPrompts) renderer$formatter( renderer$translator( continue ) , "prompt" ) else "" )
 	
 	# {{{ the C version does the same but faster, this is retained
 	# here in case we need additional functionality which 
