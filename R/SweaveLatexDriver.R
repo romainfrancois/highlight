@@ -280,22 +280,17 @@ HighlightWeaveLatexWritedoc <- function(object, chunk) {
 	linesout <- attr(chunk, "srclines")
 	renderer <- renderer_latex( )
 
-    if(length(grep("\\usepackage[^\\}]*Sweave.*\\}", chunk)))
+    if(length(grep("\\usepackage[^\\}]*Sweave.*\\}", chunk))){
         object$havesty <- TRUE
+	}
 
     if(!object$havesty){
- 		begindoc <- "^[[:space:]]*\\\\begin\\{document\\}"
- 		which <- grep(begindoc, chunk)
- 		if (length(which)) {
-    	        chunk[which] <- sub(begindoc,
-    	                            paste("\\\\usepackage{",
-    	                                  object$styfile,
-    	                                  "}\n\\\\begin{document}", sep=""),
-    	                            chunk[which])
-    	        linesout <- linesout[c(1L:which, which, seq(from=which+1L, length.out=length(linesout)-which))]
-    	        object$havesty <- TRUE
-    	    }
-    }
+ 		sweave <- paste( "\\usepackage{", object$styfile , "}" )
+    } else{
+		where.sweave <- grep("\\usepackage[^\\}]*Sweave.*\\}", chunk)[1]
+		sweave <- chunk[ where.sweave ]
+		chunk[ where.sweave ] <- paste( "" )
+	}
 	
 	environments <- 
 '\\newenvironment{Hinput}%
@@ -309,29 +304,17 @@ HighlightWeaveLatexWritedoc <- function(object, chunk) {
 {\\end{flushleft}}%'
 	documentclass <- "\\\\documentclass.*$"
  	which <- grep( documentclass, chunk )
+	
 	if( length( which ) ){
 		replacement <- paste(
 				chunk[which], 
+				sweave , 
 				environments, 
 				paste( renderer$boxes , collapse = "\n"),  
 				paste( renderer$styles, collapse = "\n"), 
 				sep = "\n" )
 		chunk[which] <- replacement
 	}
-
-	# add highlight specific things in the preamble
-	# which <- grep(documentclass, chunk)
-	# if (length(which)) {
-	# 	renderer <- renderer_latex( )
-	# 	replacement <- paste(
-	# 			paste( gsub( "\\\\" , "\\\\\\\\", renderer$styles), collapse = "\n"), 
-	# 			paste( gsub( "\\\\", "\\\\\\\\", renderer$boxes ), collapse = "\n"),  
-	# 			"\\\\begin{document}" , sep = "\n" )
-	# 	chunk[which] <- sub( documentclass, replacement, chunk[which] )
-	# }
-
-
-
 	
 	while(length(pos <- grep(object$syntax$docexpr, chunk))){
         cmdloc <- regexpr(object$syntax$docexpr, chunk[pos[1L]])
