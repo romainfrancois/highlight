@@ -97,14 +97,12 @@ SEXP attribute_hidden do_render(SEXP args){
 		
 		/* write the token */ 
 		if( noMoreRegularPrompt == 0){
-			if( afterLine ){
-				if( TOKEN_TYPE(i) == COMMENT || TOKEN_TYPE(i) == ROXYGEN_COMMENT ){
-					useContinuePrompt = 0 ;
-				} else{
-					useContinuePrompt = 1 ;
-				}
-				afterLine = 0; 
+			if( TOKEN_TYPE(i) == COMMENT || TOKEN_TYPE(i) == ROXYGEN_COMMENT ){
+				useContinuePrompt = 0 ;
+			} else{
+				useContinuePrompt = 1 ;
 			}
+			afterLine = 0; 
 		} 
 		Rprintf( "%s", TOKEN(i) ) ;
 		initial = 0; 
