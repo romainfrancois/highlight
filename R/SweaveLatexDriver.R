@@ -86,7 +86,7 @@ makeHighlightWeaveLatexCodeRunner <- function(evalFunc=RweaveEvalWithOpt) {
                  file=chunkout, append=TRUE)
                  
           for(nce in 1L:length(chunkexps)) {
-                ce <- chunkexps[[nce]]
+			     ce <- chunkexps[[nce]]
                 if (nce <= length(srcrefs) && !is.null(srcref <- srcrefs[[nce]])) {
             	        if (options$expand) {
       			          	srcfile <- attr(srcref, "srcfile")
@@ -98,7 +98,7 @@ makeHighlightWeaveLatexCodeRunner <- function(evalFunc=RweaveEvalWithOpt) {
             	        	showto <- srclines[srcref[3L]]
             	        }
             	        dce <- getSrcLines(srcfile, lastshown+1, showto)
-	    		    leading <- showfrom-lastshown
+	    		    leading <- showfrom - lastshown
 	    		    lastshown <- showto
             	   srcline <- srclines[srcref[3L]]
             	   while (length(dce) && length(grep("^[[:blank:]]*$", dce[1L]))) {
@@ -112,8 +112,7 @@ makeHighlightWeaveLatexCodeRunner <- function(evalFunc=RweaveEvalWithOpt) {
                 if(object$debug)
                   cat("\nRnw> ", paste(dce, collapse="\n+  "),"\n")
                          
-				  
-				  if(options$echo && length(dce)){ 
+				  if(options$echo){ 
 					 if(!openSinput){
                         if(!openSchunk){
                             linesout[thisline + 1] <- srcline
@@ -132,7 +131,8 @@ makeHighlightWeaveLatexCodeRunner <- function(evalFunc=RweaveEvalWithOpt) {
 	 					expr = nce, 
 	 					renderer = renderer, 
 						final.newline = FALSE, 
-						showPrompts = TRUE)
+						showPrompts = TRUE, 
+						initial.spaces = FALSE )
 					cat("\n\\end{Hinput}\n", file=chunkout, append=TRUE)
                    
 					linesout[thisline + 1L:length(dce)] <- srcline

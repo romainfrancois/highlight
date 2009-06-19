@@ -9,6 +9,7 @@ highlight <- function( file, output = stdout(),
 	showPrompts = FALSE, 
 	prompt = getOption( "prompt" ) , 
 	continue = getOption( "continue"), 
+	initial.spaces = TRUE, 
 	... ){
 	   
 	# forcing the arguments in a certain order
@@ -56,7 +57,9 @@ highlight <- function( file, output = stdout(),
 		final   = final.newline,
 		type    = data$token, 
 		prompt  = if( showPrompts) renderer$formatter( renderer$translator( prompt ) , "prompt" ) else "" , 
-		continue = if( showPrompts) renderer$formatter( renderer$translator( continue ) , "prompt" ) else "" )
+		continue = if( showPrompts) renderer$formatter( renderer$translator( continue ) , "prompt" ) else "", 
+		initial.spaces = initial.spaces 
+		)
 	
 	# {{{ the C version does the same but faster, this is retained
 	# here in case we need additional functionality which 

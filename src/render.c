@@ -48,6 +48,7 @@ SEXP attribute_hidden do_render(SEXP args){
 	const char* prompt = CHAR(STRING_ELT(CAR(args),0) ) ;
 	args = CDR(args);  
 	const char* continue_prompt = CHAR(STRING_ELT(CAR(args),0) ) ;
+	args = CDR(args);  Rboolean initial_spaces = LOGICAL( CAR(args) )[0] ;
 	
 	int n = length( tokens );
 	int line = startline ;
@@ -60,20 +61,23 @@ SEXP attribute_hidden do_render(SEXP args){
 	int afterLine ;
 	int noMoreRegularPrompt = 0; 
 	write_sexp( header );
+	int initial = 1; 
 	
 	Rprintf( "%s", prompt ) ; 
 	for( i=0; i<n; i++){
 		/* move down as many lines as needed */
 		if( line < LINE1(i) ){
 			for( ; line < LINE1(i); line++ ){
-				Rprintf( "%s", newline ) ;
-				if( noMoreRegularPrompt || useContinuePrompt ){
+				if( (initial == 0) | ( initial_spaces == TRUE ) ){
+					Rprintf( "%s", newline ) ;
+				}
+				if( ( noMoreRegularPrompt == 1 ) | ( useContinuePrompt == 1 ) ){
 					Rprintf( "%s", continue_prompt ) ;
 					noMoreRegularPrompt = 1; 
 				} else{
 					Rprintf( "%s", prompt ) ;
 				}
-				useContinuePrompt = 1; 
+				useContinuePrompt = 1;
 			}
 			line = LINE1(i);
 			col  = 0 ;
@@ -85,20 +89,25 @@ SEXP attribute_hidden do_render(SEXP args){
 		if( byte < BYTE1(i) ){
 			nspaces = COL1(i) - col ;
 			for( j=0; j<nspaces; j++){
-				Rprintf( "%s", space ) ;
+				if( initial == 0 | initial_spaces == TRUE ){
+					Rprintf( "%s", space ) ;
+				}
 			}
 		}
 		
 		/* write the token */ 
-		if( !noMoreRegularPrompt){
+		if( noMoreRegularPrompt == 0){
 			if( afterLine ){
 				if( TOKEN_TYPE(i) == COMMENT || TOKEN_TYPE(i) == ROXYGEN_COMMENT ){
 					useContinuePrompt = 0 ;
+				} else{
+					useContinuePrompt = 1 ;
 				}
 				afterLine = 0; 
 			}
-		}
+		} 
 		Rprintf( "%s", TOKEN(i) ) ;
+		initial = 0; 
 		
 		/* set the current positions */ 
 		col = COL2(i);
