@@ -1,13 +1,13 @@
 useDynLib( highlight )
 
+import( parser )
 import( codetools )
 import( utils )
+
 importFrom( grDevices, rgb )
 importFrom( grDevices, colors )
 
 export( highlight )
-export( parser )
-export( grammar.symbols )
 export( nlines) 
 export( count.chars )
 export( css.parser )
@@ -24,6 +24,4 @@ exportPattern( "_html$" )
 exportPattern( "_verbatim$" )
 
 export( HighlightWeaveLatex )
-
-# export( print.function )
 

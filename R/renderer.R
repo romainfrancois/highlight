@@ -327,8 +327,7 @@ getStyleFile <- function( name = "default", extension = "css" ){
 		return( f )
 	}
 
-	f <- system.file( "stylesheet", 
-		filename , package = "highlight" )
+	f <- system.file( "stylesheet", filename , package = "highlight" )
 	if( file.exists( f )){
 		return( f) 
 	}

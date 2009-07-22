@@ -29,10 +29,6 @@ highlight <- function( file, output = stdout(),
 		startline <- 1L
 	}
 	
-	line <- min( data$line1 )
-	byte <- 0
-	col  <- 0
-	
 	if( output != stdout() ){
 		sink( file = output ) 
 		on.exit( sink( ) )
