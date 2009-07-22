@@ -1,4 +1,3 @@
-#include "highlight.h"
 #include <parser.h>
 
 #define LINE1( i ) INTEGER( line1 )[ i ] 
