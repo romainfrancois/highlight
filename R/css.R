@@ -85,7 +85,7 @@ css.parser <- function( file, lines = readLines( file ) ){
 	rx <- "^\\.(.*?) *\\{.*$"
 	dec.lines <- grep( rx, lines )
 	dec.names <- sub( rx, "\\1", lines[dec.lines] ) 
-	if( any( grepl(dec.names, "[0-9]") ) ){
+	if( any( grepl( "[0-9]", dec.names) ) ){
 		warning( "use of numbers in style names" )
 	}
 	
