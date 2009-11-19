@@ -14,7 +14,7 @@
 #define ROXYGEN_COMMENT 291
 
 // 2^13
-#define BUFFER_SIZE 32768
+#define BUFFER_SIZE 16384
 
 
 void write_sexp( SEXP x ){
