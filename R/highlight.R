@@ -94,5 +94,56 @@ highlight <- function( file, output = stdout(),
 	invisible( NULL )
 }
 
+getHighlightedText <- function( file, output = stdout(), 
+	detective = simple_detective, renderer, encoding = "unknown",
+	parser.output = parser( file, encoding = encoding ),
+	styles = detective( parser.output ),
+	expr = NULL, 
+	showPrompts = FALSE, 
+	prompt = getOption( "prompt" ) , 
+	continue = getOption( "continue"), 
+	initial.spaces = TRUE, 
+	... ){
+	   
+	# forcing the arguments in a certain order
+	force( parser.output )
+	force( styles )
+	force( renderer )
+	
+	data   <- subset( attr( parser.output, "data" ), terminal ) 
+	data$ftokens <- renderer$formatter(
+		tokens = renderer$translator( as.character( data[, "text"] ) ), 
+		styles = styles )
+	if( !is.null( expr ) ){
+		ids <- getChilds( parser.output, expr )
+		data <- data[ data$id %in% ids, , drop = FALSE ]
+		startline <- as.integer( data[1, "line1" ] )
+	} else{
+		startline <- 1L
+	}
+	
+	highlighted_text <- .Call( "get_highlighted_text", 
+		data$ftokens, 
+		data$token, 
+		data$line1, 
+		data$line2, 
+		data$col1, 
+		data$col2, 
+		data$byte1, 
+		data$byte2, 
+		startline, 
+		max(data$line2) , 
+		renderer$space(), 
+		renderer$newline(), 
+		if( showPrompts) renderer$formatter( renderer$translator( prompt ) , "prompt" ) else "", 
+		if( showPrompts) renderer$formatter( renderer$translator( prompt ) , "prompt" ) else "",
+		PACKAGE = "highlight" )
+	
+	
+	highlighted_text <- c( renderer$header(), highlighted_text, renderer$footer() )
+	highlighted_text
+}
+
+
 # :tabSize=4:indentSize=4:noTabs=false:folding=explicit:collapseFolds=1:
 

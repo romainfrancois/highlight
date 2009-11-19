@@ -1,21 +1,22 @@
 \name{highlight}
 \Rdversion{1.1}
 \alias{highlight}
+\alias{getHighlightedText}
 \title{
 syntax highlighting based on the R parser
 }
 \description{
-This function performs syntax highlighting based on the 
+	The \code{highlight} function performs syntax highlighting based on the 
 results of the \code{\link{parser}} and the investigation
 of a detective. 
+
+	The \code{getHighlightedText} function returns the highligghted
+	code as a character vector.
 }
 \usage{
-highlight(file, output = stdout(), 
-	detective = simple_detective, renderer, 
-	encoding = "unknown", 
-	parser.output = parser(file, encoding = encoding), 
-	styles = detective(parser.output), 
-	expr = NULL, final.newline = FALSE, ...)
+highlight(file, output = stdout(), detective = simple_detective, renderer, encoding = "unknown", parser.output = parser(file, encoding = encoding), styles = detective(parser.output), expr = NULL, final.newline = FALSE, showPrompts = FALSE, prompt = getOption("prompt"), continue = getOption("continue"), initial.spaces = TRUE, ...)
+getHighlightedText(file, output = stdout(), detective = simple_detective, renderer, encoding = "unknown", parser.output = parser(file, encoding = encoding), styles = detective(parser.output), expr = NULL, showPrompts = FALSE, prompt = getOption("prompt"), continue = getOption("continue"), initial.spaces = TRUE, ...)
+
 }
 \arguments{
   \item{file}{
@@ -57,6 +58,10 @@ feature is used by the sweave driver shipped with this package. See
   \item{final.newline}{
 logical. Indicates if a newline character is added after all tokens.
 }
+\item{showPrompts}{if TRUE, the highlighted text will show standard and continue prompt}
+\item{prompt}{}
+\item{continue}{}
+\item{initial.spaces}{}
   \item{\dots}{
 additional arguments, currently ignored. 
 }

@@ -8,8 +8,8 @@ importFrom( grDevices, rgb )
 importFrom( grDevices, colors )
 
 export( highlight )
-export( nlines) 
-export( count.chars )
+export( getHighlightedText )
+
 export( css.parser )
 
 export( simple_detective )
