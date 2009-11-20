@@ -1,7 +1,6 @@
 \name{highlight}
 \Rdversion{1.1}
 \alias{highlight}
-\alias{getHighlightedText}
 \title{
 syntax highlighting based on the R parser
 }
@@ -9,14 +8,13 @@ syntax highlighting based on the R parser
 	The \code{highlight} function performs syntax highlighting based on the 
 results of the \code{\link{parser}} and the investigation
 of a detective. 
-
-	The \code{getHighlightedText} function returns the highligghted
-	code as a character vector.
 }
 \usage{
-highlight(file, output = stdout(), detective = simple_detective, renderer, encoding = "unknown", parser.output = parser(file, encoding = encoding), styles = detective(parser.output), expr = NULL, final.newline = FALSE, showPrompts = FALSE, prompt = getOption("prompt"), continue = getOption("continue"), initial.spaces = TRUE, ...)
-getHighlightedText(file, output = stdout(), detective = simple_detective, renderer, encoding = "unknown", parser.output = parser(file, encoding = encoding), styles = detective(parser.output), expr = NULL, showPrompts = FALSE, prompt = getOption("prompt"), continue = getOption("continue"), initial.spaces = TRUE, ...)
-
+highlight(file, output = stdout(), detective = simple_detective, renderer, 
+	encoding = "unknown", parser.output = parser(file, encoding = encoding), 
+	styles = detective(parser.output), expr = NULL, final.newline = FALSE, 
+	showPrompts = FALSE, prompt = getOption("prompt"), continue = getOption("continue"), 
+	initial.spaces = TRUE, ...)
 }
 \arguments{
   \item{file}{
@@ -73,8 +71,8 @@ that the writing is performed by a C function and the R API does not
 allow packages to use connections in the C code. 
 }
 \value{
-Nothing. This is used for the side effect of sending the rendered
-file to the output connection. 
+The resulting formatted text is returned invisibly. It is also 
+written to the output if the output is not \code{NULL}
 }
 \author{
 Romain Francois <francoisromain@free.fr>
