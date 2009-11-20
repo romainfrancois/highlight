@@ -12,8 +12,8 @@ Syntax highlighter for R based on output from the R parser
 \tabular{ll}{
 Package: \tab highlight\cr
 Type: \tab Package\cr
-Version: \tab 0.0-1\cr
-Date: \tab 2009-04-28\cr
+Version: \tab 0.1-3\cr
+Date: \tab 2009-11-21\cr
 License: \tab GPL-3\cr
 LazyLoad: \tab yes\cr
 }

@@ -1,8 +1,8 @@
 Package: highlight
 Type: Package
 Title: Syntax highlighter
-Version: 0.1-2
-Date: 2009-11-19
+Version: 0.1-3
+Date: 2009-11-21
 Author: Romain Francois <francoisromain@free.fr>
 Maintainer: Romain Francois <francoisromain@free.fr>
 Description: Syntax highlighter for R code based 
