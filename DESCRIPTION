@@ -10,6 +10,6 @@ Description: Syntax highlighter for R code based
 	markup. Custom sweave driver performing syntax highlighting 
 	of R code chunks
 License: GPL (>= 3.0)
-Depends: R (>= 2.10.0), codetools, utils, parser
+Depends: R (>= 2.10.0), codetools, utils, parser (>= 0.0-5)
 LinkingTo: parser
 
