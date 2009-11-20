@@ -26,7 +26,7 @@ Maintainer: Romain Francois <francoisromain@free.fr>
 }
 \seealso{
 	The main function of the package is \code{\link{highlight}}. The
-	\code{\link{parser}} is a modified R parser using a very similar 
+	\code{\link[parser]{parser}} is a modified R parser using a very similar 
 	grammar to the standard \code{\link[base]{parse}} function but presenting
 	the information differently. 
 	

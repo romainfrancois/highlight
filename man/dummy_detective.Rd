@@ -13,7 +13,7 @@ dummy_detective(x, ...)
 }
 \arguments{
   \item{x}{
-The result of the \code{\link{parser}}. The only information this 
+The result of the \code{\link[parser]{parser}}. The only information this 
 detective uses is the number of tokens.
 }
   \item{\dots}{

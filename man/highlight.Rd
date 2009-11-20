@@ -6,7 +6,7 @@ syntax highlighting based on the R parser
 }
 \description{
 	The \code{highlight} function performs syntax highlighting based on the 
-results of the \code{\link{parser}} and the investigation
+results of the \code{\link[parser]{parser}} and the investigation
 of a detective. 
 }
 \usage{
@@ -27,7 +27,7 @@ is used to redirect the standard output to the output.
 }
   \item{detective}{
 the detective chooses the style to apply to each token, basing its 
-investigation on the results of the \code{\link{parser}}
+investigation on the results of the \code{\link[parser]{parser}}
 }
   \item{renderer}{
 highlight delegates rendering the information to the renderer. This 
@@ -36,10 +36,10 @@ and \code{\link{renderer_latex}}
 }
   \item{encoding}{
 encoding to assume for the file. the argument is directly passed 
-to the \code{\link{parser}}.
+to the \code{\link[parser]{parser}}.
 }
   \item{parser.output}{
-output from the \code{\link{parser}}. If this is given, the 
+output from the \code{\link[parser]{parser}}. If this is given, the 
 arguments \code{file} and \code{encoding} are not used
 }
   \item{styles}{
