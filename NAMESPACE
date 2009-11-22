@@ -6,6 +6,7 @@ import( utils )
 
 importFrom( grDevices, rgb )
 importFrom( grDevices, colors )
+importFrom( grDevices, col2rgb )
 
 export( highlight )
 export( css.parser )

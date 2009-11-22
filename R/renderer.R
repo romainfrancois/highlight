@@ -51,7 +51,7 @@ header_html <- function( document, stylesheet){
 		cssfile <- getStyleFile( stylesheet )
 		function(){
 			c( '<html>\n<head>\n<style type="text/css">\n', 
-				if( !is.null(cssfile) ) readLines(cssfile) , 
+				if( !is.null(cssfile) ) paste( readLines(cssfile), "\n", sep = "") , 
 				'</style>\n</head>\n<body>\n<pre>\n' )
 		}
 	} else {
@@ -173,7 +173,6 @@ boxes_latex <- function( ){
 
 header_latex <- function( document, styles, boxes ){
 	function( ){
-		txt <- NULL
 		con <- textConnection( "txt", open = "w" )
 		add <- function( ... ){
 			cat( paste( ..., sep = "\n" ), file = con )
@@ -191,7 +190,7 @@ header_latex <- function( document, styles, boxes ){
 		}
 		add( '\\noindent','\\ttfamily', '\\hlstd{}' )
 		close( con )
-		txt
+		paste( txt, "\n", sep = "" )
 	}
 }
 
@@ -251,6 +250,11 @@ renderer_latex <- function( document = TRUE,
 	header = header_latex( document, styles = styles, boxes = boxes ), 
 	footer = footer_latex( document) , 
 	... ){
+	force( document )
+	force( boxes )
+	force( styles )
+	force( header )
+	force( footer )
 	renderer( translator = translator, 
 		formatter = formatter, space = space , newline = newline, 
 		header = header, footer = footer, boxes = boxes, 
