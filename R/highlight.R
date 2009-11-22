@@ -37,7 +37,7 @@ highlight <- function( file, output = stdout(),
 	}
 	
 	# paste everything together in C (for efficiency)
-	highlighted_text <- c( renderer$header(), 
+	highlighted_text <- c( if( !is.null(renderer$header) ) renderer$header(), 
 		.Call( "get_highlighted_text", 
 			data$ftokens, 
 			data$token, 
@@ -55,7 +55,7 @@ highlight <- function( file, output = stdout(),
 			if( showPrompts) renderer$formatter( renderer$translator( continue ) , "prompt" ) else "",
 			initial.spaces = initial.spaces, 
 			PACKAGE = "highlight" ), 
-		renderer$footer() )
+		if( !is.null(renderer$footer) ) renderer$footer() )
 	
 	# maybe write the result to the output connection
 	if( !is.null(output) ){

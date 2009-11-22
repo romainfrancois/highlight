@@ -279,13 +279,8 @@ newline_verbatim <- function( ){
 	"\n" 
 }
 
-header_verbatim <- function( ){
-	"" 
-}                     
-
-footer_verbatim <- function( ){
-	"\n"
-}
+header_verbatim <- NULL
+footer_verbatim <- NULL
 
 renderer_verbatim <- function(
 	translator = translator_verbatim, formatter = formatter_verbatim, 

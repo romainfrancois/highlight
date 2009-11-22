@@ -1,4 +1,7 @@
-0.1-3	(under development)
+0.1-3	2009-11-22
+   o 	all headers and footers now include line feeds
+   
+   o 	headers and footers can now be NULL (no content)
 
 0.1-2	2009-11-20
    o	initial release
