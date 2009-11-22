@@ -84,9 +84,9 @@ The \code{\link{renderer_latex}} implements a latex renderer.
 The \code{\link{renderer_verbatim}} implements a renderer that does 
 not do anything. 
 
-The \code{\link[xterm256]{renderer_xterm}} implements a renderer
-based on the 256 color mode of xterm suitable for rendering the 
-information in an xterm console.
+The \code{renderer_xterm} function in the \code{xterm256} package
+implements a renderer based on the 256 color mode of 
+xterm suitable for rendering the information in an xterm console.
 }
 \examples{
 \dontrun{
