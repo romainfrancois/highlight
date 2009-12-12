@@ -29,7 +29,7 @@ of the document.
 
 Because highlight does not use verbatim environments, the user
 of this driver can freely redefine the \samp{Hinput}, \samp{Houtput}
-and \samp{Hchuck} environments to achieve greater control
+and \samp{Hchunck} environments to achieve greater control
 of the output latex document than with the standard driver.
 }
 \value{
