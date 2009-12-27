@@ -17,6 +17,10 @@ highlight <- function( file, output = stdout(),
 	force( styles )
 	force( renderer )
 	
+	if( !inherits( parser.output, "parser")){
+		stop( "wrong data in `parser.output`, maybe you used parse instead of parser" )
+	}
+	
 	# only terminal symbols matter
 	data   <- subset( attr( parser.output, "data" ), terminal ) 
 	

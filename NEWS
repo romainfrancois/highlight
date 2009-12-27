@@ -1,4 +1,10 @@
 0.1-4	(under development)
+   o	Added an example of how to debug a renderer. Suggestion by 
+	Gabor Grothendieck)
+
+   o 	'highlight' now tests that parser.output is of class 'parser' to prevent
+	uses of the 'parse' function in place of 'parser'. Suggestion by
+	Hadley Wickham
 
 0.1-3	2009-11-22
    o 	all headers and footers now include line feeds
