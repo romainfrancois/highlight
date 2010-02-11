@@ -63,6 +63,7 @@ SEXP get_highlighted_text(
 					current_line.clear() ;
 				}
 				
+				/* heuristic to figure out if we should use a prompt or a continue prompt */
 				if( top_level[i] != top_level[i-1] ){
 					current_line += prompt ;
 				} else{
