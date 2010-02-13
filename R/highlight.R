@@ -22,7 +22,8 @@ highlight <- function( file, output = stdout(),
 	}
 	
 	# only terminal symbols matter
-	data   <- subset( attr( parser.output, "data" ), terminal ) 
+	data   <- attr( parser.output, "data" )
+	data   <- data[ data[["terminal"]], ] 
 	
 	# let the renderer do its thing
 	data$ftokens <- renderer$formatter(

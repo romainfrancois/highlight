@@ -1,10 +1,10 @@
 Package: highlight
 Type: Package
 Title: Syntax highlighter
-Version: 0.1-5
+Version: 0.1-6
 Date: 2010-02-13
-Author: Romain Francois <francoisromain@free.fr>
-Maintainer: Romain Francois <francoisromain@free.fr>
+Author: Romain Francois <romain@r-enthusiasts.com>
+Maintainer: Romain Francois <romain@r-enthusiasts.com>
 Description: Syntax highlighter for R code based 
 	on the results of the R parser. Rendering in HTML and latex 
 	markup. Custom sweave driver performing syntax highlighting 

@@ -13,7 +13,8 @@ dummy_detective <- function( x, ... ){
 #' simple detective
 simple_detective <- function( x, ...){
 	
-	desc   <- as.character( subset( attr( x, "data" ) , terminal )$token.desc )
+	data <- attr( x, "data" )
+	desc   <- as.character( data[ data[["terminal"]], "token.desc" ] )
 	styles <- character( length( desc ) )
 	
 	styles[ desc == "COMMENT"  ] <- "comment"

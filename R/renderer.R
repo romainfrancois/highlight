@@ -166,13 +166,14 @@ boxes_latex <- function( ){
 \\setbox\\hlboxsinglequote=\\hbox{\\verb.\'.}%
 \\setbox\\hlboxbacktick=\\hbox{\\verb.`.}%
 \\setbox\\hlboxhat=\\hbox{\\verb.^.}%
-\\def\\urltilda{\\kern -.15em\\lower .7ex\\hbox{\\~{}}\\kern .04em}
-\\newcommand{\\hlstd}[1]{\\textcolor[rgb]{0,0,0}{#1}}
+\\def\\urltilda{\\kern -.15em\\lower .7ex\\hbox{\\~{}}\\kern .04em}%
+\\newcommand{\\hlstd}[1]{\\textcolor[rgb]{0,0,0}{#1}}%
 '
 }
 
 header_latex <- function( document, styles, boxes ){
 	function( ){
+		txt <- "" ; rm( "txt", envir= environment() )
 		con <- textConnection( "txt", open = "w" )
 		add <- function( ... ){
 			cat( paste( ..., sep = "\n" ), file = con )
@@ -188,9 +189,9 @@ header_latex <- function( document, styles, boxes ){
 			add( boxes )
 			add( '\\begin{document}\n' )
 		}
-		add( '\\noindent','\\ttfamily', '\\hlstd{}' )
+		add( '\\ttfamily\\noindent' )
 		close( con )
-		paste( txt, "\n", sep = "" )
+		paste( txt, "\n\\hlstd{}", sep = "" )
 	}
 }
 

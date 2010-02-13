@@ -1,4 +1,12 @@
-0.1-4	(under development)
+0.1-6	2010-02-13
+
+   o	Fixed latex rendering (initial line of input and output) was
+   	indented
+   
+0.1-5	2010-02-13
+
+   o 	Fixed handling of prompts
+
    o	Added an example of how to debug a renderer. Suggestion by 
 	Gabor Grothendieck)
 
