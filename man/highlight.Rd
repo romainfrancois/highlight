@@ -57,9 +57,9 @@ feature is used by the sweave driver shipped with this package. See
 logical. Indicates if a newline character is added after all tokens.
 }
 \item{showPrompts}{if TRUE, the highlighted text will show standard and continue prompt}
-\item{prompt}{}
-\item{continue}{}
-\item{initial.spaces}{}
+\item{prompt}{standard prompt}
+\item{continue}{continue prompt}
+\item{initial.spaces}{should initial spaces be displayed or skipped. }
   \item{\dots}{
 additional arguments, currently ignored. 
 }
