@@ -1,3 +1,8 @@
+0.1-8	2010-02-17
+
+   o	use Rscript --vanilla when retrieving Rcpp flags to avoid 
+   	user configuration to get in the way. (reported by Jan de Leuuw)
+
 0.1-6	2010-02-13
 
    o	Fixed latex rendering (initial line of input and output) was
