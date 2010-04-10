@@ -23,4 +23,5 @@ exportPattern( "_html$" )
 exportPattern( "_verbatim$" )
 
 export( HighlightWeaveLatex )
+export( highlight.httpd.handler )
 

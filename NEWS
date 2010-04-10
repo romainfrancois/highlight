@@ -2,6 +2,10 @@
 
    o	use Rscript --vanilla when retrieving Rcpp flags to avoid 
    	user configuration to get in the way. (reported by Jan de Leuuw)
+   	
+   o	custom http handler to handle http request of the prefix
+   /custom/highlight/fun or /custom/highlight/package/fun 
+   (only works with R > 2.11.0 )
 
 0.1-6	2010-02-13
 
