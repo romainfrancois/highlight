@@ -2,23 +2,25 @@
 
 using namespace Rcpp; 
 
-SEXP get_highlighted_text( 
-	SEXP data_, SEXP startline, SEXP endline, 
-	SEXP space_, SEXP newline_, 
-	SEXP prompt_, SEXP continuePrompt_, 
-	SEXP initialspaces ){
+/** 
+ * get the highlighted text as a character vector
+ *
+ * @param data result from parser (data frame)
+ * @param startline the first line
+ * @param space_ what to write instead of a space
+ * @param newline_ what to write instead of a newline
+ * @param prompt_ the command prompt
+ * @param continuePrompt_ the continue prompt
+ * @param initialspaces
+ */
+RCPP_FUNCTION_8(CharacterVector,get_highlighted_text, 
+	List data, int start, int end, std::string space, std::string newline, 
+	std::string prompt, std::string continuePrompt, bool initial_spaces ){
 	
 	/* the current line */
 	std::string current_line ;
 	current_line.reserve( 512 ) ; /* should be more than enough */
 	
-	/* various constants */
-	std::string newline        = as<std::string>( newline_       ) ;
-	std::string space          = as<std::string>( space_         ) ;
-	std::string prompt         = as<std::string>( prompt_        ) ;
-	std::string continuePrompt = as<std::string>( continuePrompt_) ;
-	
-	List data(data_) ;
 	IntegerVector line1      = data["line1"]; 
 	IntegerVector line2      = data["line2"]; 
 	IntegerVector col1       = data["col1"]; 
@@ -28,10 +30,6 @@ SEXP get_highlighted_text(
 	IntegerVector token_type = data["token"];
 	IntegerVector top_level   = data["top_level"];
 	CharacterVector tokens   = data["ftokens"]  ;
-	
-	/* first line, last line */
-	int start = as<int>(startline) ;
-	int end   = as<int>(endline  ) ;
 	
 	CharacterVector res(end-start+1) ; int index=0 ;
 	
@@ -44,7 +42,6 @@ SEXP get_highlighted_text(
 	int nspaces = 0 ;
 	
 	bool initial = true ; 
-	bool initial_spaces = as<bool>(initialspaces) ;
 	                        
 	current_line = prompt ;
 	
