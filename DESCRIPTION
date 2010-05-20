@@ -9,7 +9,7 @@ Description: Syntax highlighter for R code based
 	on the results of the R parser. Rendering in HTML and latex 
 	markup. Custom sweave driver performing syntax highlighting 
 	of R code chunks
-License: GPL (>= 3.0)
-Depends: R (>= 2.10.0), tools, codetools, utils, parser (>= 0.0-9), Rcpp (>= 0.7.12.7)
+License: GPL (>= 2)
+Depends: R (>= 2.11.0), tools, codetools, utils, parser (>= 0.0-9), Rcpp (>= 0.8.0)
 LinkingTo: Rcpp
 URL: http://r-forge.r-project.org/projects/highlight/, http://romainfrancois.blog.free.fr/index.php?category/R-package/highlight

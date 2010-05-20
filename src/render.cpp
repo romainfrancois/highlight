@@ -14,7 +14,7 @@ using namespace Rcpp;
  * @param initialspaces
  */
 RCPP_FUNCTION_8(CharacterVector,get_highlighted_text, 
-	List data, int start, int end, std::string space, std::string newline, 
+	DataFrame data, int start, int end, std::string space, std::string newline, 
 	std::string prompt, std::string continuePrompt, bool initial_spaces ){
 	
 	/* the current line */
