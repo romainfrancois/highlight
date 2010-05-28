@@ -29,7 +29,7 @@ a vector of latex style definitions corresponding to (a subset of) the
 output of the parser
 }
 \author{
-Romain Francois <francoisromain@free.fr>
+Romain Francois <romain@r-enthusiasts.com>
 }
 \seealso{
 \code{\link{styler}}

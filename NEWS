@@ -1,3 +1,11 @@
+0.1-9	2010-05-28
+
+   o	the latex renderer header added useless information
+   
+   o	The latex renderer gains a "minipage" argument that is passed
+   down to header and footer to include the resulting highlighted code
+   in a minipage environment
+
 0.1-8	2010-05-20
 
    o	custom http handler to handle http request of the prefix
@@ -13,7 +21,7 @@
    o 	Fixed handling of prompts
 
    o	Added an example of how to debug a renderer. Suggestion by 
-	Gabor Grothendieck)
+	Gabor Grothendieck
 
    o 	'highlight' now tests that parser.output is of class 'parser' to prevent
 	uses of the 'parse' function in place of 'parser'. Suggestion by

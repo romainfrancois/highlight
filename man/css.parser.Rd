@@ -27,7 +27,7 @@ lines of text to parse, read from \samp{file} by default
 	\url{http://www.w3schools.com/css/css_colors.asp}
 }
 \author{
-Romain Francois <francoisromain@free.fr>
+Romain Francois <romain@r-enthusiasts.com>
 }
 \note{
 	The parser is very minimal and will only identify CSS declarations like

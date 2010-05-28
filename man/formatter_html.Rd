@@ -26,7 +26,7 @@ ignored
 A vector of span tags
 }
 \author{
-Romain Francois <francoisromain@free.fr>
+Romain Francois <romain@r-enthusiasts.com>
 }
 \seealso{
 \code{\link{renderer_html}}

@@ -75,7 +75,7 @@ The resulting formatted text is returned invisibly. It is also
 written to the output if the output is not \code{NULL}
 }
 \author{
-Romain Francois <francoisromain@free.fr>
+Romain Francois <romain@r-enthusiasts.com>
 }
 \seealso{
 	\code{\link{renderer_html}} and \code{\link{renderer_latex}} are the

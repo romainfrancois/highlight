@@ -18,7 +18,7 @@ A character vector containing latex definitions for boxes
 used by the latex renderer
 }
 \author{
-Romain Francois <francoisromain@free.fr>
+Romain Francois <romain@r-enthusiasts.com>
 }
 \seealso{
 \code{\link{translator_latex}} translates text into markup that 

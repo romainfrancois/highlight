@@ -171,7 +171,7 @@ boxes_latex <- function( ){
 '
 }
 
-header_latex <- function( document, styles, boxes ){
+header_latex <- function( document, styles, boxes, minipage = FALSE ){
 	function( ){
 		txt <- "" ; rm( "txt", envir= environment() )
 		con <- textConnection( "txt", open = "w" )
@@ -189,17 +189,25 @@ header_latex <- function( document, styles, boxes ){
 			add( boxes )
 			add( '\\begin{document}\n' )
 		}
+		if( isTRUE(minipage) ){
+			add( "\\vspace{1em}\\noindent\\fbox{\\begin{minipage}{0.9\\textwidth}" )
+		}
 		add( '\\ttfamily\\noindent' )
 		close( con )
-		paste( txt, "\n\\hlstd{}", sep = "" )
+		paste( txt, "\n", sep = "" )
 	}
 }
 
-footer_latex <- function( document ){
+footer_latex <- function( document, minipage = FALSE ){
+	extra <- if(isTRUE(minipage)) "\\end{minipage}}\\vspace{1em}" else ""
 	if( document ) {
-		function() "\\mbox{}\n\\normalfont\n\\end{document}\n"
+		function() {
+			sprintf( "\\mbox{}\n\\normalfont\n%s\\end{document}\n", extra )
+		}
 	} else{
-		function() "\\mbox{}\n\\normalfont\n"
+		function() {
+			sprintf( "\\mbox{}\n\\normalfont\n%s", extra )
+		}
 	}
 }
 
@@ -248,8 +256,9 @@ renderer_latex <- function( document = TRUE,
 	formatter = formatter_latex, space = space_latex, newline = newline_latex, 
 	stylesheet = "default", 
 	styles = styler( stylesheet, "sty", styler_assistant_latex ), 
-	header = header_latex( document, styles = styles, boxes = boxes ), 
-	footer = footer_latex( document) , 
+	header = header_latex( document, styles = styles, boxes = boxes, minipage = minipage ), 
+	footer = footer_latex( document, minipage = minipage) , 
+	minipage = FALSE, 
 	... ){
 	force( document )
 	force( boxes )

@@ -26,7 +26,7 @@ a vector of styles grouping similar tokens together
 \note{the \samp{"default"} stylesheet is well suited to work with this detective}
 
 \author{
-Romain Francois <francoisromain@free.fr>
+Romain Francois <romain@r-enthusiasts.com>
 }
 \seealso{
 \code{\link{dummy_detective}}

@@ -25,7 +25,7 @@ An empty character vector of the appropriate length, corresponding
 to the number of tokens to render.
 }
 \author{
-Romain Francois <francoisromain@free.fr>
+Romain Francois <romain@r-enthusiasts.com>
 }
 \note{
 This is mostly here to illustrate the simplest possible detective

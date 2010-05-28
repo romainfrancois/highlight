@@ -62,7 +62,7 @@ Additional ignored arguments.
 A \samp{renderer} object.
 }
 \author{
-Romain Francois <francoisromain@free.fr>
+Romain Francois <romain@r-enthusiasts.com>
 }
 \examples{
 \dontrun{

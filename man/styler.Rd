@@ -40,7 +40,7 @@ a character vector containing style declarations in the target
 language
 }
 \author{
-Romain Francois <francoisromain@free.fr>
+Romain Francois <romain@r-enthusiasts.com>
 }
 \seealso{
 \code{\link{styler_assistant_latex}} gives a concrete implementation

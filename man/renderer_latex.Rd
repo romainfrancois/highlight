@@ -17,8 +17,9 @@ renderer_latex(document = TRUE, boxes = boxes_latex(),
 	space = space_latex, newline = newline_latex, 
 	stylesheet = "default", 
 	styles = styler(stylesheet, "sty", styler_assistant_latex), 
-	header = header_latex(document, styles = styles, boxes = boxes), 
-	footer = footer_latex(document), ...)
+	header = header_latex(document, styles = styles, boxes = boxes, minipage = minipage), 
+	footer = footer_latex(document, minipage = minipage), 
+	minipage = FALSE, ...)
 newline_latex()
 space_latex()
 }
@@ -69,6 +70,9 @@ returns the footer. Depending on the document argument, either a minimal
 footer is produced (turning off alltt) or the full latex 
 document is closed.
 }
+\item{minipage}{
+if TRUE, the highlighted latex is included in a minipage environment
+}
   \item{\dots}{
 Additional arguments
 }
@@ -78,7 +82,7 @@ a \samp{renderer} object, suitable for the \samp{renderer} argument of
 \code{\link{highlight}}. 
 }
 \author{
-Romain Francois <francoisromain@free.fr>
+Romain Francois <romain@r-enthusiasts.com>
 }
 \seealso{
 	the sweave driver \code{\link{HighlightWeaveLatex}} makes

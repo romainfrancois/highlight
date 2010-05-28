@@ -10,7 +10,8 @@ These functions return appropriate header and footer functions
 for the latex renderer
 }
 \usage{
-header_latex(document, styles, boxes)
+header_latex(document, styles, boxes, minipage = FALSE)
+footer_latex(document, minipage = FALSE)
 }
 \arguments{
   \item{document}{
@@ -23,13 +24,17 @@ a vector of style definitions to include in the preamble if document is TRUE
   \item{boxes}{
 a vector of boxes definitions to include in the preamble if document is TRUE
 }
+\item{minipage}{
+if TRUE, the highlighted latex is included in a minipage environment
+}
+
 }
 \value{
 A function is returned, suitable for the header or footer argument
 of the latex renderer
 }
 \author{
-Romain Francois <francoisromain@free.fr>
+Romain Francois <romain@r-enthusiasts.com>
 }
 \seealso{
 \code{\link{renderer_latex}}

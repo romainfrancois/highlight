@@ -25,7 +25,7 @@ ignored
 A vector of latex commands
 }
 \author{
-Romain Francois <francoisromain@free.fr>
+Romain Francois <romain@r-enthusiasts.com>
 }
 \seealso{
 \code{\link{renderer_latex}}

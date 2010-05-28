@@ -20,7 +20,7 @@ text to translate
 translated text
 }
 \author{
-Romain Francois <francoisromain@free.fr>
+Romain Francois <romain@r-enthusiasts.com>
 }
 \seealso{
 	the latex renderer: \code{\link{renderer_latex}} uses

@@ -43,7 +43,7 @@ editors, Compstat 2002 - Proceedings in Computational Statistics, pages 575-580.
 Physica Verlag, Heidelberg, 2002. ISBN 3-7908-1517-9
 }
 \author{
-Romain Francois <francoisromain@free.fr>
+Romain Francois <romain@r-enthusiasts.com>
 }
 \seealso{
 the standard sweave latex driver: \code{\link{RweaveLatex}}

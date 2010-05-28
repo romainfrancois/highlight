@@ -29,7 +29,7 @@ of the installed package.
 The first file found is returned. If no file is found, the function returns NULL.
 }
 \author{
-Romain Francois <francoisromain@free.fr>
+Romain Francois <romain@r-enthusiasts.com>
 }
 \examples{
 \dontrun{

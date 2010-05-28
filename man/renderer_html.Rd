@@ -73,7 +73,7 @@ Additional arguments. unused.
 	of \code{\link{highlight}}
 }
 \author{
-Romain Francois <francoisromain@free.fr>
+Romain Francois <romain@r-enthusiasts.com>
 }
 \seealso{
 	\code{\link{renderer}} for a description of the interface

@@ -29,7 +29,7 @@ on where the stylesheet can be located.
 header and footer functions.
 }
 \author{
-Romain Francois <francoisromain@free.fr>
+Romain Francois <romain@r-enthusiasts.com>
 }
 \seealso{
 \code{\link{renderer_html}} uses these functions to create a renderer
