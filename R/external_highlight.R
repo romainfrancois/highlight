@@ -3,7 +3,7 @@ private <- new.env()
 
 .findExternalHighlight <- function(){
 	
-	cmd <- system( "highlight --version")
+	cmd <- "highlight --version"
 	tryCatch( {
 		system( cmd, intern = TRUE )
 		private[["has_highlight"]] <- TRUE

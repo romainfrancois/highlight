@@ -167,7 +167,21 @@ boxes_latex <- function( ){
 \\setbox\\hlboxbacktick=\\hbox{\\verb.`.}%
 \\setbox\\hlboxhat=\\hbox{\\verb.^.}%
 \\def\\urltilda{\\kern -.15em\\lower .7ex\\hbox{\\~{}}\\kern .04em}%
+
 \\newcommand{\\hlstd}[1]{\\textcolor[rgb]{0,0,0}{#1}}%
+\\newcommand{\\hlnum}[1]{\\textcolor[rgb]{0.16,0.16,1}{#1}}
+\\newcommand{\\hlesc}[1]{\\textcolor[rgb]{1,0,1}{#1}}
+\\newcommand{\\hlstr}[1]{\\textcolor[rgb]{1,0,0}{#1}}
+\\newcommand{\\hldstr}[1]{\\textcolor[rgb]{0.51,0.51,0}{#1}}
+\\newcommand{\\hlslc}[1]{\\textcolor[rgb]{0.51,0.51,0.51}{\\it{#1}}}
+\\newcommand{\\hlcom}[1]{\\textcolor[rgb]{0.51,0.51,0.51}{\\it{#1}}}
+\\newcommand{\\hldir}[1]{\\textcolor[rgb]{0,0.51,0}{#1}}
+\\newcommand{\\hlsym}[1]{\\textcolor[rgb]{0,0,0}{#1}}
+\\newcommand{\\hlline}[1]{\\textcolor[rgb]{0.33,0.33,0.33}{#1}}
+\\newcommand{\\hlkwa}[1]{\\textcolor[rgb]{0,0,0}{\\bf{#1}}}
+\\newcommand{\\hlkwb}[1]{\\textcolor[rgb]{0.51,0,0}{#1}}
+\\newcommand{\\hlkwc}[1]{\\textcolor[rgb]{0,0,0}{\\bf{#1}}}
+\\newcommand{\\hlkwd}[1]{\\textcolor[rgb]{0,0,0.51}{#1}}
 '
 }
 
