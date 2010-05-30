@@ -26,6 +26,9 @@ makeHighlightWeaveLatexCodeRunner <- function(evalFunc=RweaveEvalWithOpt) {
     HighlightWeaveLatexRuncode <- function(object, chunk, options) {
       	  
       	  if( "lang" %in% names(options)){
+      	  	  if( ! isTRUE( private[["has_highlight"]] ) ){
+      	  	  	  stop( "command line highlight was not found" )
+      	  	  }
       	  	  tf <- sprintf( "%s.%s", tempfile(), options$lang )
       	  	  writeLines( chunk, tf )
       	  	  tf2 <- tempfile()
