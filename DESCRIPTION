@@ -1,7 +1,7 @@
 Package: highlight
 Type: Package
 Title: Syntax highlighter
-Version: 0.1-9
+Version: 0.2.0
 Date: 2010-05-28
 Author: Romain Francois
 Maintainer: Romain Francois <romain@r-enthusiasts.com>
