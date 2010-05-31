@@ -40,7 +40,6 @@ highlight <- function( file, output = stdout(),
 	} else{
 		startline <- 1L
 	}
-	print( data )
 	# paste everything together in C (for efficiency)
 	highlighted_text <- c( if( !is.null(renderer$header) ) renderer$header(), 
 		.Call( "get_highlighted_text", 
