@@ -1,4 +1,8 @@
 
+latex_color <- function( name = col, col  = "white"){
+	sprintf( "\\definecolor{%s}{rgb}{%s}", name, paste(as.vector(col2rgb(col))/255, collapse = "," ) )
+}
+
 HighlightWeaveLatexCheckOps <- function(options){
 	if( "lang" %in% names(options) ){
 		options
@@ -8,17 +12,23 @@ HighlightWeaveLatexCheckOps <- function(options){
 }
 
 # {{{ HighlightWeaveLatex: driver
-HighlightWeaveLatex <- function() {
-    list(setup      = RweaveLatexSetup,
-         runcode    = HighlightWeaveLatexRuncode,
-         writedoc   = HighlightWeaveLatexWritedoc,
+HighlightWeaveLatex <- function(boxes=FALSE, bg = rgb( 0.95,0.95,0.95, max = 1 ), border = "black", 
+	highlight.options = list( boxes = boxes, bg = bg, border = border )
+) {
+	list(setup      = RweaveLatexSetup,
+         runcode    = makeHighlightWeaveLatexCodeRunner( 
+         	evalFunc=RweaveEvalWithOpt, highlight.options = options 
+         ) ,
+         writedoc   = makeHighlightWeaveLatex_WriteDoc(
+         	highlight.options = highlight.options
+         ),
          finish     = RweaveLatexFinish,
          checkopts  = HighlightWeaveLatexCheckOps )
 }
 # }}}
 
 # {{{ makeHighlightWeaveLatexCodeRunner
-makeHighlightWeaveLatexCodeRunner <- function(evalFunc=RweaveEvalWithOpt) {
+makeHighlightWeaveLatexCodeRunner <- function(evalFunc=RweaveEvalWithOpt, highlight.options) {
 	
     ## Return a function suitable as the 'runcode' element
     ## of an Sweave driver.  evalFunc will be used for the
@@ -297,12 +307,11 @@ makeHighlightWeaveLatexCodeRunner <- function(evalFunc=RweaveEvalWithOpt) {
       }
     HighlightWeaveLatexRuncode
 }
- 
-
-HighlightWeaveLatexRuncode <- makeHighlightWeaveLatexCodeRunner()
 # }}} 
 
 # {{{ HighlightWeaveLatexWritedoc
+makeHighlightWeaveLatex_WriteDoc <- function( highlight.options ){
+	
 HighlightWeaveLatexWritedoc <- function(object, chunk) {
 	
 	linesout <- attr(chunk, "srclines")
@@ -320,7 +329,34 @@ HighlightWeaveLatexWritedoc <- function(object, chunk) {
 		chunk[ where.sweave ] <- paste( "" )
 	}
 	
-	environments <- 
+	environments <- if( highlight.options[["boxes"]] ){                                     
+sprintf( 
+'
+\\usepackage{color}%%
+%s
+%s
+\\newenvironment{Hinput}%%
+{}%%
+{}%%
+\\newenvironment{Houtput}%%
+{}%%
+{}%%
+\\newsavebox{\\highlightbox}%%
+\\newenvironment{Hchunk}%%
+{%%
+\\vspace{0.5em}\\noindent\\begin{lrbox}{\\highlightbox}%%
+\\begin{minipage}[b]{.9\\textwidth}%%
+}%%
+{%%
+\\end{minipage}%%
+\\end{lrbox}%%
+\\fcolorbox{highlightBorder}{highlightBg}{\\usebox{\\highlightbox}}%%
+\\vspace{0.5em}}%%
+', 
+latex_color("highlightBg", highlight.options$bg ), 
+latex_color("highlightBorder", highlight.options$border )
+)
+	} else {
 '\\newenvironment{Hinput}%
 {}%
 {}%
@@ -330,6 +366,8 @@ HighlightWeaveLatexWritedoc <- function(object, chunk) {
 \\newenvironment{Hchunk}%
 {\\vspace{0.5em}\\par\\begin{flushleft}}%
 {\\end{flushleft}}%'
+	}
+
 	documentclass <- "\\\\documentclass.*$"
  	which <- grep( documentclass, chunk )
 	
@@ -385,6 +423,7 @@ HighlightWeaveLatexWritedoc <- function(object, chunk) {
 
     return(object)
 }
-
+HighlightWeaveLatexWritedoc
+}
 # :tabSize=4:indentSize=4:noTabs=false:folding=explicit:collapseFolds=1:
 
