@@ -172,7 +172,7 @@ makeHighlightWeaveLatexCodeRunner <- function(evalFunc=RweaveEvalWithOpt, highli
 		 					expr = nce, 
 		 					renderer = renderer, 
 							final.newline = FALSE, 
-							showPrompts = if( !is.null(showPrompts) ) isTRUE(showPrompts) else FALSE , 
+							showPrompts = if( !is.null(showPrompts) ) isTRUE(showPrompts) else TRUE , 
 							initial.spaces = FALSE )
 						cat("\n\\end{Hinput}\n", file=chunkout, append=TRUE)
 	                   
