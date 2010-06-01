@@ -10,8 +10,19 @@ Sweave driver using the highlight latex renderer to perform syntax
 highlighting of input R code in sweave chunks.
 }
 \usage{
-HighlightWeaveLatex()
+HighlightWeaveLatex(
+	boxes=FALSE, bg = rgb( 0.95,0.95,0.95, max = 1 ), border = "black", 
+	highlight.options = list( boxes = boxes, bg = bg, border = border ) )
 }
+\arguments{
+  \item{boxes}{if \code{TRUE}, code blocks are wrapped in boxes. }
+  \item{bg}{background color for code boxes. }
+  \item{border}{color to use for the border of code boxes. }
+  \item{highlight.options}{Can be used instead of the other arguments to 
+  	  set the \code{boxes}, \code{bg} and \code{border} settings.
+  }
+}
+
 \details{
 This sweave driver is very similar to standard driver that is 
 included in \samp{utils}. The difference is that input R code and 
@@ -29,7 +40,7 @@ of the document.
 
 Because highlight does not use verbatim environments, the user
 of this driver can freely redefine the \samp{Hinput}, \samp{Houtput}
-and \samp{Hchunck} environments to achieve greater control
+and \samp{Hchunk} environments to achieve greater control
 of the output latex document than with the standard driver.
 }
 \value{

@@ -36,21 +36,24 @@ makeHighlightWeaveLatexCodeRunner <- function(evalFunc=RweaveEvalWithOpt, highli
     HighlightWeaveLatexRuncode <- function(object, chunk, options) {
       	  
       	  if( "lang" %in% names(options)){
-      	  	  if( ! isTRUE( private[["has_highlight"]] ) ){
-      	  	  	  stop( "command line highlight was not found" )
-      	  	  }
-      	  	  tf <- sprintf( "%s.%s", tempfile(), options$lang )
-      	  	  writeLines( chunk, tf )
-      	  	  tf2 <- tempfile()
-      	  	  cmd <- sprintf( 'highlight --input="%s" --output="%s" -L --pretty-symbols', tf, tf2 )
-      	  	  system( cmd )
-      	  	  tex <- readLines(tf2) 
-      	  	  keep <- seq( which( tex == "\\noindent" ), which( tex == "\\normalfont" ) )
-			  tex <- c( 
-			  	"\\vspace{1em}\\noindent\\fbox{\\begin{minipage}{0.9\\textwidth}" , 
-			  	tex[ keep ],
-			  	"\\end{minipage}}\\vspace{1em}" )
-              writeLines( tex, object$output )
+      	  	  if( isTRUE( private[["has_highlight"]] )){
+      	  	  	  tf <- sprintf( "%s.%s", tempfile(), options$lang )
+      	  	  		writeLines( chunk, tf )
+      	  	  		tf2 <- tempfile()
+      	  	  		cmd <- sprintf( 'highlight --input="%s" --output="%s" -L --pretty-symbols', tf, tf2 )
+      	  	  		system( cmd )
+      	  	  		tex <- readLines(tf2) 
+      	  	  		keep <- seq( which( tex == "\\noindent" ), which( tex == "\\normalfont" ) )
+			  		tex <- c( 
+			  			"\\vspace{1em}\\noindent\\fbox{\\begin{minipage}{0.9\\textwidth}" , 
+			  			tex[ keep ],
+			  			"\\end{minipage}}\\vspace{1em}" )
+              		writeLines( tex, object$output )
+              } else {
+              	  writeLines( "\\begin{verbatim}", object$output )
+              	  writeLines( chunk, object$output )
+              	  writeLines( "\\end{verbatim}", object$output )
+              }                                     
       	  	  return(object)
       	  } else { 
       	  
@@ -162,13 +165,14 @@ makeHighlightWeaveLatexCodeRunner <- function(evalFunc=RweaveEvalWithOpt, highli
 						cat("\\begin{Hinput}",
 							file=chunkout, append=TRUE)
 						cat("\n", file = chunkout, append = TRUE )
+						showPrompts <- options$prompt
 						highlight( output = chunkout, 
 		 					parser.output = parser.output, 
 		 					styles = styles, 
 		 					expr = nce, 
 		 					renderer = renderer, 
 							final.newline = FALSE, 
-							showPrompts = TRUE, 
+							showPrompts = if( !is.null(showPrompts) ) isTRUE(showPrompts) else FALSE , 
 							initial.spaces = FALSE )
 						cat("\n\\end{Hinput}\n", file=chunkout, append=TRUE)
 	                   
