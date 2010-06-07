@@ -13,7 +13,7 @@ Syntax highlighter for R based on output from the R parser
 Package: \tab highlight\cr
 Type: \tab Package\cr
 Version: \tab 0.2-1\cr
-Date: \tab 2010-05-31\cr
+Date: \tab 2010-06-04\cr
 License: \tab GPL (>= 2)\cr
 LazyLoad: \tab yes\cr
 }

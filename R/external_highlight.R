@@ -2,6 +2,8 @@
 private <- new.env()
 
 .findExternalHighlight <- function(){
-	private[["has_highlight"]] <- Sys.which( "highlight" ) != ""
+	highlight_cmd <- Sys.which( "highlight" )
+	private[["has_highlight"]] <- highlight_cmd != ""
+	private[["highlight"]] <- highlight_cmd
 }
 

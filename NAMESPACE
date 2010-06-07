@@ -1,4 +1,7 @@
-useDynLib( highlight )
+DLL <- useDynLib( highlight )
+
+importClassesFrom( Rcpp, "C++ObjectS3", "C++Object", "C++Class", "Module" )
+importFrom( Rcpp, Module )
 
 import( parser )
 import( codetools )
