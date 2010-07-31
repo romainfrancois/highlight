@@ -2,7 +2,7 @@ Package: highlight
 Type: Package
 Title: Syntax highlighter
 Version: 0.2-2
-Date: 2010-06-04
+Date: 2010-07-31
 Author: Romain Francois
 Maintainer: Romain Francois <romain@r-enthusiasts.com>
 Description: Syntax highlighter for R code based 
