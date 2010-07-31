@@ -19,7 +19,7 @@ renderer_verbatim(translator = translator_verbatim,
 	formatter = formatter_verbatim, space = space_verbatim, 
 	newline = newline_verbatim, header = header_verbatim, 
 	footer = footer_verbatim, ...)
-translator_verbatim(x)
+translator_verbatim(x, size)
 formatter_verbatim( tokens, styles, ...)
 space_verbatim()
 newline_verbatim()
@@ -57,6 +57,7 @@ Additional ignored arguments.
 \item{styles}{
 	The styles to use to format the tokens. They are not used
 }
+\item{size}{font size. ignored}
 }
 \value{
 A \samp{renderer} object.

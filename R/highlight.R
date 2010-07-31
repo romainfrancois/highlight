@@ -9,9 +9,11 @@ highlight <- function( file, output = stdout(),
 	showPrompts = FALSE, 
 	prompt = getOption( "prompt" ) , 
 	continue = getOption( "continue"), 
-	initial.spaces = TRUE, 
+	initial.spaces = TRUE,
+	size = NULL,
 	... ){
-	   
+	  
+	size <- match.arg( size )
 	# forcing the arguments in a certain order
 	force( parser.output )
 	force( styles )
@@ -27,7 +29,7 @@ highlight <- function( file, output = stdout(),
 	
 	# let the renderer do its thing
 	data$ftokens <- renderer$formatter(
-		tokens = renderer$translator( as.character( data[, "text"] ) ), 
+		tokens = renderer$translator( as.character( data[, "text"] ), size = size ), 
 		styles = styles )
 	
 	# useful to only render a given expression and not all of them.
@@ -40,7 +42,7 @@ highlight <- function( file, output = stdout(),
 	} else{
 		startline <- 1L
 	}
-	# paste everything together in C (for efficiency)
+	# paste everything together in C++ using Rcpp
 	highlighted_text <- c( if( !is.null(renderer$header) ) renderer$header(), 
 		.Call( "get_highlighted_text", 
 			data, 
@@ -60,6 +62,9 @@ highlight <- function( file, output = stdout(),
 	}
 	invisible( highlighted_text )
 }
+fm <- formals(highlight)
+fm[[ which( names(fm) == "size") ]] <- LATEX_SIZES
+formals( highlight ) <- fm
 
 # :tabSize=4:indentSize=4:noTabs=false:folding=explicit:collapseFolds=1:
 

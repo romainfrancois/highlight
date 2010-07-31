@@ -1,7 +1,13 @@
-0.2-1	(under development)
+0.2-2	(future)
+
+   o	sweave blocks now respond to the size option, as in :
+   		<<size=footnotesize>>=
+   		and adapts the generated latex code accordingly
+
+0.2-1	2010-06-04
 
    o	sweave code chunks can set prompt=FALSE to remove the prompt and continue
-   		prompt. <<eval=FALSE,prompt=FALSE>>= 
+   		prompt. <<eval=FALSE,prompt=FALSE>>=
 
 0.2-0	2010-05-31
 

@@ -7,7 +7,9 @@ HighlightWeaveLatexCheckOps <- function(options){
 	if( "lang" %in% names(options) ){
 		options
 	} else {
-		RweaveLatexOptions( options )
+		if( "size" %in% names(options) ) {
+			append( RweaveLatexOptions( options[ - which( names(options) == "size" ) ] ), list( size = options$size ) ) 
+		} else RweaveLatexOptions( options )
 	}
 }
 
@@ -42,7 +44,9 @@ makeHighlightWeaveLatexCodeRunner <- function(evalFunc=RweaveEvalWithOpt, highli
       	  	  		tf2 <- tempfile()
       	  	  		cmd <- sprintf( '%s --input="%s" --output="%s" -L --pretty-symbols', shQuote(private[["highlight"]]), tf, tf2 )
       	  	  		system( cmd )
-      	  	  		tex <- readLines(tf2) 
+      	  	  		tex <- readLines(tf2)
+      	  	  		size <- if( "size" %in% names(options) ) LATEX_SIZES[ pmatch( options$size, LATEX_SIZES) ] else "normalsize"
+      	  	  		tex <- gsub( "hlbox", sprintf( "hl%sbox", size ), tex, fixed = TRUE ) 
       	  	  		keep <- seq( which( tex == "\\noindent" ), which( tex == "\\normalfont" ) )
 			  		tex <- c( 
 			  			"\\vspace{1em}\\noindent\\fbox{\\begin{minipage}{0.9\\textwidth}" , 
@@ -166,6 +170,7 @@ makeHighlightWeaveLatexCodeRunner <- function(evalFunc=RweaveEvalWithOpt, highli
 							file=chunkout, append=TRUE)
 						cat("\n", file = chunkout, append = TRUE )
 						showPrompts <- options$prompt
+						size <- if( "size" %in% names(options) ) options$size else "normalsize"
 						highlight( output = chunkout, 
 		 					parser.output = parser.output, 
 		 					styles = styles, 
@@ -173,7 +178,8 @@ makeHighlightWeaveLatexCodeRunner <- function(evalFunc=RweaveEvalWithOpt, highli
 		 					renderer = renderer, 
 							final.newline = FALSE, 
 							showPrompts = if( !is.null(showPrompts) ) isTRUE(showPrompts) else TRUE , 
-							initial.spaces = FALSE )
+							initial.spaces = FALSE, 
+							size = size )
 						cat("\n\\end{Hinput}\n", file=chunkout, append=TRUE)
 	                   
 						linesout[thisline + 1L:length(dce)] <- srcline

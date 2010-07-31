@@ -10,7 +10,6 @@ void set_data_path( const std::string& path ){
 	dataPath = path ;
 }
 
-
 RCPP_MODULE(highlight){
 	function( "set_data_path", &set_data_path ) ;
 }

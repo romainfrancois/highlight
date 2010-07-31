@@ -9,12 +9,13 @@ This function translates character vectors so that they nicely print
 in LaTeX. In particular this uses latex boxes.
 }
 \usage{
-translator_latex(x)
+translator_latex(x, size = c("normalsize", "tiny", "scriptsize", 
+    "footnotesize", "small", "large", "Large", "LARGE", "huge", 
+    "Huge") )
 }
 \arguments{
-  \item{x}{
-text to translate
-}
+\item{x}{text to translate}
+\item{size}{font size}
 }
 \value{
 translated text

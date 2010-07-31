@@ -17,7 +17,7 @@ renderer_html(document = TRUE, translator = translator_html,
 	newline = newline_html, header = header_html(document, stylesheet), 
 	footer = footer_html(document), 
 	stylesheet = "default" , ...)
-translator_html( x )
+translator_html( x, size )
 space_html()
 newline_html()
 }
@@ -64,6 +64,7 @@ on where the stylesheet can be located
 \item{x}{
 	argument to the translator. Returned as is.
 }
+\item{size}{font size. ignored}
   \item{\dots}{
 Additional arguments. unused.
 }

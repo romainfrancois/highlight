@@ -14,7 +14,11 @@ highlight(file, output = stdout(), detective = simple_detective, renderer,
 	encoding = "unknown", parser.output = parser(file, encoding = encoding), 
 	styles = detective(parser.output), expr = NULL, final.newline = FALSE, 
 	showPrompts = FALSE, prompt = getOption("prompt"), continue = getOption("continue"), 
-	initial.spaces = TRUE, ...)
+	initial.spaces = TRUE, 
+	size = c("normalsize", "tiny", "scriptsize", 
+    "footnotesize", "small", "large", "Large", "LARGE", "huge", 
+    "Huge"), 
+    ...)
 }
 \arguments{
   \item{file}{
@@ -60,7 +64,8 @@ logical. Indicates if a newline character is added after all tokens.
 \item{prompt}{standard prompt}
 \item{continue}{continue prompt}
 \item{initial.spaces}{should initial spaces be displayed or skipped. }
-  \item{\dots}{
+\item{size}{font size. only respected by the latex renderer so far. }
+\item{\dots}{
 additional arguments, currently ignored. 
 }
 }

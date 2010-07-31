@@ -34,7 +34,7 @@ formatter_html <- function( tokens, styles, ... ){
 		) 
 }
 
-translator_html <- function( x ){
+translator_html <- function( x, size ){
 	x
 }
 
@@ -91,39 +91,46 @@ formatter_latex <- function( tokens, styles, ... ){
 		) 
 }
 
-translator_latex <- function( x ){
-	s <- function( rx, rep ){
-		x <<- gsub( rx, rep, x, fixed = TRUE )
+.translator_latex_maker <- function(){
+	f <- function( x, size = LATEX_SIZES ){
+		size <- match.arg( size )
+		s <- function( rx, rep ){
+			x <<- gsub( rx, rep, x, fixed = TRUE )
+			x <<- gsub( "hlbox", sprintf( "hl%sbox", size ), x, fixed = TRUE )
+		}
+		# replacement contain open and close braces and backslash
+		# so we use this trick
+		
+		# this wrap is used so that the replacement are not shown in this
+		# file, so that it can be rendered as well
+		wrap <- function( x ) {
+			sprintf( "%s%s%s", paste(rep("@", 3), collapse=""), x, paste(rep("@", 3), collapse="") )
+		}
+		s( "\\", wrap("bs") )
+		s( "{" , wrap("op") )
+		s( "}" , "\\usebox{\\hlboxclosebrace}" )
+		s( wrap("op") , "\\usebox{\\hlboxopenbrace}" )
+		s( wrap("bs") , "\\usebox{\\hlboxbackslash}" )
+		
+		s( "<"      , "\\usebox{\\hlboxlessthan}" )
+		s( ">"      , "\\usebox{\\hlboxgreaterthan}" )
+		s( "$"      , "\\usebox{\\hlboxdollar}" )
+		s( "_"      , "\\usebox{\\hlboxunderscore}" )
+		s( "&"      , "\\usebox{\\hlboxand}")
+		s( "#"      , "\\usebox{\\hlboxhash}" )
+		s( "@"      , "\\usebox{\\hlboxat}" )
+		s( "%"      , "\\usebox{\\hlboxpercent}" )
+		s( "^"      , "\\usebox{\\hlboxhat}" )
+		s( "~"      , "\\urltilda{}" )
+		s( "'"      , "\\usebox{\\hlboxsinglequote}" )
+		s( "`"      , "\\usebox{\\hlboxbacktick}" )
+		s( " "      , "{\\ }" )
+		x
 	}
-	# replacement contain open and close braces and backslash
-	# so we use this trick
-	
-	# this wrap is used so that the replacement are not shown in this
-	# file, so that it can be rendered as well
-	wrap <- function( x ) {
-		sprintf( "%s%s%s", paste(rep("@", 3), collapse=""), x, paste(rep("@", 3), collapse="") )
-	}
-	s( "\\", wrap("bs") )
-	s( "{" , wrap("op") )
-	s( "}" , "\\usebox{\\hlboxclosebrace}" )
-	s( wrap("op") , "\\usebox{\\hlboxopenbrace}" )
-	s( wrap("bs") , "\\usebox{\\hlboxbackslash}" )
-	
-	s( "<"      , "\\usebox{\\hlboxlessthan}" )
-	s( ">"      , "\\usebox{\\hlboxgreaterthan}" )
-	s( "$"      , "\\usebox{\\hlboxdollar}" )
-	s( "_"      , "\\usebox{\\hlboxunderscore}" )
-	s( "&"      , "\\usebox{\\hlboxand}")
-	s( "#"      , "\\usebox{\\hlboxhash}" )
-	s( "@"      , "\\usebox{\\hlboxat}" )
-	s( "%"      , "\\usebox{\\hlboxpercent}" )
-	s( "^"      , "\\usebox{\\hlboxhat}" )
-	s( "~"      , "\\urltilda{}" )
-	s( "'"      , "\\usebox{\\hlboxsinglequote}" )
-	s( "`"      , "\\usebox{\\hlboxbacktick}" )
-	s( " "      , "{\\ }" )
-	x
+	formals(f)[[2]] <- LATEX_SIZES
+	f
 }
+translator_latex <- .translator_latex_maker()
 
 space_latex <- function( ){
 	"{\\ }"
@@ -134,8 +141,9 @@ newline_latex <- function( ){
 }
 
 boxes_latex <- function( ){
-'
-\\usepackage{color}%
+
+
+boxes <- '
 \\newsavebox{\\hlboxclosebrace}%
 \\newsavebox{\\hlboxopenbrace}%
 \\newsavebox{\\hlboxbackslash}%
@@ -166,6 +174,19 @@ boxes_latex <- function( ){
 \\setbox\\hlboxsinglequote=\\hbox{\\verb.\'.}%
 \\setbox\\hlboxbacktick=\\hbox{\\verb.`.}%
 \\setbox\\hlboxhat=\\hbox{\\verb.^.}%
+'
+	allboxes <- paste( lapply( LATEX_SIZES, function( s ){
+		out <- gsub( "hlbox", 	sprintf( "hl%sbox", s ), boxes, fixed = TRUE )
+		out <- gsub( "hbox{", sprintf("hbox{\\begin{%s}", s ), out, fixed = TRUE )
+		out <- gsub( ".}%", sprintf( ".\\end{%s}}%%", s ) , out, fixed = TRUE )
+		out
+	} ), collapse = "\n\n" )
+
+
+paste( "
+\\usepackage{color}%
+", allboxes, '
+
 \\def\\urltilda{\\kern -.15em\\lower .7ex\\hbox{\\~{}}\\kern .04em}%
 
 \\newcommand{\\hlstd}[1]{\\textcolor[rgb]{0,0,0}{#1}}%
@@ -182,9 +203,10 @@ boxes_latex <- function( ){
 \\newcommand{\\hlkwb}[1]{\\textcolor[rgb]{0.51,0,0}{#1}}
 \\newcommand{\\hlkwc}[1]{\\textcolor[rgb]{0,0,0}{\\bf{#1}}}
 \\newcommand{\\hlkwd}[1]{\\textcolor[rgb]{0,0,0.51}{#1}}
-'
-}
+' )
 
+}
+  
 header_latex <- function( document, styles, boxes, minipage = FALSE ){
 	function( ){
 		txt <- "" ; rm( "txt", envir= environment() )
@@ -291,7 +313,7 @@ formatter_verbatim <- function( tokens, styles, ... ){
 	tokens
 }
 
-translator_verbatim <- function( x ){
+translator_verbatim <- function( x, size ){
 	x
 }
 
