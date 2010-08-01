@@ -48,20 +48,22 @@ namespace Platform
 #ifdef _WIN32
 #include <windows.h>
 	const char pathSeparator = '\\';
-	std::string getAppPath()
+/*	std::string getAppPath()
 	{
 		char pathAndName[MAX_PATH], path[MAX_PATH], drive[3];
 		GetModuleFileName ( NULL, ( wchar_t* ) pathAndName, MAX_PATH );
 		_splitpath ( pathAndName, drive, path, 0, 0 );
 		return std::string ( drive ) +path;
 	}
+*/
 #else
 	const char pathSeparator = '/';
 
-	std::string getAppPath()
+/*	std::string getAppPath()
 	{
 		return "";
 	}
+*/
 #endif
 
 	bool getDirectoryEntries ( vector<string> &fileList,

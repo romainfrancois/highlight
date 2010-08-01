@@ -32,7 +32,7 @@ namespace Platform
 {
 	extern const char pathSeparator;
 
-	std::string getAppPath();
+	/* std::string getAppPath(); */
 
 	/** \param fileList Vector where found entries will be stored
 	    \param  wildcard Directory path and wildcard
