@@ -29,6 +29,7 @@
 #include <cstdio>
 #include <algorithm>
 #include <cctype>
+#include <Rcpp.h> 
 
 std::map<std::string, Pattern *> Pattern::compiledPatterns;
 std::map<std::string, std::pair<std::string, unsigned long> > Pattern::registeredPatterns;
@@ -69,12 +70,16 @@ void Pattern::raiseError()
   case '?':
   case ']':
   case '}':
-    fprintf(stderr, "%s\n%*c^\n", pattern.c_str(), curInd - 1, ' ');
-    fprintf(stderr, "Syntax Error near here. Possible unescaped meta character.\n");
+    // fprintf(stderr, "%s\n%*c^\n", pattern.c_str(), curInd - 1, ' ');
+    // fprintf(stderr, "Syntax Error near here. Possible unescaped meta character.\n");
+    REprintf( "%s\n%*c^\n", pattern.c_str(), curInd - 1, ' ');
+    REprintf( "Syntax Error near here. Possible unescaped meta character.\n"); 
     break;
   default:
-    fprintf(stderr, "%s\n%*c^\n", pattern.c_str(), curInd - 1, ' ');
-    fprintf(stderr, "Syntax Error near here. \n");
+    // fprintf(stderr, "%s\n%*c^\n", pattern.c_str(), curInd - 1, ' ');
+    // fprintf(stderr, "Syntax Error near here. \n");                    
+    REprintf("%s\n%*c^\n", pattern.c_str(), curInd - 1, ' ');
+    REprintf("Syntax Error near here. \n");                  
     break;
   }
   error = 1;
