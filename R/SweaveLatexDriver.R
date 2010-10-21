@@ -48,10 +48,13 @@ makeHighlightWeaveLatexCodeRunner <- function(evalFunc=RweaveEvalWithOpt, highli
       	  	  		size <- if( "size" %in% names(options) ) LATEX_SIZES[ pmatch( options$size, LATEX_SIZES) ] else "normalsize"
       	  	  		tex <- gsub( "hlbox", sprintf( "hl%sbox", size ), tex, fixed = TRUE ) 
       	  	  		keep <- seq( which( tex == "\\noindent" ), which( tex == "\\normalfont" ) )
-			  		tex <- c( 
+			  		tex <- c(
+			  			sprintf( "\\begin{%s}", size ), 
 			  			"\\vspace{1em}\\noindent\\fbox{\\begin{minipage}{0.9\\textwidth}" , 
 			  			tex[ keep ],
-			  			"\\end{minipage}}\\vspace{1em}" )
+			  			"\\end{minipage}}\\vspace{1em}", 
+			  			sprintf( "\\end{%s}", size )
+			  		)
               		writeLines( tex, object$output )
               } else {
               	  writeLines( "\\begin{verbatim}", object$output )
@@ -126,8 +129,11 @@ makeHighlightWeaveLatexCodeRunner <- function(evalFunc=RweaveEvalWithOpt, highli
 		    lastshown <- srcline - 1L
 		  thisline <- 0
 		  
-		  		if( options$echo ) cat("\\begin{Hchunk}\n",
-	                 file=chunkout, append=TRUE)
+		  if( options$echo ) {
+		  	  cat("\\begin{Hchunk}\n",file=chunkout, append=TRUE)
+		  	  size <- if( "size" %in% names(options) ) LATEX_SIZES[ pmatch( options$size, LATEX_SIZES) ] else "normalsize"
+      	  	  cat( sprintf( "\\begin{%s}\n", size ), file = chunkout, append = TRUE )		
+		  }
 	                 
 	          for(nce in 1L:length(chunkexps)) {
 				     ce <- chunkexps[[nce]]
@@ -258,7 +264,11 @@ makeHighlightWeaveLatexCodeRunner <- function(evalFunc=RweaveEvalWithOpt, highli
 					if( options$echo ) cat("\n", file = chunkout, append = TRUE)
 	            }
 	
-			if( options$echo ) 	cat("\\end{Hchunk}\n", file=chunkout, append=TRUE)
+	            if( options$echo ){
+	            	size <- if( "size" %in% names(options) ) LATEX_SIZES[ pmatch( options$size, LATEX_SIZES) ] else "normalsize"
+	            	cat( sprintf( "\\end{%s}\n", size ), file = chunkout, append = TRUE )
+	            	cat("\\end{Hchunk}\n", file=chunkout, append=TRUE)
+	            }
 	          
 	#          if(openSinput){
 	#			  cat("\n\\end{Hinput}\n", file=chunkout, append=TRUE)
