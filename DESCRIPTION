@@ -1,8 +1,8 @@
 Package: highlight
 Type: Package
 Title: Syntax highlighter
-Version: 0.2-3
-Date: 2010-07-31
+Version: 0.2-4
+Date: 2010-11-19
 Author: Romain Francois
 Maintainer: Romain Francois <romain@r-enthusiasts.com>
 Description: Syntax highlighter for R code based 
@@ -10,6 +10,6 @@ Description: Syntax highlighter for R code based
 	markup. Custom sweave driver performing syntax highlighting 
 	of R code chunks
 License: GPL (>= 2)
-Depends: R (>= 2.11.0), tools, codetools, utils, parser (>= 0.0-10), Rcpp (>= 0.8.5)
+Depends: R (>= 2.12.0), tools, codetools, utils, parser (>= 0.0-10), Rcpp (>= 0.8.8)
 LinkingTo: Rcpp
 URL: http://r-forge.r-project.org/projects/highlight/, http://romainfrancois.blog.free.fr/index.php?category/R-package/highlight
