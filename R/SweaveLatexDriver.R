@@ -36,11 +36,14 @@ makeHighlightWeaveLatexCodeRunner <- function(evalFunc=RweaveEvalWithOpt, highli
     ## of an Sweave driver.  evalFunc will be used for the
     ## actual evaluation of chunk code.
     HighlightWeaveLatexRuncode <- function(object, chunk, options) {
-      	  
+      	 if( grepl( "#line [0-9]", chunk[1L] ) ){
+      	  	   chunk <- chunk[-1L]
+      	  	   attr(chunk, "srclines" ) <- attr(chunk, "srclines" )[-1L]
+      	  }
       	  if( "lang" %in% names(options)){
       	  	  if( private[["has_highlight"]] ){
-      	  	  	  tf <- sprintf( "%s.%s", tempfile(), options$lang )
-      	  	  		writeLines( chunk, tf )
+      	  	  	   tf <- sprintf( "%s.%s", tempfile(), options$lang )
+      	  	  	   writeLines( chunk, tf )
       	  	  		tf2 <- tempfile()
       	  	  		cmd <- sprintf( '%s --input="%s" --output="%s" -L --pretty-symbols', shQuote(private[["highlight"]]), tf, tf2 )
       	  	  		system( cmd )
