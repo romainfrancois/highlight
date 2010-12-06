@@ -190,7 +190,7 @@ makeHighlightWeaveLatexCodeRunner <- function(evalFunc=RweaveEvalWithOpt, highli
 							showPrompts = if( !is.null(showPrompts) ) isTRUE(showPrompts) else TRUE , 
 							initial.spaces = FALSE, 
 							size = size )
-						cat("\\end{Hinput}\n", file=chunkout, append=TRUE)
+						cat("\\end{Hinput}\n\n", file=chunkout, append=TRUE)
 	                   
 						linesout[thisline + 1L:length(dce)] <- srcline
 						thisline <- thisline + length(dce)
@@ -245,8 +245,9 @@ makeHighlightWeaveLatexCodeRunner <- function(evalFunc=RweaveEvalWithOpt, highli
 							cat( paste( renderer$header(), collapse = "\n" ), file = chunkout, append = TRUE)
 							output. <- strsplit( output, "\n" )[[1]]
 							size <- if( "size" %in% names(options) ) LATEX_SIZES[ pmatch( options$size, LATEX_SIZES) ] else "normalsize"
-      	  	  				cat( paste( paste( renderer$translator(output., size = size), renderer$newline(), sep = ""), collapse = "") , 
-								file=chunkout, append=TRUE )
+      	  	  				tex <- paste( renderer$translator(output., size = size), renderer$newline(), sep = "")
+      	  	  				tex[ length(tex ) ] <- sub( "\\\\\\\\\n\\\\hlstd", "\\\\hlstd", tex[length(tex)] )
+      	  	  				cat( paste(tex, collapse="") , file=chunkout, append=TRUE )
 							remove( output.) 
 							cat( paste( renderer$footer(), collapse = "\n" ), file = chunkout, append = TRUE )
 						 } else{
@@ -272,7 +273,7 @@ makeHighlightWeaveLatexCodeRunner <- function(evalFunc=RweaveEvalWithOpt, highli
 	            if( options$echo ){
 	            	size <- if( "size" %in% names(options) ) LATEX_SIZES[ pmatch( options$size, LATEX_SIZES) ] else "normalsize"
 	            	cat( sprintf( "\\end{%s}\n", size ), file = chunkout, append = TRUE )
-	            	cat("\\end{Hchunk}\n", file=chunkout, append=TRUE)
+	            	cat("\\end{Hchunk}\n\n", file=chunkout, append=TRUE)
 	            }
 	          
 	#          if(openSinput){
