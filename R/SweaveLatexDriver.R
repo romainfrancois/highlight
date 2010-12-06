@@ -271,7 +271,7 @@ makeHighlightWeaveLatexCodeRunner <- function(evalFunc=RweaveEvalWithOpt, highli
 	
 	            if( options$echo ){
 	            	size <- if( "size" %in% names(options) ) LATEX_SIZES[ pmatch( options$size, LATEX_SIZES) ] else "normalsize"
-	            	cat( sprintf( "\\end{%s}", size ), file = chunkout, append = TRUE )
+	            	cat( sprintf( "\\end{%s}\n", size ), file = chunkout, append = TRUE )
 	            	cat("\\end{Hchunk}\n", file=chunkout, append=TRUE)
 	            }
 	          
