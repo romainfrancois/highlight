@@ -1,4 +1,12 @@
-0.2-2	(future)
+0.2-5   2010-12-06
+
+   o    superfluous lines were added at the end of code chunks in the sweave
+        driver
+        
+   o    multiple lines character strings were not rendered properly by the
+        latex renderer
+
+0.2-3	2010-11-19
 
    o	sweave blocks now respond to the size option, as in :
    		<<size=footnotesize>>=
