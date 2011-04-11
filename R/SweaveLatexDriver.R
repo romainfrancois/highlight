@@ -394,7 +394,7 @@ latex_color("highlightBorder", highlight.options$border )
 {\\end{flushleft}}%'
 	}
 
-	documentclass <- "\\\\documentclass.*$"
+	documentclass <- "^[[:space:]]*\\\\documentclass.*$"
  	which <- grep( documentclass, chunk )
 	
 	if( length( which ) ){

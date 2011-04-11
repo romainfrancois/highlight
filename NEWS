@@ -1,3 +1,7 @@
+0.2-6   2010-04-11
+
+   o    small bug fixed in the latex renderer. Reported by Collin Gillepsie.
+
 0.2-5   2010-12-06
 
    o    superfluous lines were added at the end of code chunks in the sweave
