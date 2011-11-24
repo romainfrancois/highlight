@@ -1779,7 +1779,7 @@ namespace highlight
 				else if ( replaceVar=="$linenum" )
 				{
 					char numBuf[10];
-					snprintf ( numBuf, sizeof ( numBuf ), "%d", lineNumber );
+					sprintf ( numBuf, "%d", lineNumber );
 					res+= string ( numBuf );
 				}
 				pos=m->getEndingIndex ( 0 );
