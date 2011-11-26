@@ -13,3 +13,5 @@ License: GPL (>= 2)
 Depends: R (>= 2.12.0), tools, codetools, utils, parser (>= 0.0-10), Rcpp (>= 0.9.3)
 LinkingTo: Rcpp
 URL: http://r-forge.r-project.org/projects/highlight/, http://romainfrancois.blog.free.fr/index.php?category/R-package/highlight
+RcppModules: highlight
+

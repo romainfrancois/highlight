@@ -27,4 +27,8 @@ exportPattern( "_verbatim$" )
 
 export( HighlightWeaveLatex )
 export( highlight.httpd.handler )
+export( external_highlight )
+export( highlight_output_types )
+export( highlight_themes )
+export( highlight_supported_languages )
 

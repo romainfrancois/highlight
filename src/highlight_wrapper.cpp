@@ -1,45 +1,42 @@
 #include "highlight.h"
 
 #include <codegenerator.h>
+#include <enums.h>
 
 using namespace Rcpp; 
+using namespace highlight ;
 
 static std::string dataPath ;
 
 void set_data_path( const std::string& path ){
-	dataPath = path ;
+	dataPath = path ;                  
 }
 
-CharacterVector HighlightMain( const char* input ){
-    // // main( 1, &input) ;
-    // 
-    // ASFormatter formatter;
-	// g_console = new ASConsole;
-    // 
-	// // process command line and options file
-	// // build the vectors fileNameVector, optionsVector, and fileOptionsVector
-	// processReturn returnValue = g_console->processOptions(1, &input, formatter);
-    // 
-	// // check for end of processing
-	// // if (returnValue == END_SUCCESS)
-	// // 	return EXIT_SUCCESS;
-	// // if (returnValue == END_FAILURE)
-	// // {
-	// // 	(*_err) << "Artistic Style has terminated!" << endl;
-	// // 	return EXIT_FAILURE;
-	// // }
-    // 
-	// // if no files have been given, use cin for input and cout for output
-	// if (g_console->fileNameVectorIsEmpty())
-	// {
-	// 	g_console->formatCinToCout(formatter);
-	// 	// return EXIT_SUCCESS;
-	// }
-    // 
-	// // process entries in the fileNameVector
-	// g_console->processFiles(formatter);
+const char* get_data_path(){
+    return dataPath.c_str() ;   
+}
 
-	return wrap( "hello" ) ;
+int HighlightMain( 
+    const char* input, 
+    const char* output, 
+    int type, 
+    const char* theme, 
+    const char* lang, 
+    bool line_numbers
+){
+    
+    OutputType outputType = (OutputType)type ;
+    CodeGenerator* generator = CodeGenerator::getInstance( outputType ) ;
+    
+    generator->setIncludeStyle(true) ;
+    generator->setLATEXPrettySymbols(true) ;
+    
+    generator->initTheme(theme) ;
+    generator->loadLanguage( lang ) ; 
+    generator->setPrintLineNumbers( line_numbers, 1 ) ;
+    
+    ParseError error = generator->generateFile( input, output ) ;
+    return (int)error ;
     
 }
 
