@@ -11,7 +11,8 @@ Multi language source code highlighter
         lang = NULL, 
         type = "HTML", 
         line_numbers = FALSE, 
-        doc = TRUE
+        doc = TRUE, 
+        code
         )
 }
 \arguments{
@@ -27,6 +28,7 @@ Multi language source code highlighter
   \item{line_numbers}{if TRUE, the result will include line numbers}
   \item{doc}{if TRUE, the result is a stand alone document, otherwise, just a 
   portion to include in a document. }
+  \item{code}{If code is given, then the source code is not read from the file. }
 }
 \value{
 Nothing if outfile is given, with the side effect of writing into the file. 

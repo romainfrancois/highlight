@@ -7,12 +7,12 @@ httpd handler for highlight
 httpd handler for highlight
 }
 \usage{
-highlight.httpd.handler(path, query, body)
+highlight.httpd.handler(path, query = NULL, ...)
 }
 \arguments{
   \item{path}{path of the http request}
   \item{query}{ignored}
-  \item{body}{request body, currently ignored}
+  \item{\dots}{ignored}
 }
 \details{
 	Since R version 2.11.0, highlight installs a custom handler
@@ -24,13 +24,14 @@ highlight.httpd.handler(path, query, body)
 		\Sexpr[results=rd,echo=FALSE,stage=render]{
 		port <- tools:::httpdPort
 		link <- paste( "http://127.0.0.1:", port, "/custom/highlight/glm", sep = "" )
-		paste( "\\\\url{",link,"}" )
+		paste( "\\\\href{",link,"}{", link, "}", sep = "" )
 		}
+		
 		
 		Lookup glm in package stats :
 		\Sexpr[results=rd,echo=FALSE,stage=render]{
 		link <- paste( "http://127.0.0.1:", port, "/custom/highlight/stats/glm", sep = "" )
-		paste( "\\\\url{",link,"}" )
+		paste( "\\\\href{",link,"}{", link, "}", sep = "" )
 		}
 		
 	}
