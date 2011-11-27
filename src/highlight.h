@@ -7,7 +7,4 @@
 #define COMMENT 289
 #define ROXYGEN_COMMENT 291
 
-void set_data_path( const std::string& path) ;
-const char* get_data_path() ;
-
 #endif

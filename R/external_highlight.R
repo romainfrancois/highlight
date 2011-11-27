@@ -50,15 +50,20 @@ highlight_type <- function(type = highlight_output_types() ){
     match( type, highlight_output_types() ) - 1L
 }
 
-
 external_highlight <- function( file, 
     outfile = NULL, 
     theme = "kwrite",
     lang  = NULL , 
-    type  = highlight_output_types(), 
-    line_numbers = FALSE
+    type  = "HTML", 
+    line_numbers = FALSE, 
+    doc = TRUE, 
+    code
 ){
         
+    if( !missing(code) ){
+        file <- sprintf( "%s.%s", tempfile(), lang )
+        writeLines( code, file )    
+    }
     type  <- highlight_type(type)
     theme <- highlight_theme(theme) 
     
@@ -67,7 +72,10 @@ external_highlight <- function( file,
     
     is_null_outfile <- is.null(outfile)
     if( is_null_outfile ) outfile <- tempfile()
-    HighlightMain( file, outfile, type, theme, lang, isTRUE(line_numbers) )
+    HighlightMain( file, outfile, type, theme, lang, 
+        isTRUE(line_numbers), 
+        isTRUE(doc)
+        )
     if( is_null_outfile ) readLines(outfile)
 }
 

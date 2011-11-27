@@ -41,32 +41,23 @@ makeHighlightWeaveLatexCodeRunner <- function(evalFunc=RweaveEvalWithOpt, highli
       	  	   attr(chunk, "srclines" ) <- attr(chunk, "srclines" )[-1L]
       	  }
       	  if( "lang" %in% names(options)){
-      	  	  if( private[["has_highlight"]] ){
-      	  	  	   tf <- sprintf( "%s.%s", tempfile(), options$lang )
-      	  	  	   writeLines( chunk, tf )
-      	  	  		tf2 <- tempfile()
-      	  	  		cmd <- sprintf( '%s --input="%s" --output="%s" -L --pretty-symbols', shQuote(private[["highlight"]]), tf, tf2 )
-      	  	  		system( cmd )
-      	  	  		tex <- readLines(tf2)
-      	  	  		size <- if( "size" %in% names(options) ) LATEX_SIZES[ pmatch( options$size, LATEX_SIZES) ] else "normalsize"
-      	  	  		tex <- gsub( "hlbox", sprintf( "hl%sbox", size ), tex, fixed = TRUE ) 
-      	  	  		keep <- seq( which( tex == "\\noindent" ), which( tex == "\\normalfont" ) )
-			  		tex <- tex[ keep ]
-			  		tex[ length(tex) - 2L ] <- sub( "\\\\\\\\$", "", tex[ length(tex) - 2L ] )
-      	  	  		tex <- c(
-			  			sprintf( "\\begin{%s}", size ), 
-			  			"\\begin{Hchunk}" , 
-			  			tex ,
-			  			"\\end{Hchunk}\\vspace{1em}", 
-			  			sprintf( "\\end{%s}", size )
-			  		)
-              		writeLines( tex, object$output )
-              } else {
-              	  writeLines( "\\begin{verbatim}", object$output )
-              	  writeLines( chunk, object$output )
-              	  writeLines( "\\end{verbatim}", object$output )
-              }                                     
-      	  	  return(object)
+      	  	 tex <- external_highlight( chunk, lang = lang, TYPE = "LATEX" )
+      	  	 
+      	  	 size <- if( "size" %in% names(options) ) LATEX_SIZES[ pmatch( options$size, LATEX_SIZES) ] else "normalsize"
+      	  	 tex <- gsub( "hlbox", sprintf( "hl%sbox", size ), tex, fixed = TRUE ) 
+      	  	 keep <- seq( which( tex == "\\noindent" ), which( tex == "\\normalfont" ) )
+			 tex <- tex[ keep ]
+			 tex[ length(tex) - 2L ] <- sub( "\\\\\\\\$", "", tex[ length(tex) - 2L ] )
+      	  	 
+			 tex <- c(
+			 		sprintf( "\\begin{%s}", size ), 
+			 		"\\begin{Hchunk}" , 
+			 		tex ,
+			 		"\\end{Hchunk}\\vspace{1em}", 
+			 		sprintf( "\\end{%s}", size )
+			 	)
+             writeLines( tex, object$output )
+             return(object)
       	  } else { 
       	  
 	          if(!(options$engine %in% c("R", "S"))){

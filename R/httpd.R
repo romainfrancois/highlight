@@ -1,5 +1,5 @@
 
-highlight.httpd.handler <- function( path, query, body ){
+highlight.httpd.handler <- function( path, query = NULL, ... ){
 	suffix <- sub( "^/custom/highlight[/]?", "", path)
 	parts <- strsplit( suffix, "/" )[[1L]]
 	if( length( parts ) == 1L ){
