@@ -38,7 +38,7 @@ along with Highlight.  If not, see <http://www.gnu.org/licenses/>.
 #include "xmlgenerator.h"
 #include "svggenerator.h"
 #include "bbcodegenerator.h"
-#include "re/Matcher.h"
+#include <Matcher.h>   
 #include <astyle.h>
 #include <ASStreamIterator.h>
 

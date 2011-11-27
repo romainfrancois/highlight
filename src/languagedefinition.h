@@ -38,8 +38,8 @@ along with Highlight.  If not, see <http://www.gnu.org/licenses/>.
 #include "configurationreader.h"
 #include "platform_fs.h"
 #include "enums.h"
-#include "re/Pattern.h"
-#include "re/Matcher.h"
+#include <Pattern.h>
+#include <Matcher.h>
 
 namespace highlight
 {

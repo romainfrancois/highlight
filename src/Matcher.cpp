@@ -1,5 +1,5 @@
-#include "Matcher.h"
-#include "Pattern.h"
+#include <Matcher.h>
+#include <Pattern.h>
 
 const int Matcher::MATCH_ENTIRE_STRING = 0x01;
 

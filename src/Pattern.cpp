@@ -23,8 +23,8 @@
   @version  1.05.02
 */
 
-#include "Pattern.h"
-#include "Matcher.h"
+#include <Pattern.h>
+#include <Matcher.h>
 #include <cstring>
 #include <cstdio>
 #include <algorithm>
