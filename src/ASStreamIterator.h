@@ -28,7 +28,7 @@
 #ifndef ASSTREAMITERATOR_H
 #define ASSTREAMITERATOR_H
 
-#include "astyle.h"
+#include <astyle.h>
 #include <iostream>
 
 namespace astyle

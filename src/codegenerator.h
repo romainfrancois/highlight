@@ -36,7 +36,7 @@ along with Highlight.  If not, see <http://www.gnu.org/licenses/>.
 #include "languagedefinition.h"
 #include "documentstyle.h"
 #include "ctagsreader.h"
-#include "astyle/astyle.h"
+#include <astyle.h>
 #include "preformatter.h"
 #include "enums.h"
 #include "stringtools.h"

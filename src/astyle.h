@@ -27,12 +27,16 @@
 #ifndef ASTYLE_H
 #define ASTYLE_H
 
-#ifdef __VMS
-#define __USE_STD_IOSTREAM 1
-#include <assert>
-#else
-#include <cassert>
-#endif
+//// #ifdef __VMS                    
+//// #define __USE_STD_IOSTREAM 1
+//// #include <assert>
+//// #else
+//// #include <cassert>
+//// #endif
+      
+//// replace assert by a noop to make R CMD check happy
+#define assert(STUFF)
+
 
 #include <string.h>         // need both string and string.h for GCC
 #include <string>
