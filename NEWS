@@ -1,3 +1,7 @@
+0.3-1   2011-12-16
+
+   o    highlight gains the show_line_numbers. suggestion by Yihui Xie
+   
 0.2-6   2010-04-11
 
    o    small bug fixed in the latex renderer. Reported by Collin Gillepsie.

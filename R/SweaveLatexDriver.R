@@ -180,7 +180,9 @@ makeHighlightWeaveLatexCodeRunner <- function(evalFunc=RweaveEvalWithOpt, highli
 							final.newline = FALSE, 
 							showPrompts = if( !is.null(showPrompts) ) isTRUE(showPrompts) else TRUE , 
 							initial.spaces = FALSE, 
-							size = size )
+							size = size, 
+							show_line_numbers = options$show_line_numbers
+							)
 						cat("\\end{Hinput}\n\n", file=chunkout, append=TRUE)
 	                   
 						linesout[thisline + 1L:length(dce)] <- srcline
