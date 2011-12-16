@@ -126,6 +126,7 @@ formatter_latex <- function( tokens, styles, ... ){
 		s( "`"      , "\\usebox{\\hlboxbacktick}" )
 		s( " "      , "{\\ }" )
 		s( "\n"     , newline_latex() )
+		s( '"', '"{}' )
 		x
 	}
 	formals(f)[[2]] <- LATEX_SIZES
