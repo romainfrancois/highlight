@@ -18,6 +18,7 @@ highlight(file, output = stdout(), detective = simple_detective, renderer,
 	size = c("normalsize", "tiny", "scriptsize", 
     "footnotesize", "small", "large", "Large", "LARGE", "huge", 
     "Huge"), 
+    show_line_numbers = FALSE
     ...)
 }
 \arguments{
@@ -65,6 +66,7 @@ logical. Indicates if a newline character is added after all tokens.
 \item{continue}{continue prompt}
 \item{initial.spaces}{should initial spaces be displayed or skipped. }
 \item{size}{font size. only respected by the latex renderer so far. }
+\item{show_line_numbers}{logical. When TRUE, line numbers are shown in the output. }
 \item{\dots}{
 additional arguments, currently ignored. 
 }

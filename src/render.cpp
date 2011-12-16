@@ -13,9 +13,10 @@ using namespace Rcpp;
  * @param continuePrompt_ the continue prompt
  * @param initialspaces
  */
-RCPP_FUNCTION_8(CharacterVector,get_highlighted_text, 
+CharacterVector get_highlighted_text( 
 	DataFrame data, int start, int end, std::string space, std::string newline, 
-	std::string prompt, std::string continuePrompt, bool initial_spaces ){
+	std::string prompt, std::string continuePrompt, bool initial_spaces, 
+	Rcpp::CharacterVector line_numbers, bool show_line_numbers ){
 	
 	/* the current line */
 	std::string current_line ;
@@ -44,7 +45,9 @@ RCPP_FUNCTION_8(CharacterVector,get_highlighted_text,
 	bool initial = true ; 
 	                        
 	current_line = prompt ;
-	
+	if( show_line_numbers ){
+	     current_line += line_numbers[0] ;   
+	}
 	for( i=0; i<n; i++){
 		
 		/* move down as many lines as needed */
@@ -58,6 +61,9 @@ RCPP_FUNCTION_8(CharacterVector,get_highlighted_text,
 					
 					/* reset the current line */
 					current_line.clear() ;
+					if( show_line_numbers ){
+					     current_line += line_numbers[index] ;   
+					}
 				}
 				
 				/* heuristic to figure out if we should use a prompt or a continue prompt */

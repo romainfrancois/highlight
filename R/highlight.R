@@ -11,6 +11,7 @@ highlight <- function( file, output = stdout(),
 	continue = getOption( "continue"), 
 	initial.spaces = TRUE,
 	size = NULL,
+	show_line_numbers = FALSE, 
 	... ){
 	  
 	size <- match.arg( size )
@@ -42,9 +43,17 @@ highlight <- function( file, output = stdout(),
 	} else{
 		startline <- 1L
 	}
+	
+	line_numbers <- startline:(max(data$line2))
+	width <- max( nchar( line_numbers ) )
+	line_numbers <- renderer$formatter( 
+		sprintf( sprintf( "%%0%dd  ", width ), line_numbers ), 
+		rep( "line", length(line_numbers) )
+    )
+	
 	# paste everything together in C++ using Rcpp
 	highlighted_text <- c( if( !is.null(renderer$header) ) renderer$header(), 
-		.Call( "get_highlighted_text", 
+		get_highlighted_text( 
 			data, 
 			startline, 
 			max(data$line2) , 
@@ -53,7 +62,9 @@ highlight <- function( file, output = stdout(),
 			if( showPrompts) renderer$formatter( renderer$translator( prompt, size = size ) , "prompt" ) else "", 
 			if( showPrompts) renderer$formatter( renderer$translator( continue, size = size ) , "prompt" ) else "",
 			initial.spaces = initial.spaces, 
-			PACKAGE = "highlight" ), 
+			line_numbers, 
+			isTRUE( show_line_numbers)
+		), 
 		if( !is.null(renderer$footer) ) renderer$footer() )
 	
 	# maybe write the result to the output connection

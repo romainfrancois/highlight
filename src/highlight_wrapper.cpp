@@ -34,5 +34,6 @@ int HighlightMain(
 
 RCPP_MODULE(highlight){
 	function( "HighlightMain", &HighlightMain) ;
+	function( "get_highlighted_text", &get_highlighted_text ) ;
 }
 
