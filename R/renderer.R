@@ -203,7 +203,7 @@ paste( "
 \\newcommand{\\hlcom}[1]{\\textcolor[rgb]{0.51,0.51,0.51}{\\it{#1}}}
 \\newcommand{\\hldir}[1]{\\textcolor[rgb]{0,0.51,0}{#1}}
 \\newcommand{\\hlsym}[1]{\\textcolor[rgb]{0,0,0}{#1}}
-\\newcommand{\\hlline}[1]{\\textcolor[rgb]{0.33,0.33,0.33}{#1}}
+% \\newcommand{\\hlline}[1]{\\textcolor[rgb]{0.33,0.33,0.33}{#1}}
 \\newcommand{\\hlkwa}[1]{\\textcolor[rgb]{0,0,0}{\\bf{#1}}}
 \\newcommand{\\hlkwb}[1]{\\textcolor[rgb]{0.51,0,0}{#1}}
 \\newcommand{\\hlkwc}[1]{\\textcolor[rgb]{0,0,0}{\\bf{#1}}}

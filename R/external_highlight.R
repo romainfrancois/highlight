@@ -51,7 +51,7 @@ highlight_type <- function(type = highlight_output_types() ){
 }
 
 external_highlight <- function( file, 
-    outfile = NULL, 
+    outfile = stdout(), 
     theme = "kwrite",
     lang  = NULL , 
     type  = "HTML", 
@@ -70,13 +70,15 @@ external_highlight <- function( file,
     lang <- highlight_guess_language(file, lang = lang)
     lang <- highlight_lang(lang)
     
-    is_null_outfile <- is.null(outfile)
-    if( is_null_outfile ) outfile <- tempfile()
-    HighlightMain( file, outfile, type, theme, lang, 
+    using_tempfile <- is.null(outfile) || !is.character(outfile)
+    output_file <- if( using_tempfile ) tempfile() else outfile
+    HighlightMain( file, output_file, type, theme, lang, 
         isTRUE(line_numbers), 
         isTRUE(doc)
         )
-    if( is_null_outfile ) readLines(outfile)
+    code <- readLines(output_file)
+    if( !is.null(outfile) ) writeLines( code, outfile )
+    invisible(code)
 }
 
 

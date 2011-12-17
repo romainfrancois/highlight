@@ -41,13 +41,11 @@ makeHighlightWeaveLatexCodeRunner <- function(evalFunc=RweaveEvalWithOpt, highli
       	  	   attr(chunk, "srclines" ) <- attr(chunk, "srclines" )[-1L]
       	  }
       	  if( "lang" %in% names(options)){
-      	  	 tex <- external_highlight( chunk, lang = options$lang, type = "LATEX" )
+      	  	 tex <- external_highlight( code=chunk, outfile = NULL, 
+      	  	 	lang = options[["lang"]], type = "LATEX", doc = FALSE )
       	  	 
       	  	 size <- if( "size" %in% names(options) ) LATEX_SIZES[ pmatch( options$size, LATEX_SIZES) ] else "normalsize"
       	  	 tex <- gsub( "hlbox", sprintf( "hl%sbox", size ), tex, fixed = TRUE ) 
-      	  	 keep <- seq( which( tex == "\\noindent" ), which( tex == "\\normalfont" ) )
-			 tex <- tex[ keep ]
-			 tex[ length(tex) - 2L ] <- sub( "\\\\\\\\$", "", tex[ length(tex) - 2L ] )
       	  	 
 			 tex <- c(
 			 		sprintf( "\\begin{%s}", size ), 
