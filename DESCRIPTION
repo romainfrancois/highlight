@@ -1,13 +1,8 @@
 Package: highlight
 Type: Package
 Title: Syntax highlighter
-<<<<<<< .mine
-Version: 0.3.1
-Date: 2011-12-05
-=======
-Version: 0.3-1
-Date: 2011-12-16
->>>>>>> .r336
+Version: 0.3.2
+Date: 2011-12-17
 Author: Romain Francois
 Maintainer: Romain Francois <romain@r-enthusiasts.com>
 Description: Syntax highlighter for R code based 
