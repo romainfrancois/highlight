@@ -1,0 +1,7 @@
+
+<%
+tf <- tempfile()
+capture.output( writeLines( req$params()$code , tf ) )
+highlight(tf, renderer = renderer_html(doc=FALSE))
+%>
+

@@ -18,7 +18,7 @@ highlight(file, output = stdout(), detective = simple_detective, renderer,
 	size = c("normalsize", "tiny", "scriptsize", 
     "footnotesize", "small", "large", "Large", "LARGE", "huge", 
     "Huge"), 
-    show_line_numbers = FALSE
+    show_line_numbers = FALSE,
     ...)
 }
 \arguments{
