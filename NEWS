@@ -1,7 +1,20 @@
-0.3-1   2011-12-16
+0.3.2   2011-12-17
 
    o    highlight gains the show_line_numbers. suggestion by Yihui Xie
    
+0.3.1   2011-12-05
+
+   o    Bug fix in the html renderer. Thanks to @tonybreyal for pointing out
+        the bug on twitter. 
+
+0.3.0   2011-11-27
+
+   o    Using sprintf instead of snprintf to make Solaris happy
+   
+   o    New R function external_highlight that uses the C++ code from Andre
+   Simon highlight library. The code is called directly, no more using a system 
+   dependency as before. 
+
 0.2-6   2010-04-11
 
    o    small bug fixed in the latex renderer. Reported by Collin Gillepsie.

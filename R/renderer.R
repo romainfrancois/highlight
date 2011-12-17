@@ -31,11 +31,14 @@ formatter_html <- function( tokens, styles, ... ){
 	ifelse( styles == "", 
 		tokens, 
 		sprintf( '<span class="%s">%s</span>', styles, tokens ) 
-		) 
+	)
 }
 
 translator_html <- function( x, size ){
-	x
+		x <- gsub( '[&]', "&amp;", x )
+		x <- gsub( "[<]", "&lt;", x )
+		x <- gsub( "[>]", "&gt;", x )
+		x
 }
 
 space_html <- function( ){
