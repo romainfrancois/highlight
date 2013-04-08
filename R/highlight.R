@@ -1,9 +1,10 @@
 
 # from parser
-getChilds <- function( x, i = 0, 
-	parent = sapply( x[i], function(.) attr(.,"id" ) ) ){
+getChilds <- function( x, i = 0 ){
 	
 	data    <- getParseData( x )
+	parent  <- data[ data$parent == 0, "id"][i]
+	
 	if(missing(parent) && ( missing(i) || is.null(i) || i==0 ) ){
 		return( data[,'id'] )
 	}
@@ -71,7 +72,6 @@ highlight <- function( file, output = stdout(),
 		rep( "line", length(line_numbers) )
     )
     
-    print(data)
     # paste everything together in C++ using Rcpp
 	highlighted_text <- c( if( !is.null(renderer$header) ) renderer$header(), 
 		.Call( "get_highlighted_text",  
