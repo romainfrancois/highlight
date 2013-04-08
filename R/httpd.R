@@ -18,6 +18,6 @@ highlight.httpd.handler <- function( path, query = NULL, ... ){
 		stop( "cannot find function" )
 	}
 	tf <- tempfile( )
-	highlight( fun, output = tf, renderer = renderer_html(doc = TRUE ) )
+	highlight( fun, output = tf, renderer = renderer_html(document = TRUE ) )
 	list( file = tf, "text/html" )
 }

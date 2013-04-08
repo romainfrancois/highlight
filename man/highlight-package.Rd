@@ -12,8 +12,8 @@ Syntax highlighter for R based on output from the R parser
 \tabular{ll}{
 Package: \tab highlight\cr
 Type: \tab Package\cr
-Version: \tab 0.3.2\cr
-Date: \tab 2011-12-17\cr
+Version: \tab 0.4.0\cr
+Date: \tab 2013-04-08\cr
 License: \tab GPL (>= 2)\cr
 LazyLoad: \tab yes\cr
 }
@@ -25,10 +25,7 @@ Romain Francois
 Maintainer: Romain Francois <romain@r-enthusiasts.com>
 }
 \seealso{
-	The main function of the package is \code{\link{highlight}}. The
-	\code{\link[parser]{parser}} is a modified R parser using a very similar 
-	grammar to the standard \code{\link[base]{parse}} function but presenting
-	the information differently. 
+	The main function of the package is \code{\link{highlight}}. 
 	
 	\code{\link{highlight}} delegates rendering the document to 
 	\code{\link{renderer}}s, such as the \code{\link{renderer_latex}} 
@@ -47,9 +44,6 @@ Maintainer: Romain Francois <romain@r-enthusiasts.com>
 \dontrun{
 tf <- tempfile()
 dump( "glm" , file = tf )
-
-# modified R parser
-p <- parser( tf )
 
 # rendering in html
 highlight( tf, output = stdout(), 

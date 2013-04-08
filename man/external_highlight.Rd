@@ -7,7 +7,7 @@ Multi-language source code highlighter
 Multi language source code highlighter
 }
 \usage{
-    external_highlight(file, outfile = NULL, theme = "kwrite", 
+    external_highlight(file, outfile = stdout(), theme = "kwrite", 
         lang = NULL, 
         type = "HTML", 
         line_numbers = FALSE, 

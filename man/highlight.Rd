@@ -6,13 +6,13 @@ syntax highlighting based on the R parser
 }
 \description{
 	The \code{highlight} function performs syntax highlighting based on the 
-results of the \code{\link[parser]{parser}} and the investigation
+results of the \code{\link[base]{parse}} and the investigation
 of a detective. 
 }
 \usage{
 highlight(file, output = stdout(), detective = simple_detective, renderer, 
-	encoding = "unknown", parser.output = parser(file, encoding = encoding), 
-	styles = detective(parser.output), expr = NULL, final.newline = FALSE, 
+	encoding = "unknown", parse.output = parse(file, encoding = encoding, keep.source = TRUE), 
+	styles = detective(parse.output), expr = NULL, final.newline = FALSE, 
 	showPrompts = FALSE, prompt = getOption("prompt"), continue = getOption("continue"), 
 	initial.spaces = TRUE, 
 	size = c("normalsize", "tiny", "scriptsize", 
@@ -23,7 +23,7 @@ highlight(file, output = stdout(), detective = simple_detective, renderer,
 }
 \arguments{
   \item{file}{
-code file to parse. This is only used if the \code{parser.output} is given
+code file to parse. This is only used if the \code{parse.output} is given
 }
   \item{output}{
 where to write the rendered text. If this is anything else than the 
@@ -32,7 +32,7 @@ is used to redirect the standard output to the output.
 }
   \item{detective}{
 the detective chooses the style to apply to each token, basing its 
-investigation on the results of the \code{\link[parser]{parser}}
+investigation on the results of the \code{\link[base]{parse}}
 }
   \item{renderer}{
 highlight delegates rendering the information to the renderer. This 
@@ -41,10 +41,10 @@ and \code{\link{renderer_latex}}
 }
   \item{encoding}{
 encoding to assume for the file. the argument is directly passed 
-to the \code{\link[parser]{parser}}.
+to the \code{\link[base]{parse}}.
 }
-  \item{parser.output}{
-output from the \code{\link[parser]{parser}}. If this is given, the 
+  \item{parse.output}{
+output from the \code{\link[base]{parse}}. If this is given, the 
 arguments \code{file} and \code{encoding} are not used
 }
   \item{styles}{

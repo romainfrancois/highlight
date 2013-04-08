@@ -1,7 +1,14 @@
-
 <%
+input <- req$body()
+payload <- rawToChar( input$read() )
+
 tf <- tempfile()
-capture.output( writeLines( req$params()$code , tf ) )
-highlight(tf, renderer = renderer_html(doc=FALSE))
+writeLines( payload, tf )
+
+out <- tempfile()
+highlight( tf, renderer = renderer_html(doc=FALSE), output = out )
+
+writeLines( readLines(out), sep = "\r\n" )
+
 %>
 

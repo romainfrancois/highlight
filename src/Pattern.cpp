@@ -29,7 +29,10 @@
 #include <cstdio>
 #include <algorithm>
 #include <cctype>
-#include <Rcpp.h> 
+
+#define R_NO_REMAP
+#include <R.h>
+#include <Rinternals.h>
 
 std::map<std::string, Pattern *> Pattern::compiledPatterns;
 std::map<std::string, std::pair<std::string, unsigned long> > Pattern::registeredPatterns;

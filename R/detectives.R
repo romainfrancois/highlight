@@ -13,8 +13,8 @@ dummy_detective <- function( x, ... ){
 #' simple detective
 simple_detective <- function( x, ...){
 	
-	data <- attr( x, "data" )
-	desc   <- as.character( data[ data[["terminal"]], "token.desc" ] )
+	data <- getParseData( x )
+	desc   <- as.character( data[ data[["terminal"]], "token" ] )
 	styles <- character( length( desc ) )
 	
 	styles[ desc == "COMMENT"  ] <- "comment"

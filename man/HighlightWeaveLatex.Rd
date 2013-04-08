@@ -11,7 +11,7 @@ highlighting of input R code in sweave chunks.
 }
 \usage{
 HighlightWeaveLatex(
-	boxes=FALSE, bg = rgb( 0.95,0.95,0.95, max = 1 ), border = "black", 
+	boxes=FALSE, bg = rgb( 0.95,0.95,0.95, maxColorValue = 1 ), border = "black", 
 	highlight.options = list( boxes = boxes, bg = bg, border = border ) )
 }
 \arguments{

@@ -1,6 +1,17 @@
-0.3.2   2011-12-17
+0.4.0   2013-04-08
+
+   o    Eliminated dependency on Rcpp and parser
+   
+   o    Depends on R 3.0.0 (needed for getParseData)
+
+0.3.2   2012-01-31
 
    o    highlight gains the show_line_numbers. suggestion by Yihui Xie
+   
+   o    The Sweave driver gains a <<file=>> option to highlight the content
+        of a file
+        
+   o    The latex renderer created a global variable "txt", reported by Yihui Xie
    
 0.3.1   2011-12-05
 

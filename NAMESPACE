@@ -1,9 +1,5 @@
 DLL <- useDynLib( highlight )
 
-importClassesFrom( Rcpp, "C++Object", "C++Class", "Module" )
-importFrom( Rcpp, Module, loadRcppModules )
-
-import( parser )
 import( codetools )
 import( utils )
 

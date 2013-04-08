@@ -14,7 +14,7 @@ simple_detective(x, ...)
 \arguments{
   \item{x}{
 output of the parser. The detective is only interested in the 
-\samp{token.desc} column of the data. 
+\samp{token} column of the data. 
 }
   \item{\dots}{
 Ignored
@@ -33,7 +33,7 @@ Romain Francois <romain@r-enthusiasts.com>
 }
 \examples{
 \dontrun{
-p <- parser( text = deparse( jitter ) )
+p <- parse( text = deparse( jitter ), keep.source=TRUE )
 simple_detective( p )
 }
 }

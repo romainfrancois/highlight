@@ -214,28 +214,27 @@ paste( "
   
 header_latex <- function( document, styles, boxes, minipage = FALSE ){
 	function( ){
-		txt <- "" ; rm( "txt", envir= environment() )
-		con <- textConnection( "txt", open = "w" )
-		add <- function( ... ){
-			cat( paste( ..., sep = "\n" ), file = con )
+		txt <- ""
+		add <- function( txt, ... ){
+			sprintf( "%s\n%s", txt, cat( paste( ..., sep = "\n" ) ) )
 		}
 		if( document ){
-			add( '\\documentclass{article}',
+			txt <- add( txt, 
+				'\\documentclass{article}',
 				'\\usepackage{color}', 
 				'\\usepackage{alltt}\n\\usepackage{hyperref}',
 				paste( styles, collapse = "\n")
 				)
 		}
 		if( document ){
-			add( boxes )
-			add( '\\begin{document}\n' )
+			txt <- add( txt, boxes )
+			txt <- add( txt, '\\begin{document}\n' )
 		}
 		if( isTRUE(minipage) ){
-			add( "\\vspace{1em}\\noindent\\fbox{\\begin{minipage}{0.9\\textwidth}" )
+			txt <- add( txt, "\\vspace{1em}\\noindent\\fbox{\\begin{minipage}{0.9\\textwidth}" )
 		}
-		add( '\\ttfamily\\noindent' )
-		close( con )
-		paste( txt, "\n", sep = "" )
+		txt <- add( txt, '\\ttfamily\\noindent\n' )
+		txt
 	}
 }
 

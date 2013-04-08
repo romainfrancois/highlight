@@ -72,9 +72,10 @@ external_highlight <- function( file,
     
     using_tempfile <- is.null(outfile) || !is.character(outfile)
     output_file <- if( using_tempfile ) tempfile() else outfile
-    HighlightMain( file, output_file, type, theme, lang, 
+    .Call( "HighlightMain", file, output_file, type, theme, lang, 
         isTRUE(line_numbers), 
-        isTRUE(doc)
+        isTRUE(doc), 
+        PACKAGE = "highlight"
         )
     code <- readLines(output_file)
     if( !is.null(outfile) ) writeLines( code, outfile )
