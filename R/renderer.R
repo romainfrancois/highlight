@@ -239,7 +239,7 @@ header_latex <- function( document, styles, boxes, minipage = FALSE ){
 }
 
 footer_latex <- function( document, minipage = FALSE ){
-	extra <- if(isTRUE(minipage)) "\\end{minipage}}\\vspace{1em}" else ""
+	extra <- if(isTRUE(minipage)) "\\end{minipage}}\\vspace{1em}" else "\n"
 	if( document ) {
 		function() {
 			sprintf( "\\mbox{}\n\\normalfont\n%s\\end{document}\n", extra )
