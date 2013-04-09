@@ -1,3 +1,7 @@
+0.4.1   2013-04-09
+
+   o    Using sprintf instead of snprintf (for solaris)
+
 0.4.0   2013-04-08
 
    o    Eliminated dependency on Rcpp and parser
