@@ -90,7 +90,7 @@ extern "C" SEXP get_highlighted_text(
 				
 			}
 			line = line1[i];
-			col  = 0 ;
+			col  = 1 ;
 		}
 		 
 		/* move right as many spaces as needed */
