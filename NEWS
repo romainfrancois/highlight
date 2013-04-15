@@ -1,3 +1,8 @@
+0.4.2   (future)
+
+   o    Dealing with spaces that were inserted where they should not have. reported
+        by Yihui Xie
+
 0.4.1   2013-04-09
 
    o    Using sprintf instead of snprintf (for solaris)

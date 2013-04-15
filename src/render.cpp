@@ -53,7 +53,7 @@ extern "C" SEXP get_highlighted_text(
 	int n = Rf_length( tokens ) ;
 	
 	int line = start ;
-	int col = 0; 
+	int col = 1; 
 	int i = 0, j = 0 ;
 	int nspaces = 0 ;
 	
@@ -107,7 +107,7 @@ extern "C" SEXP get_highlighted_text(
 		initial = 0;
 		
 		/* set the current positions */ 
-		col  = col2[i];
+		col  = col2[i]+1;
 		line = line2[i];
 	}
 	

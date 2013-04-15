@@ -33,6 +33,7 @@ along with Highlight.  If not, see <http://www.gnu.org/licenses/>.
 #include <iostream>
 #include <fstream>
 #include <vector>
+#include <stdio.h>
 
 #include "stringtools.h"
 
