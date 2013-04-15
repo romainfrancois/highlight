@@ -1,7 +1,10 @@
 0.4.2   (future)
 
    o    Dealing with spaces that were inserted where they should not have. reported
-        by Yihui Xie
+        by Yihui Xie. 
+        
+   o    Removing the last line from highligted code chunks in the sweave driver
+        Requested by Dirk Eddelbuettel. 
 
 0.4.1   2013-04-09
 

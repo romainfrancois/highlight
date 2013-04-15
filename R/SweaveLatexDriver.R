@@ -61,7 +61,7 @@ makeHighlightWeaveLatexCodeRunner <- function(evalFunc=RweaveEvalWithOpt, highli
 			 		sprintf( "\\begin{%s}", size ), 
 			 		"\\begin{Hchunk}" , 
 			 		tex ,
-			 		"\\end{Hchunk}\\vspace{1em}", 
+			 		"\\end{Hchunk}", 
 			 		sprintf( "\\end{%s}", size )
 			 	)
              writeLines( tex, object$output )

@@ -1,12 +1,4 @@
 
-private <- new.env()
-
-.findExternalHighlight <- function(){
-	highlight_cmd <- Sys.which( "highlight" )
-	private[["has_highlight"]] <- highlight_cmd != ""
-	private[["highlight"]] <- highlight_cmd
-}
-
 highlight_supported_languages <- function(){
     files <- list.files( 
         system.file( "highlight", "langDefs", package = "highlight" ),   
@@ -78,6 +70,11 @@ external_highlight <- function( file,
         PACKAGE = "highlight"
         )
     code <- readLines(output_file)
+    
+    w <- which( code == "\\mbox{}") ; code <- code[ - tail(w,1) ]
+    w <- tail( grep( "\\\\\\\\$", code ), 1 )
+    code[w] <- gsub( "\\\\\\\\$", "", code[w] ) 
+    
     if( !is.null(outfile) ) writeLines( code, outfile )
     invisible(code)
 }
