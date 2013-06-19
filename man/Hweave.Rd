@@ -9,8 +9,12 @@
     but they take advantage of the custom driver shipped with this package 
 }
 \usage{
-    Hweave(file, driver = HighlightWeaveLatex(), syntax = getOption("SweaveSyntax"), encoding = "", ...)
-    Htangle(file, driver = HighlightTangle(), syntax = getOption("SweaveSyntax"), encoding = "", ...)
+    Hweave(file, driver = HighlightWeaveLatex(), 
+        syntax = getOption("SweaveSyntax"), 
+        encoding = "", ...)
+    Htangle(file, driver = HighlightTangle(), 
+        syntax = getOption("SweaveSyntax"), 
+        encoding = "", ...)
 }
 \arguments{
   \item{file}{

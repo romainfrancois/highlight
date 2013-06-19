@@ -13,13 +13,14 @@ renderering and therefore does not depend on verbatim-like environments.
 }
 \usage{
 renderer_latex(document = TRUE, boxes = boxes_latex(), 
-	translator = translator_latex, formatter = formatter_latex, 
-	space = space_latex, newline = newline_latex, 
-	stylesheet = "default", 
-	styles = styler(stylesheet, "sty", styler_assistant_latex), 
-	header = header_latex(document, styles = styles, boxes = boxes, minipage = minipage), 
-	footer = footer_latex(document, minipage = minipage), 
-	minipage = FALSE, ...)
+  translator = translator_latex, formatter = formatter_latex, 
+  space = space_latex, newline = newline_latex, 
+  stylesheet = "default", 
+  styles = styler(stylesheet, "sty", styler_assistant_latex), 
+  header = 
+      header_latex(document, styles = styles, boxes = boxes, minipage = minipage),
+  footer = footer_latex(document, minipage = minipage), 
+  minipage = FALSE, ...)
 newline_latex()
 space_latex()
 }

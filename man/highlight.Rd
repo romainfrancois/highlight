@@ -11,15 +11,17 @@ of a detective.
 }
 \usage{
 highlight(file, output = stdout(), detective = simple_detective, renderer, 
-	encoding = "unknown", parse.output = parse(file, encoding = encoding, keep.source = TRUE), 
-	styles = detective(parse.output), expr = NULL, final.newline = FALSE, 
-	showPrompts = FALSE, prompt = getOption("prompt"), continue = getOption("continue"), 
-	initial.spaces = TRUE, 
-	size = c("normalsize", "tiny", "scriptsize", 
-    "footnotesize", "small", "large", "Large", "LARGE", "huge", 
-    "Huge"), 
-    show_line_numbers = FALSE,
-    ...)
+  encoding = "unknown", 
+  parse.output = parse(file, encoding = encoding, keep.source = TRUE), 
+  styles = detective(parse.output), expr = NULL, final.newline = FALSE, 
+  showPrompts = FALSE, prompt = getOption("prompt"), 
+  continue = getOption("continue"), 
+  initial.spaces = TRUE, 
+  size = c("normalsize", "tiny", "scriptsize", 
+  "footnotesize", "small", "large", "Large", "LARGE", "huge", 
+  "Huge"), 
+  show_line_numbers = FALSE,
+  ...)
 }
 \arguments{
   \item{file}{
