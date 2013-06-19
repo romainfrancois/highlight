@@ -7,6 +7,8 @@ importFrom( grDevices, rgb )
 importFrom( grDevices, colors )
 importFrom( grDevices, col2rgb )
 
+importFrom( tools, vignetteEngine )
+
 export( highlight )
 export( css.parser )
 
@@ -22,6 +24,8 @@ exportPattern( "_html$" )
 exportPattern( "_verbatim$" )
 
 export( HighlightWeaveLatex )
+export( Htangle )
+export( Hweave  )
 export( highlight.httpd.handler )
 
 export( external_highlight )

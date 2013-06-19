@@ -452,5 +452,29 @@ latex_color("highlightBorder", highlight.options$border )
 }
 HighlightWeaveLatexWritedoc
 }
+# }}}
+
+# {{{ Hweave
+Hweave <- function (file, driver = HighlightWeaveLatex(), syntax = getOption("SweaveSyntax"), encoding = "", ...){
+    	Sweave( file, driver = driver, syntax = syntax, encoding = encoding, ... )
+}
+
+HighlightTangle <- function(){
+	driver <- Rtangle()
+	runcode <- driver$runcode
+	driver$runcode <- function (object, chunk, options){
+		if( "lang" %in% names(options) && ! options$lang %in% c("r", "R" ) ){ 
+			object
+		} else {	
+			runcode(object, chunk, options)
+		}
+	}
+	driver
+}
+Htangle <- function (file, driver = HighlightTangle(), syntax = getOption("SweaveSyntax"), encoding = "", ...){
+	Sweave(file = file, driver = driver, encoding = encoding, ...)
+}
+# }}}
+
 # :tabSize=4:indentSize=4:noTabs=false:folding=explicit:collapseFolds=1:
 

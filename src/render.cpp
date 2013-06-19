@@ -34,8 +34,8 @@ extern "C" SEXP get_highlighted_text(
 	int* col1       = INTEGER( VECTOR_ELT( data, 1 ) );
 	int* line2      = INTEGER( VECTOR_ELT( data, 2 ) ); 
 	int* col2       = INTEGER( VECTOR_ELT( data, 3 ) ); 
-	int* top_level  = INTEGER( VECTOR_ELT( data, 9 ) );
-	SEXP tokens     = VECTOR_ELT( data , 10) ;
+	int* top_level  = INTEGER( VECTOR_ELT( data, 10 ) );
+	SEXP tokens     = VECTOR_ELT( data , 11) ;
 	
 	int end   = INTEGER(end_)[0] ;
 	int start = INTEGER(start_)[0] ;

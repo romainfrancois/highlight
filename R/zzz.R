@@ -8,5 +8,8 @@ NAMESPACE <- environment()
 		e[["highlight"]] <- highlight.httpd.handler
 	}
 
+	vignetteEngine("highlight", weave = Hweave, tangle = Htangle,
+        pattern = "[.][rRsS](nw|tex)$", 
+        package = "highlight")
 }
 

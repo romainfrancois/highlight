@@ -216,7 +216,7 @@ header_latex <- function( document, styles, boxes, minipage = FALSE ){
 	function( ){
 		txt <- ""
 		add <- function( txt, ... ){
-			sprintf( "%s\n%s", txt, cat( paste( ..., sep = "\n" ) ) )
+			sprintf( "%s\n%s", txt, paste( ..., sep = "\n" ) )
 		}
 		if( document ){
 			txt <- add( txt, 
