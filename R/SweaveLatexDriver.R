@@ -455,7 +455,10 @@ HighlightWeaveLatexWritedoc
 # }}}
 
 # {{{ Hweave
-Hweave <- function (file, driver = HighlightWeaveLatex(), syntax = getOption("SweaveSyntax"), encoding = "", ...){
+HweaveSyntaxNoweb <- SweaveSyntaxNoweb
+HweaveSyntaxNoweb$extension <- "\\.[hHrsRS]?nw$"
+
+Hweave <- function (file, driver = HighlightWeaveLatex(), syntax = HweaveSyntaxNoweb, encoding = "", ...){
     	Sweave( file, driver = driver, syntax = syntax, encoding = encoding, ... )
 }
 
@@ -471,7 +474,7 @@ HighlightTangle <- function(){
 	}
 	driver
 }
-Htangle <- function (file, driver = HighlightTangle(), syntax = getOption("SweaveSyntax"), encoding = "", ...){
+Htangle <- function (file, driver = HighlightTangle(), syntax = HweaveSyntaxNoweb, encoding = "", ...){
 	Sweave(file = file, driver = driver, encoding = encoding, ...)
 }
 # }}}

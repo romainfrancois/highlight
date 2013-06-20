@@ -11,10 +11,10 @@
 }
 \usage{
     Hweave(file, driver = HighlightWeaveLatex(), 
-        syntax = getOption("SweaveSyntax"), 
+        syntax = HweaveSyntaxNoweb, 
         encoding = "", ...)
     Htangle(file, driver = HighlightTangle(), 
-        syntax = getOption("SweaveSyntax"), 
+        syntax = HweaveSyntaxNoweb, 
         encoding = "", ...)
 }
 \arguments{
