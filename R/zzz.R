@@ -9,7 +9,7 @@ NAMESPACE <- environment()
 	}
 
 	vignetteEngine("highlight", weave = Hweave, tangle = Htangle,
-        pattern = "[.][rRsS](nw|tex)$", 
+        pattern = "[.][hHrRsS]nw$", 
         package = "highlight")
 }
 

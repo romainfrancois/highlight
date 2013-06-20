@@ -5,8 +5,9 @@
     Weaving and Tangling with syntax highlighting
 }
 \description{
-    \code{Hweave} and \code{Htangle} are similar to \code{Sweave} and \code{Stangle}, 
-    but they take advantage of the custom driver shipped with this package 
+    \code{Hweave} and \code{Htangle} are similar to \code{Sweave} 
+    and \code{Stangle}, but they take advantage of the
+    custom driver shipped with this package 
 }
 \usage{
     Hweave(file, driver = HighlightWeaveLatex(), 
@@ -43,6 +44,12 @@
     at load time. Client packages must declare to use it
     with the \code{VignetteBuilder} field in their \code{DESCRIPTION}
     file
+    
+    The vignette engine looks for files matching the 
+    pattern \code{"[.][hHrRsS]nw$"} although in order to distinguish 
+    vignettes using this engine and the default
+    Sweave engine, the recommandation is to use vignette with the \code{".Hnw"}
+    extension. 
 }
 \author{
     Romain Francois <romain@r-enthusiasts.com>
