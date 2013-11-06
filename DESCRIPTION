@@ -3,7 +3,7 @@ Type: Package
 Title: Syntax highlighter
 Version: 0.4.4
 Date: 2013-11-06
-Author@R: c( 
+Authors@R: c( 
   person("Romain", "Francois", role = c("aut", "cre"), email = "romain@r-enthusiasts.com" ),
   person("Andre", "Simon", role = "ctb" )
   )
