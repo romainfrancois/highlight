@@ -12,9 +12,9 @@ Syntax highlighter for R based on output from the R parser
 \tabular{ll}{
 Package: \tab highlight\cr
 Type: \tab Package\cr
-Version: \tab 0.4.3\cr
-Date: \tab 2013-06-20\cr
-License: \tab GPL (>= 2)\cr
+Version: \tab 0.4.6\cr
+Date: \tab 2013-11-06\cr
+License: \tab GPL (>= 3)\cr
 LazyLoad: \tab yes\cr
 }
 
