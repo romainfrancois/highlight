@@ -3,13 +3,15 @@ Type: Package
 Title: Syntax highlighter
 Version: 0.4.4
 Date: 2013-11-06
-Author: Romain Francois
-Maintainer: Romain Francois <romain@r-enthusiasts.com>
+Author@R: c( 
+  person("Romain", "Francois", role = c("aut", "cre"), email = "romain@r-enthusiasts.com" ),
+  person("Andre", "Simon", role = "ctb" )
+  )
 Description: Syntax highlighter for R code based 
 	on the results of the R parser. Rendering in HTML and latex 
 	markup. Custom Sweave driver performing syntax highlighting 
 	of R code chunks
-License: GPL (>= 2)
+License: GPL (>= 3)
 Depends: R (>= 3.0.0), tools, codetools, utils
 URL: http://highligh.r-enthusiasts.com
 
