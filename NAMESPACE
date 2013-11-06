@@ -1,7 +1,4 @@
-DLL <- useDynLib( highlight )
-
-import( codetools )
-import( utils )
+useDynLib( highlight )
 
 importFrom( grDevices, rgb )
 importFrom( grDevices, colors )
