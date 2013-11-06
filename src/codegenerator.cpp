@@ -779,16 +779,16 @@ namespace highlight
 		// Magic configuration of "file"
 		// This is intended for web plugins - only check filetypes often found in the net
 		char magic_gif[]    = {'G','I','F','8', 0};
-		char magic_png[]    = {0x89,'P','N','G', 0};
-		char magic_java[]   = {0xCA,0xFE,0xBA,0xBE, 0};
-		char magic_jpeg[]   = {0xFF,0xD8,0xFF, 0};
+		char magic_png[]    = {(char)0x89,'P','N','G', 0};
+		char magic_java[]   = {(char)0xCA,(char)0xFE,(char)0xBA,(char)0xBE, 0};
+		char magic_jpeg[]   = {(char)0xFF,(char)0xD8,(char)0xFF, 0};
 		char magic_bmp[]    = {'B','M', 0};
 		char magic_pdf[]    = {'%','P','D','F', 0};
-		char magic_utf8[]   = {0xEF,0xBB,0xBF,0};
+		char magic_utf8[]   = {(char)0xEF,(char)0xBB,(char)0xBF,0};
 		char magic_rar[]    = {'R','a','r','!', 0};
-		char magic_zip[]    = {'P','K',0x03,0x04, 0};
+		char magic_zip[]    = {'P','K',(char)0x03,(char)0x04, 0};
 		char magic_ace[]    = {'*','*','A','C','E','*','*', 0};
-		char magic_tgz[]    = {0x8b,0x1f, 0x00, 0x08, 0};
+		char magic_tgz[]    = {(char)0x8b,(char)0x1f, (char)0x00, (char)0x08, 0};
 		char magic_bzip[]   = {'B','Z', 0};
 
 		char* magic_table[] = {magic_utf8,

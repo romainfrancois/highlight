@@ -42,7 +42,7 @@ using namespace std;
 ConfigurationReader::ConfigurationReader ( const string & configuration_path )
 {
 	ifstream in ( configuration_path.c_str() );
-	fileFound=in;
+	fileFound=!(!in);
 	if ( fileFound )
 	{
 		string line;
