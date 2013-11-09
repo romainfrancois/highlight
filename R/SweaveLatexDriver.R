@@ -428,7 +428,7 @@ latex_color("highlightBorder", highlight.options$border )
     while(length(pos <- grep(object$syntax$docopt, chunk))){
         opts <- sub(paste(".*", object$syntax$docopt, ".*", sep=""),
                     "\\1", chunk[pos[1L]])
-        object$options <- utils:::SweaveParseOptions(opts, object$options,
+        object$options <- SweaveParseOptions(opts, object$options,
                                              HighlightWeaveLatexCheckOps )
         if (isTRUE(object$options$concordance)
               && !object$haveconcordance) {
