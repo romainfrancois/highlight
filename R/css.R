@@ -27,7 +27,7 @@ css.parse.color <- function( txt, default = "#000000" ){
 	
 	# css specs are from 0 to 255
 	rgb <- function( ... ){
-		grDevices::rgb( ..., maxColorValue = 255 )
+		rgb( ..., maxColorValue = 255 )
 	}
 	
 	# first we try to match against w3c standard colors

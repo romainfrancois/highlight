@@ -301,24 +301,24 @@ makeHighlightWeaveLatexCodeRunner <- function(evalFunc=RweaveEvalWithOpt, highli
 	
 	          if(options$fig && options$eval){
 	              if(options$eps){
-	                  grDevices::postscript(file=paste(chunkprefix, "eps", sep="."),
+	                  postscript(file=paste(chunkprefix, "eps", sep="."),
 	                                        width=options$width, height=options$height,
 	                                        paper="special", horizontal=FALSE)
 	
 	                  err <- try({SweaveHooks(options, run=TRUE)
 	                              eval(chunkexps, envir=.GlobalEnv)})
-	                  grDevices::dev.off()
+	                  dev.off()
 	                  if(inherits(err, "try-error")) stop(err)
 	              }
 	              if(options$pdf){
-	                  grDevices::pdf(file=paste(chunkprefix, "pdf", sep="."),
+	                  pdf(file=paste(chunkprefix, "pdf", sep="."),
 	                                 width=options$width, height=options$height,
 	                                 version=options$pdf.version,
 	                                 encoding=options$pdf.encoding)
 	
 	                  err <- try({SweaveHooks(options, run=TRUE)
 	                              eval(chunkexps, envir=.GlobalEnv)})
-	                  grDevices::dev.off()
+	                  dev.off()
 	                  if(inherits(err, "try-error")) stop(err)
 	              }
 	              if(options$include) {

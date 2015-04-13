@@ -1,3 +1,7 @@
+0.4.5
+
+   o    Abandon highlight.httpd.handler
+   
 0.4.2   2013-06-19
 
    o    Dealing with spaces that were inserted where they should not have. reported
