@@ -1,5 +1,4 @@
 
-# http://www.w3schools.com/css/css_colornames.asp
 w3c.colors <- list( 
 	aqua    = "#00FFFF" , 
 	black   = "#000000" , 

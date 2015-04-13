@@ -49,8 +49,7 @@ Romain Francois <romain@r-enthusiasts.com>
 	If the setting is \samp{color} or \samp{background}, the parser then
 	tries to map the value to a hex color specification 
 	by trying the following options: the value is already a hex
-	color, the name of the color is one of the 16 w3c standard colors
-	(see \url{http://www.w3schools.com/css/css_colors.asp}), the name 
+	color, the name of the color is one of the 16 w3c standard colors, the name 
 	is an R color (see \code{\link[grDevices]{colors}}), the 
 	color is specified as \samp{rgb(r,g,b)}. If all fails, the
 	color used is black for the \samp{color} setting and 
