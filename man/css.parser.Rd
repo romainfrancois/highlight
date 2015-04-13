@@ -22,10 +22,6 @@ lines of text to parse, read from \samp{file} by default
 	A list with one element per style class declaration. Each element 
 	is a list which has one element per CSS setting (\samp{color}, \samp{background}, ...)
 }
-\references{
-	\url{http://www.w3schools.com/css/}
-	\url{http://www.w3schools.com/css/css_colors.asp}
-}
 \author{
 Romain Francois <romain@r-enthusiasts.com>
 }

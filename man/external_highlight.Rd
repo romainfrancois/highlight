@@ -36,7 +36,8 @@ Nothing if outfile is given, with the side effect of writing into the file.
 The result as a character vector if outfile is NULL
 }
 \references{
-    Based on the highlight library from \url{http://www.andre-simon.de/index.html}
+    Based on the highlight library from 
+    \url{http://www.andre-simon.de/doku/highlight/en/highlight.php}
 }
 \seealso{
     \code{\link{highlight}} to highlight R code using the information from the 
