@@ -139,12 +139,24 @@ translator_latex <- .translator_latex_maker()
 
 space_latex <- function( ){
 	"{\\ }"
-}
+}       
 
 newline_latex <- function( ){
 	"\\hspace*{\\fill}\\\\\n\\hlstd{}" 
 }
 
+#' Creates the set of latex boxes
+#' 
+#' This function returns the set of latex boxes definitions
+#' that should be included in the document preamble. The 
+#' latex renderer includes these definitions automatically when the 
+#' document argument is TRUE, but not otherwise.
+#' 
+#' @return A character vector containing latex definitions for boxes
+#' used by the latex renderer
+#' @seealso \code{\link{translator_latex}} translates text into markup that 
+#' makes use of these boxes
+#' @export
 boxes_latex <- function( ){
 
 

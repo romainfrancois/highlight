@@ -29,7 +29,6 @@ a vector of styles grouping similar tokens together
 Romain Francois <romain@r-enthusiasts.com>
 }
 \seealso{
-\code{\link{dummy_detective}}
 }
 \examples{
 \dontrun{

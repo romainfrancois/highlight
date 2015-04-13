@@ -10,7 +10,6 @@ export( highlight )
 export( css.parser )
 
 export( simple_detective )
-export( dummy_detective )
 
 export( getStyleFile )
 export( renderer )
@@ -23,7 +22,6 @@ exportPattern( "_verbatim$" )
 export( HighlightWeaveLatex )
 export( Htangle )
 export( Hweave  )
-export( highlight.httpd.handler )
 
 export( external_highlight )
 export( highlight_output_types )
