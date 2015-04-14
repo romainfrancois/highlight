@@ -131,22 +131,6 @@ subsetParseData <- function( p, i = 0, styles){
 #' 		renderer = renderer_html( document = TRUE ) )
 #' 	highlight( file = tf, detective = simple_detective, 
 #' 		renderer = renderer_latex( document = TRUE ) )
-#' 		
-#' 	# verbatim renderer that upper cases function names
-#' 	uppercase_formatter <- function( tokens, styles, ...){
-#' 		out <- tokens
-#' 		fcalls <- styles == "functioncall"
-#' 		out[ fcalls ] <- casefold( out[ fcalls ], upper = TRUE )
-#' 		out
-#' 	}
-#' 	uppercase_renderer <- renderer_verbatim( 
-#' 		formatter = uppercase_formatter )
-#' 	# to debug the formatter, use this : 
-#' 	# debug( uppercase_renderer$formatter )
-#' 	# because this will not work:
-#' 	# debug( uppercase_formatter )
-#' 	highlight( file = tf, detective = simple_detective, 
-#' 		renderer = uppercase_renderer )
 #' 	
 #' }
 #' @export

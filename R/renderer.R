@@ -69,8 +69,6 @@
 #' 
 #' The \code{\link{renderer_latex}} implements a latex renderer.
 #' 
-#' The \code{\link{renderer_verbatim}} implements a renderer that does 
-#' not do anything. 
 #' @export
 renderer <- function( translator, formatter, space, newline, header, footer, ... ){
 	structure( list( translator = translator, 
@@ -547,39 +545,6 @@ renderer_latex <- function( document = TRUE,
 }
 # }}}
 
-# {{{ verbatim 
-formatter_verbatim <- function( tokens, styles, ... ){
-	tokens
-}
-
-translator_verbatim <- function( x, size ){
-	x
-}
-
-space_verbatim <- function( ){
-	" "
-}
-
-newline_verbatim <- function( ){
-	"\n" 
-}
-
-header_verbatim <- NULL
-footer_verbatim <- NULL
-
-renderer_verbatim <- function(
-	translator = translator_verbatim, formatter = formatter_verbatim, 
-	space = space_verbatim, newline = newline_verbatim, 
-	header = header_verbatim, footer = footer_verbatim ,  
-	... ){
-	
-	renderer( translator = translator, formatter = formatter, 
-		space = space, newline = newline, 
-		header = header, footer = footer, 
-		... )
-}
-
-# }}}
 # }}}
 
 # {{{ getStyleFile
