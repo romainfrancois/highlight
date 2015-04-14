@@ -499,6 +499,36 @@ HighlightWeaveLatexWritedoc
 HweaveSyntaxNoweb <- SweaveSyntaxNoweb
 HweaveSyntaxNoweb$extension <- "\\.[hHrsRS]?nw$"
 
+#' Weaving and Tangling with syntax highlighting
+#' 
+#' \code{Hweave} and \code{Htangle} are similar to \code{Sweave} 
+#' and \code{Stangle}, but they take advantage of the
+#' custom driver shipped with this package 
+#'
+#'    These functions exist for the purpose of the 
+#'    \code{\\VignetteEngine} option in vignette introduced in R 3.0.0
+#'    
+#'    \code{highlight} loads the \code{highlight} vignette engine 
+#'    at load time. Client packages must declare to use it
+#'    with the \code{VignetteBuilder} field in their \code{DESCRIPTION}
+#'    file
+#'    
+#'    The vignette engine looks for files matching the 
+#'    pattern \code{"[.][hHrRsS]nw$"} although in order to distinguish 
+#'    vignettes using this engine and the default
+#'    Sweave engine, the recommandation is to use vignette with the \code{".Hnw"}
+#'    extension. 
+#' 
+#' @param file Path to Sweave source file
+#' @param driver  The actual workhorse, see the Details section in \code{\link[utils]{Sweave}}
+#' @param syntax \code{NULL} or an object of class \code{SweaveSyntax}
+#'      or a character string with its name. See the section \code{Syntax Definition}
+#'      in \code{\link[utils]{Sweave}}
+#' @param encoding  The default encoding to assume for \code{file}
+#' @param \dots Further arguments passed to the driver's setup function.
+#' 
+#' @rdname Hweave
+#' @export
 Hweave <- function (file, driver = HighlightWeaveLatex(), syntax = HweaveSyntaxNoweb, encoding = "", ...){
     	Sweave( file, driver = driver, syntax = syntax, encoding = encoding, ... )
 }
@@ -515,6 +545,9 @@ HighlightTangle <- function(){
 	}
 	driver
 }
+
+#' @rdname Hweave
+#' @export
 Htangle <- function (file, driver = HighlightTangle(), syntax = HweaveSyntaxNoweb, encoding = "", ...){
 	Sweave(file = file, driver = driver, encoding = encoding, ...)
 }
