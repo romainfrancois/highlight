@@ -42,6 +42,28 @@ highlight_type <- function(type = highlight_output_types() ){
     match( type, highlight_output_types() ) - 1L
 }
 
+#' Multi-language source code highlighter
+#' 
+#' Multi-language source code highlighter
+#' 
+#' @param file Source file to highlight
+#' @param outfile Destination of the highlighted code. 
+#'       When \code{NULL}, the code is simply returned as a character vector
+#' @param theme One of the themes. See \code{\link{highlight_themes}} for the list
+#'              of available themes.
+#' @param lang The language in which the code is to be interpreted. If this argument
+#'             is not given, it will be deduced from the file extension.
+#' @param type Output format. See \code{\link{highlight_output_types}} for the list 
+#'             of supported output types.
+#' @param line_numbers if \code{TRUE}, the result will include line numbers
+#' @param doc if \code{TRUE}, the result is a stand alone document, otherwise, just a 
+#'            portion to include in a document
+#' @param code If given, then the source code is not read from the file
+#' 
+#' @return Nothing if \code{outfile} is given, with the side effect of writing into the file. 
+#' The result as a character vector if outfile is NULL
+#' @seealso \code{\link{highlight}} to highlight R code using the information from the parser
+#' @export
 external_highlight <- function( file, 
     outfile = stdout(), 
     theme = "kwrite",
