@@ -289,10 +289,14 @@ formatter_latex <- function( tokens, styles, ... ){
 }
 translator_latex <- .translator_latex_maker()
 
+#' @rdname renderer_latex
+#' @export
 space_latex <- function( ){
 	"{\\ }"
 }       
 
+#' @rdname renderer_latex
+#' @export
 newline_latex <- function( ){
 	"\\hspace*{\\fill}\\\\\n\\hlstd{}" 
 }
@@ -476,7 +480,51 @@ col2latexrgb <- function( hex ){
 	paste( col, collapse = "," )
 }
 
-
+#' LaTeX renderer
+#' 
+#' renderer implementation targetting latex markup. The result
+#' markup uses the latex \samp{alltt} package to achieve true type 
+#' renderering and therefore does not depend on verbatim-like environments.
+#' 
+#' @param document logical. Should the renderer create the full document or only the code
+#'                 section, assuming the document is already created. Using FALSE 
+#'                 is used by the sweave driver shipped with this package.
+#' @param boxes  a function that returns definitions of latex boxes used for non standard
+#'               characters. The reason for using boxes is that some character need 
+#'               to be escaped to be rendered, and unfortunately, escaping turns
+#'               alltt off, which does not produce satisfying rendering. This argument
+#'               is used by the header function when the document argument is TRUE. 
+#'               It is also used in the sweave driver at the very beginning of the document
+#' @param translator translation of characters into latex markup. See \code{\link{translator_latex}} for details
+#' @param formatter latex formatter. Tokens are wrapped into a latex command related
+#'                  to the style they should honor.
+#' @param space returns a space character that does not get reduced by latex
+#' @param newline returns a newline character
+#' @param stylesheet stylesheet to use. 
+#' @param styles style definitions inferred from the parsing of the stylesheet. See \code{\link{styler}} and
+#'               \code{\link{styler_assistant_latex}}. 
+#' @param header returns the header. If the document argument is TRUE, the header contains
+#'                the style definitions and the boxes definitions. If it is FALSE, a minimal
+#'                header is produced to turn alltt on. In the latter case, boxes and style 
+#'                definitions are assumed to have been inserted already, latex will not 
+#'                compile the document otherwise.
+#' @param footer returns the footer. Depending on the document argument, either a minimal
+#'               footer is produced (turning off alltt) or the full latex 
+#'               document is closed.
+#' @param minipage if TRUE, the highlighted latex is included in a minipage environment
+#' @param \dots Additional arguments
+#' 
+#' @return a \samp{renderer} object, suitable for the \samp{renderer} argument of 
+#' \code{\link{highlight}}.
+#' @examples
+#'	\dontrun{
+#'		r <- renderer_latex(document = T )
+#'		r$space()
+#'		r$newline()
+#'		r$boxes()
+#'		r$translator( "# the hash symbol gets a latex box" )
+#'	}
+#' @export
 renderer_latex <- function( document = TRUE, 
 	boxes = boxes_latex(),
 	translator = translator_latex, 
