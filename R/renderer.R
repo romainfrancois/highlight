@@ -440,9 +440,23 @@ footer_latex <- function( document, minipage = FALSE ){
 	}
 }
 
-#' styler assistant for latex
+#' latex styler assistant
 #' 
-#' @param x output of css parser
+#' This function takes the output of the \code{\link{css.parser}} and
+#' produces latex style definitions from it.
+#' 
+#' The function create a new latex command for each css declaration, i.e.
+#' each item of the list \samp{x} it is passed. 
+#' 
+#' The assistant currently honours the following css settings: color, 
+#' \samp{text-decoration:underline}, \samp{font-weight:bold[er]} and 
+#' \samp{font-style:italic}
+#' 
+#' @param x output from \code{\link{css.parser}}
+#' @return a vector of latex style definitions corresponding to (a subset of) the 
+#'         output of the parser
+#' @seealso \code{\link{styler}}
+#' @export
 styler_assistant_latex <- function( x ){
 	
 	styles <- sapply( x, function( declaration ) {
