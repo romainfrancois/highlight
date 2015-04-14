@@ -62,6 +62,31 @@ newline_html <- function( ){
 	"\n" 
 }
 
+#' html renderer header and footer
+#' 
+#' these functions build the header function and the footer function 
+#' used by the html renderer
+#' 
+#' @param document logical. If \code{TRUE} the built header and footer
+#'                 functions will return the beginning and end 
+#'                 of a full html document. If \code{FALSE}, the built functions will 
+#'                 only return the opening and closing \samp{<pre>} tags.  
+#' @param stylesheet  stylesheet to use. See \code{getStyleFile} for details 
+#'                    on where the stylesheet can be located.
+#' @return header and footer functions.
+#' @seealso \code{\link{renderer_html}} uses these functions to create a renderer
+#' suitable for the \samp{renderer} argument of \code{\link{highlight}}
+#' @examples
+#' h <- header_html( document = FALSE )
+#' h()
+#' h <- header_html( document = TRUE, stylesheet = "default") 
+#' h()
+#' f <- footer_html( document = TRUE )
+#' f()
+#' f <- footer_html( document = FALSE )
+#' f() 
+#' @rdname header_html 
+#' @export
 header_html <- function( document, stylesheet){
 	if( document ){
 		cssfile <- getStyleFile( stylesheet )
@@ -74,7 +99,9 @@ header_html <- function( document, stylesheet){
 		function() "<pre>\n"
 	}
 }
-
+  
+#' @rdname header_html
+#' @export
 footer_html <- function( document ){
 	if( document ){
 		function() "\n</pre>\n</body>\n</html>\n"
