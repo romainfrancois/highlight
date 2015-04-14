@@ -100,6 +100,17 @@ renderer_html <- function( document = TRUE,
 # }}}
 
 # {{{ latex 
+#' Latex formatter
+#' 
+#' Combines tokens and styles into a latex command
+#' @param tokens vector of okens
+#' @param styles vector of styles
+#' @param \dots ignored
+#' @return A vector of latex commands
+#' @seealso \code{\link{renderer_latex}}
+#' @examples
+#' formatter_latex( "hello world", "blue" )
+#' @export
 formatter_latex <- function( tokens, styles, ... ){
 	ifelse( styles == "", 
 		tokens, 
