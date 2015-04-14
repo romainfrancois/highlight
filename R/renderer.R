@@ -274,7 +274,28 @@ paste( "
 ' )
 
 }
-  
+     
+#' latex header and footer
+#' 
+#' These functions return appropriate header and footer functions
+#' for the latex renderer
+#' 
+#' @param document  logical. If TRUE the header and footer functions will create the 
+#' full document (including preamble with boxes and styles)
+#' @param styles  a vector of style definitions to include in the preamble if document is TRUE
+#' @param boxes a vector of boxes definitions to include in the preamble if document is TRUE
+#' @param minipage if \code{TRUE}, the highlighted latex is included in a minipage environment
+#' 
+#' @return A function is returned, suitable for the header or footer argument
+#' of the latex renderer
+#' 
+#' @rdname header_latex
+#' @examples   
+#' h <- header_latex( document = FALSE )
+#' h()
+#' f <- footer_latex( document = FALSE )
+#' f()
+#' @export
 header_latex <- function( document, styles, boxes, minipage = FALSE ){
 	function( ){
 		txt <- ""
@@ -301,6 +322,8 @@ header_latex <- function( document, styles, boxes, minipage = FALSE ){
 	}
 }
 
+#' @rdname header_latex
+#' @export
 footer_latex <- function( document, minipage = FALSE ){
 	extra <- if(isTRUE(minipage)) "\\end{minipage}}\\vspace{1em}" else "\n"
 	if( document ) {
