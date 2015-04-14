@@ -1,16 +1,15 @@
 Package: highlight
 Type: Package
-Title: Syntax highlighter
-Version: 0.4.4
-Date: 2013-11-06
+Title: Syntax Highlighter
+Version: 0.4.5
+Date: 2015-04-14
 Authors@R: c( 
   person("Romain", "Francois", role = c("aut", "cre"), email = "romain@r-enthusiasts.com" ),
   person("Andre", "Simon", role = "ctb" )
   )
-Description: Syntax highlighter for R code based 
-	on the results of the R parser. Rendering in HTML and latex 
-	markup. Custom Sweave driver performing syntax highlighting 
-	of R code chunks
+Description: Syntax highlighting for R code based on the results of 
+ the R parser is providing via rendering in HTML and LaTeX markup. 
+ A custom Sweave driver performs syntax highlighting of R code chunks.
 License: GPL (>= 3)
 Depends: R (>= 3.0.0)
 Imports: grDevices, tools
