@@ -1,4 +1,5 @@
 #' @importFrom grDevices rgb postscript dev.off pdf
+#' @importFrom tools vignetteEngine
 NULL
 
 NAMESPACE <- environment()

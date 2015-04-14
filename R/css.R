@@ -77,8 +77,6 @@ css.parse.text_decoration <- function ( txt ){
 
 #' Minimal CSS parser
 #' 
-#' Minimal CSS parser
-#'
 #' @param file file to parse
 #' @param lines text lines to parse
 #' 
@@ -118,7 +116,7 @@ css.parse.text_decoration <- function ( txt ){
 #' 
 #' 	Other settings are not further parsed at present.
 #' 
-#' @example
+#' @examples
 #' cssfile <- system.file( "stylesheet", "default.css", package="highlight")
 #' css.parser( cssfile )
 #' @export
