@@ -285,6 +285,17 @@ formatter_latex <- function( tokens, styles, ... ){
 	formals(f)[[2]] <- LATEX_SIZES
 	f
 }
+
+#' LaTeX translator
+#' 
+#' This function translates character vectors so that they nicely print
+#' in LaTeX. In particular this uses latex boxes.
+#' 
+#' @param x text to translate
+#' @param size font size
+#' @return  translated text
+#' @seealso the latex renderer: \code{\link{renderer_latex}} uses this translator.
+#' @export
 translator_latex <- .translator_latex_maker()
 
 #' @rdname renderer_latex
