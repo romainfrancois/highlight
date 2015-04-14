@@ -113,7 +113,7 @@ subsetParseData <- function( p, i = 0, styles){
 #' @param size font size. only respected by the latex renderer so far.
 #' @param show_line_numbers logical. When TRUE, line numbers are shown in the output.
 #' @param \dots additional arguments, currently ignored. 
-#' 
+#'               
 #' @return The resulting formatted text is returned invisibly. It is also 
 #' written to the output if the output is not \code{NULL}
 #' @seealso 

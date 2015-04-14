@@ -18,6 +18,47 @@ HighlightWeaveLatexCheckOps <- function(options){
 }
 
 # {{{ HighlightWeaveLatex: driver
+#' Sweave driver performing syntax highlighting
+#' 
+#' Sweave driver using the highlight latex renderer to perform syntax 
+#' highlighting of input R code in sweave chunks.
+#' 
+#' This sweave driver is very similar to standard driver that is 
+#' included in \samp{utils}. The difference is that input R code and 
+#' verbatim output is rendered using \code{highlight} enabling 
+#' syntax highlighting of R code. 
+#' 
+#' Instead of using \samp{Sinput} and \samp{Soutput} commands, this 
+#' driver uses \samp{Hinput} and \samp{Houtput} and defines these commands
+#' at the very beginning of the document, letting the user the option 
+#' to overwrite them as necessary. 
+#' 
+#' Latex boxes defined by the latex renderer (\code{\link{renderer_latex}})
+#' and style definitions needed are also written at the beginning 
+#' of the document.
+#' 
+#' Because highlight does not use verbatim environments, the user
+#' of this driver can freely redefine the \samp{Hinput}, \samp{Houtput}
+#' and \samp{Hchunk} environments to achieve greater control
+#' of the output latex document than with the standard driver.
+#' 
+#' @param boxes if \code{TRUE}, code blocks are wrapped in boxes.
+#' @param bg background color for code boxes.
+#' @param border color to use for the border of code boxes.
+#' @param highlight.options Can be used instead of the other arguments to 
+#'        set the \code{boxes}, \code{bg} and \code{border} settings.
+#' 
+#' @param A sweave driver, suitable for the \samp{driver} argument of
+#' \code{\link[utils]{Sweave}} 
+#' @examples
+#' \dontrun{
+#' # using the driver on the grid vignette
+#' require( grid )
+#' v <- vignette( "grid", package = "grid" )$file
+#' file.copy( v, "grid.Snw" )
+#' Sweave( "grid.Snw", driver= HighlightWeaveLatex() )
+#' }
+#' @export
 HighlightWeaveLatex <- function(boxes=FALSE, bg = rgb( 0.95,0.95,0.95, maxColorValue = 1 ), border = "black", 
 	highlight.options = list( boxes = boxes, bg = bg, border = border )
 ) {

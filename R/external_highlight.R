@@ -6,6 +6,12 @@ highlight_supported_languages <- function(){
     gsub( "[.]lang$", "", files )
 }
 
+#' List of themes supported by external_highlight
+#' 
+#' List of themes supported by \code{\link{external_highlight}}
+#' 
+#' @return A character vector with the names of the themes
+#' @export
 highlight_themes <- function(){
     files <- list.files( 
         system.file( "highlight", "themes", package = "highlight" ),   
@@ -13,6 +19,12 @@ highlight_themes <- function(){
     gsub( "[.]style$", "", files )
 }
 
+#' List of available output types supported by external_highlight
+#' 
+#' List of available output types supported by \code{\link{external_highlight}}
+#' 
+#' @return A character vector with the list of supported types
+#' @export
 highlight_output_types <- function(){
     c("HTML","XHTML","TEX","LATEX","RTF","XML","ANSI","XTERM256",
         "HTML32", "SVG","BBCODE" )    
