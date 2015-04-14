@@ -27,6 +27,19 @@ renderer <- function( translator, formatter, space, newline, header, footer, ...
 
 # {{{ renderer implementations
 # {{{ html
+
+#' html formatter
+#' 
+#' Wraps tokens into span tags with the class corresponding to the style
+#' 
+#' @param tokens tokens to wrap
+#' @param styles styles to give to the tokens
+#' @param \dots ignored
+#' @seealso \code{\link{renderer_html}}
+#' @examples
+#' f <- formatter_html( )
+#' f( "hello world", "blue")
+#' @export
 formatter_html <- function( tokens, styles, ... ){
 	ifelse( styles == "", 
 		tokens, 
