@@ -9,8 +9,7 @@
 #' 	\code{\link{renderer}}s, such as the \code{\link{renderer_latex}} 
 #' 	or \code{\link{renderer_html}} and is helped by a
 #' 	detective to make sense of the results
-#' 	from the parser. The package ships a \code{\link{dummy_detective}}
-#' 	and a \code{\link{simple_detective}}. 
+#' 	from the parser. The package ships a \code{\link{simple_detective}}. 
 #' 	
 #' 	The package also defines a custom sweave driver 
 #' 	(\code{\link{HighlightWeaveLatex}}) for latex based 
@@ -47,7 +46,7 @@
 #' unlink( tf )
 #' }
 #' @docType package
-#' @name highlight
+#' @name highlight-package
 NULL
 	
 subsetParseData <- function( p, i = 0, styles){

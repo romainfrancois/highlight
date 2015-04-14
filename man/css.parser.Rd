@@ -51,8 +51,4 @@ The parser is very minimal and will only identify CSS declarations like
 
 	Other settings are not further parsed at present.
 }
-\examples{
-cssfile <- system.file( "stylesheet", "default.css", package="highlight")
-css.parser( cssfile )
-}
 

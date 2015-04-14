@@ -89,9 +89,6 @@ renderer <- function( translator, formatter, space, newline, header, footer, ...
 #' @param styles styles to give to the tokens
 #' @param \dots ignored
 #' @seealso \code{\link{renderer_html}}
-#' @examples
-#' f <- formatter_html( )
-#' f( "hello world", "blue")
 #' @export
 formatter_html <- function( tokens, styles, ... ){
 	ifelse( styles == "", 

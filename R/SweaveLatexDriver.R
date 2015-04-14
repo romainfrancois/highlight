@@ -48,7 +48,7 @@ HighlightWeaveLatexCheckOps <- function(options){
 #' @param highlight.options Can be used instead of the other arguments to 
 #'        set the \code{boxes}, \code{bg} and \code{border} settings.
 #' 
-#' @param A sweave driver, suitable for the \samp{driver} argument of
+#' @return A sweave driver, suitable for the \samp{driver} argument of
 #' \code{\link[utils]{Sweave}} 
 #' @examples
 #' \dontrun{

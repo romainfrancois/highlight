@@ -17,9 +17,10 @@ HighlightWeaveLatex(boxes = FALSE, bg = rgb(0.95, 0.95, 0.95, maxColorValue
 
 \item{highlight.options}{Can be used instead of the other arguments to
        set the \code{boxes}, \code{bg} and \code{border} settings.}
-
-\item{A}{sweave driver, suitable for the \samp{driver} argument of
-\code{\link[utils]{Sweave}}}
+}
+\value{
+A sweave driver, suitable for the \samp{driver} argument of
+\code{\link[utils]{Sweave}}
 }
 \description{
 Sweave driver using the highlight latex renderer to perform syntax

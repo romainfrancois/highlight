@@ -16,10 +16,6 @@ formatter_html(tokens, styles, ...)
 \description{
 Wraps tokens into span tags with the class corresponding to the style
 }
-\examples{
-f <- formatter_html( )
-f( "hello world", "blue")
-}
 \seealso{
 \code{\link{renderer_html}}
 }
