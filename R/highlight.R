@@ -79,7 +79,77 @@ subsetParseData <- function( p, i = 0, styles){
 }
 
 
-#' highlights the content of the file x
+#' syntax highlighting based on the R parser
+#' 
+#' The \code{highlight} function performs syntax highlighting based on the 
+#' results of the \code{\link[base]{parse}} and the investigation
+#' of a detective.
+#' 
+#' @param file code file to parse. This is only used if the \code{parse.output} is given
+#' @param output where to write the rendered text. If this is anything else than the 
+#' default (standard output), the \code{\link{sink}} function
+#' is used to redirect the standard output to the output.
+#' @param detective the detective chooses the style to apply to each token, basing its 
+#' investigation on the results of the \code{\link[base]{parse}}
+#' @param renderer highlight delegates rendering the information to the renderer. This 
+#' package includes html and latex renderers. See \code{\link{renderer_html}}
+#' and \code{\link{renderer_latex}}
+#' @param encoding encoding to assume for the file. the argument is directly passed 
+#' to the \code{\link[base]{parse}}.
+#' @param parse.output output from the \code{\link[base]{parse}}. If this is given, the 
+#' arguments \code{file} and \code{encoding} are not used
+#' @param styles result of the detective investigation. A character vector 
+#' with as many elements as there are tokens in the parser output
+#' @param expr In case we want to render only one expression and not the full parse
+#' tree, this argument can be used to specify which expression
+#' to render. The default (NULL) means render all expressions. This 
+#' feature is used by the sweave driver shipped with this package. See
+#' \code{\link{HighlightWeaveLatex}}
+#' @param final.newline logical. Indicates if a newline character is added after all tokens.
+#' @param showPrompts if TRUE, the highlighted text will show standard and continue prompt
+#' @param prompt standard prompt
+#' @param continue continue prompt
+#' @param initial.spaces should initial spaces be displayed or skipped.
+#' @param size font size. only respected by the latex renderer so far.
+#' @param show_line_numbers logical. When TRUE, line numbers are shown in the output.
+#' @param \dots additional arguments, currently ignored. 
+#' 
+#' @return The resulting formatted text is returned invisibly. It is also 
+#' written to the output if the output is not \code{NULL}
+#' @seealso 
+#' 	\code{\link{renderer_html}} and \code{\link{renderer_latex}} are the
+#' 	two implementation of renderers currently available in this package. 
+#' 	
+#' 	\code{\link{simple_detective}} is an example detective which does a very 
+#' 	simple investigation.
+#' 
+#' @examples
+#' \dontrun{
+#' 	tf <- tempfile()
+#' 	dump( "jitter", file = tf )
+#' 	highlight( file = tf, detective = simple_detective, 
+#' 		renderer = renderer_html( document = TRUE ) )
+#' 	highlight( file = tf, detective = simple_detective, 
+#' 		renderer = renderer_latex( document = TRUE ) )
+#' 		
+#' 	# verbatim renderer that upper cases function names
+#' 	uppercase_formatter <- function( tokens, styles, ...){
+#' 		out <- tokens
+#' 		fcalls <- styles == "functioncall"
+#' 		out[ fcalls ] <- casefold( out[ fcalls ], upper = TRUE )
+#' 		out
+#' 	}
+#' 	uppercase_renderer <- renderer_verbatim( 
+#' 		formatter = uppercase_formatter )
+#' 	# to debug the formatter, use this : 
+#' 	# debug( uppercase_renderer$formatter )
+#' 	# because this will not work:
+#' 	# debug( uppercase_formatter )
+#' 	highlight( file = tf, detective = simple_detective, 
+#' 		renderer = uppercase_renderer )
+#' 	
+#' }
+#' @export
 highlight <- function( file, output = stdout(),
     detective = simple_detective, renderer, encoding = "unknown",
     parse.output = parse( file, encoding = encoding, keep.source = TRUE ),
