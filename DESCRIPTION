@@ -11,7 +11,7 @@ Authors@R: c(
   person("Andre", "Simon",, "andre.simon1@gmx.de", "ctb" )
   )
 License: GPL (>= 3)
-Depends: R (>= 3.2.0)
+Depends: R (>= 3.1.3)
 Imports: grDevices, tools
 URL: https://github.com/romainfrancois/highlight
 BugReports: https://github.com/romainfrancois/highlight/issues
