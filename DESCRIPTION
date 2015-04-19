@@ -5,7 +5,7 @@ Description: Syntax highlighter for R code based
 	on the results of the R parser. Rendering in HTML and latex 
 	markup. Custom Sweave driver performing syntax highlighting 
 	of R code chunks.
-Version: 0.4.6
+Version: 0.4.7
 Authors@R: c( 
   person("Romain", "Francois",, "romain@r-enthusiasts.com", c("aut", "cre") ),
   person("Andre", "Simon",, "andre.simon1@gmx.de", "ctb" )
