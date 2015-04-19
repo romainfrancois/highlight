@@ -26,7 +26,7 @@ css.parse.color <- function( txt, default = "#000000" ){
 	
 	# css specs are from 0 to 255
 	rgb <- function( ... ){
-		rgb( ..., maxColorValue = 255 )
+		grDevices::rgb( ..., maxColorValue = 255 )
 	}
 	
 	# first we try to match against w3c standard colors
@@ -49,7 +49,7 @@ css.parse.color <- function( txt, default = "#000000" ){
 	if( grepl( "rgb", txt ) ){
 		p <- try( parse( text = txt), silent = TRUE )
 		if( !inherits( p, "try-error" ) ){
-			res <- try( eval( p ), silent = T )
+			res <- try( eval( p, envir = environment() ), silent = T )
 			if( !inherits( res, "try-error" ) ) return(res)
 		}
 	}
@@ -134,7 +134,7 @@ css.parser <- function( file, lines = readLines( file ) ){
 	
 	pos <- matrix( c(dec.lines, dec.close), ncol = 2 )
 	styles <- apply( pos, 1, function( x ) {
-		data <- lines[ (x[1]+1) : (x[2]-1) ]
+	  data <- lines[ (x[1]+1) : (x[2]-1) ]
 		settings.rx <- "^\\s*(.*?)\\s*:\\s*(.*?)\\s*;\\s*$"
 		settings <- sub( settings.rx, "\\1", data , perl = TRUE)
 		contents <- sub( settings.rx, "\\2", data  , perl = TRUE)

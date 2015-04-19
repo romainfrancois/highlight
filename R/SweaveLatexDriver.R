@@ -81,7 +81,6 @@ makeHighlightWeaveLatexCodeRunner <- function(evalFunc=RweaveEvalWithOpt, highli
     ## of an Sweave driver.  evalFunc will be used for the
     ## actual evaluation of chunk code.
     HighlightWeaveLatexRuncode <- function(object, chunk, options) {
-    		print("HighlightWeaveLatexRuncode")
       	 if( grepl( "#line [0-9]", chunk[1L] ) ){
       	  	   chunk <- chunk[-1L]
       	  	   attr(chunk, "srclines" ) <- attr(chunk, "srclines" )[-1L]
@@ -531,8 +530,7 @@ HweaveSyntaxNoweb$extension <- "\\.[hHrsRS]?nw$"
 #' @rdname Hweave
 #' @export
 Hweave <- function (file, driver = HighlightWeaveLatex(), syntax = HweaveSyntaxNoweb, encoding = "", ...){
-    	print("Hweave")
-	Sweave( file, driver = driver, syntax = syntax, encoding = encoding, ... )
+    Sweave( file, driver = driver, syntax = syntax, encoding = encoding, ... )
 }
 
 HighlightTangle <- function(){
