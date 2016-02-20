@@ -97,7 +97,11 @@ namespace highlight
 	RegexDef LanguageDefinition::extractRegex ( const string &paramValue )
 	{
 		RegexDef re_def;
+#if __cplusplus >= 201103L
+		unique_ptr<Matcher> m ( reDefPattern->createMatcher ( paramValue ) );
+#else
 		auto_ptr<Matcher> m ( reDefPattern->createMatcher ( paramValue ) );
+#endif
 		if ( m.get() && m->matches() )
 		{
 			re_def.reString = m->getGroup ( 1 );
