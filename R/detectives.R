@@ -1,16 +1,18 @@
-#
-# detectives are functions that take as input the result of the parser, 
-# investigate in some way, and return a character vector that has
-# the same length as the length of tokens attribute of the parser output
-# this vector associates each token with a style
-# 
 
-#' Dummy detective, gives the "" style to all tokens
-dummy_detective <- function( x, ... ){
-	rep( "" ,  sum( attr(x, "data")$terminal) )
-}
-
-#' simple detective
+#' Simple detective
+#' 
+#' This detective only uses semantic information to make its 
+#' investigation. 
+#' @param x output of the parser. The detective is only interested in the 
+#'          \samp{token} column of the data.
+#' @param \dots ignored
+#' @return a vector of styles grouping similar tokens together
+#' @examples
+#' \dontrun{
+#' p <- parse( text = deparse( jitter ), keep.source=TRUE )
+#' simple_detective( p )
+#' }
+#' @export
 simple_detective <- function( x, ...){
 	
 	data <- getParseData( x )

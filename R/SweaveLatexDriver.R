@@ -18,6 +18,47 @@ HighlightWeaveLatexCheckOps <- function(options){
 }
 
 # {{{ HighlightWeaveLatex: driver
+#' Sweave driver performing syntax highlighting
+#' 
+#' Sweave driver using the highlight latex renderer to perform syntax 
+#' highlighting of input R code in sweave chunks.
+#' 
+#' This sweave driver is very similar to standard driver that is 
+#' included in \samp{utils}. The difference is that input R code and 
+#' verbatim output is rendered using \code{highlight} enabling 
+#' syntax highlighting of R code. 
+#' 
+#' Instead of using \samp{Sinput} and \samp{Soutput} commands, this 
+#' driver uses \samp{Hinput} and \samp{Houtput} and defines these commands
+#' at the very beginning of the document, letting the user the option 
+#' to overwrite them as necessary. 
+#' 
+#' Latex boxes defined by the latex renderer (\code{\link{renderer_latex}})
+#' and style definitions needed are also written at the beginning 
+#' of the document.
+#' 
+#' Because highlight does not use verbatim environments, the user
+#' of this driver can freely redefine the \samp{Hinput}, \samp{Houtput}
+#' and \samp{Hchunk} environments to achieve greater control
+#' of the output latex document than with the standard driver.
+#' 
+#' @param boxes if \code{TRUE}, code blocks are wrapped in boxes.
+#' @param bg background color for code boxes.
+#' @param border color to use for the border of code boxes.
+#' @param highlight.options Can be used instead of the other arguments to 
+#'        set the \code{boxes}, \code{bg} and \code{border} settings.
+#' 
+#' @return A sweave driver, suitable for the \samp{driver} argument of
+#' \code{\link[utils]{Sweave}} 
+#' @examples
+#' \dontrun{
+#' # using the driver on the grid vignette
+#' require( grid )
+#' v <- vignette( "grid", package = "grid" )$file
+#' file.copy( v, "grid.Snw" )
+#' Sweave( "grid.Snw", driver= HighlightWeaveLatex() )
+#' }
+#' @export
 HighlightWeaveLatex <- function(boxes=FALSE, bg = rgb( 0.95,0.95,0.95, maxColorValue = 1 ), border = "black", 
 	highlight.options = list( boxes = boxes, bg = bg, border = border )
 ) {
@@ -301,24 +342,24 @@ makeHighlightWeaveLatexCodeRunner <- function(evalFunc=RweaveEvalWithOpt, highli
 	
 	          if(options$fig && options$eval){
 	              if(options$eps){
-	                  grDevices::postscript(file=paste(chunkprefix, "eps", sep="."),
+	                  postscript(file=paste(chunkprefix, "eps", sep="."),
 	                                        width=options$width, height=options$height,
 	                                        paper="special", horizontal=FALSE)
 	
 	                  err <- try({SweaveHooks(options, run=TRUE)
 	                              eval(chunkexps, envir=.GlobalEnv)})
-	                  grDevices::dev.off()
+	                  dev.off()
 	                  if(inherits(err, "try-error")) stop(err)
 	              }
 	              if(options$pdf){
-	                  grDevices::pdf(file=paste(chunkprefix, "pdf", sep="."),
+	                  pdf(file=paste(chunkprefix, "pdf", sep="."),
 	                                 width=options$width, height=options$height,
 	                                 version=options$pdf.version,
 	                                 encoding=options$pdf.encoding)
 	
 	                  err <- try({SweaveHooks(options, run=TRUE)
 	                              eval(chunkexps, envir=.GlobalEnv)})
-	                  grDevices::dev.off()
+	                  dev.off()
 	                  if(inherits(err, "try-error")) stop(err)
 	              }
 	              if(options$include) {
@@ -458,8 +499,38 @@ HighlightWeaveLatexWritedoc
 HweaveSyntaxNoweb <- SweaveSyntaxNoweb
 HweaveSyntaxNoweb$extension <- "\\.[hHrsRS]?nw$"
 
+#' Weaving and Tangling with syntax highlighting
+#' 
+#' \code{Hweave} and \code{Htangle} are similar to \code{Sweave} 
+#' and \code{Stangle}, but they take advantage of the
+#' custom driver shipped with this package 
+#'
+#'    These functions exist for the purpose of the 
+#'    \code{\\VignetteEngine} option in vignette introduced in R 3.0.0
+#'    
+#'    \code{highlight} loads the \code{highlight} vignette engine 
+#'    at load time. Client packages must declare to use it
+#'    with the \code{VignetteBuilder} field in their \code{DESCRIPTION}
+#'    file
+#'    
+#'    The vignette engine looks for files matching the 
+#'    pattern \code{"[.][hHrRsS]nw$"} although in order to distinguish 
+#'    vignettes using this engine and the default
+#'    Sweave engine, the recommandation is to use vignette with the \code{".Hnw"}
+#'    extension. 
+#' 
+#' @param file Path to Sweave source file
+#' @param driver  The actual workhorse, see the Details section in \code{\link[utils]{Sweave}}
+#' @param syntax \code{NULL} or an object of class \code{SweaveSyntax}
+#'      or a character string with its name. See the section \code{Syntax Definition}
+#'      in \code{\link[utils]{Sweave}}
+#' @param encoding  The default encoding to assume for \code{file}
+#' @param \dots Further arguments passed to the driver's setup function.
+#' 
+#' @rdname Hweave
+#' @export
 Hweave <- function (file, driver = HighlightWeaveLatex(), syntax = HweaveSyntaxNoweb, encoding = "", ...){
-    	Sweave( file, driver = driver, syntax = syntax, encoding = encoding, ... )
+    Sweave( file, driver = driver, syntax = syntax, encoding = encoding, ... )
 }
 
 HighlightTangle <- function(){
@@ -474,6 +545,9 @@ HighlightTangle <- function(){
 	}
 	driver
 }
+
+#' @rdname Hweave
+#' @export
 Htangle <- function (file, driver = HighlightTangle(), syntax = HweaveSyntaxNoweb, encoding = "", ...){
 	Sweave(file = file, driver = driver, encoding = encoding, ...)
 }
