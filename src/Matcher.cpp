@@ -46,11 +46,11 @@ void Matcher::clearGroups()
   for (i = 0; i < gc; ++i)    groups[i] = starts[i] = ends[i] = -1;
   for (i = 1; i <= ncgc; ++i) groups[0 - i] = -1;
 }
-std::string Matcher::replaceWithGroups(const std::string & str)
+std::string Matcher::replaceWithGroups(const std::string & str_)
 {
   std::string ret = "";
 
-  std::string t = str;
+  std::string t = str_;
   while (t.size() > 0)
   {
     if (t[0] == '\\')
@@ -169,10 +169,10 @@ std::string Matcher::getGroup(const int groupNum) const
 }
 std::vector<std::string> Matcher::getGroups(const bool includeGroupZero) const
 {
-  int i, start = (includeGroupZero ? 0 : 1);
+  int i, start_ = (includeGroupZero ? 0 : 1);
   std::vector<std::string> ret;
 
-  for (i = start; i < gc; ++i) ret.push_back(getGroup(i));
+  for (i = start_; i < gc; ++i) ret.push_back(getGroup(i));
   return ret;
 }
 
