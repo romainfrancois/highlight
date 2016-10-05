@@ -2334,21 +2334,21 @@ bool ASFormatter::isOneLineBlockReached(string& line, int startChar) const
 {
 	assert(line[startChar] == '{');
 
-	bool isInComment = false;
-	bool isInQuote = false;
+	bool isInComment_ = false;
+	bool isInQuote_ = false;
 	int bracketCount = 1;
 	int lineLength = line.length();
-	char quoteChar = ' ';
+	char quoteChar_ = ' ';
 
 	for (int i = startChar + 1; i < lineLength; ++i)
 	{
 		char ch = line[i];
 
-		if (isInComment)
+		if (isInComment_)
 		{
 			if (line.compare(i, 2, "*/") == 0)
 			{
-				isInComment = false;
+				isInComment_ = false;
 				++i;
 			}
 			continue;
@@ -2360,17 +2360,17 @@ bool ASFormatter::isOneLineBlockReached(string& line, int startChar) const
 			continue;
 		}
 
-		if (isInQuote)
+		if (isInQuote_)
 		{
-			if (ch == quoteChar)
-				isInQuote = false;
+			if (ch == quoteChar_)
+			  isInQuote_ = false;
 			continue;
 		}
 
 		if (ch == '"' || ch == '\'')
 		{
-			isInQuote = true;
-			quoteChar = ch;
+		  isInQuote_ = true;
+		  quoteChar_ = ch;
 			continue;
 		}
 
@@ -2379,7 +2379,7 @@ bool ASFormatter::isOneLineBlockReached(string& line, int startChar) const
 
 		if (line.compare(i, 2, "/*") == 0)
 		{
-			isInComment = true;
+			isInComment_ = true;
 			++i;
 			continue;
 		}
@@ -2450,7 +2450,7 @@ string ASFormatter::peekNextText(const string& firstLine, bool endOnEmptyLine /*
 	size_t firstChar= string::npos;
 
 	// find the first non-blank text, bypassing all comments.
-	bool isInComment = false;
+	bool isInComment_ = false;
 	while (sourceIterator->hasMoreLines())
 	{
 		if (isFirstLine)
@@ -2470,15 +2470,15 @@ string ASFormatter::peekNextText(const string& firstLine, bool endOnEmptyLine /*
 		}
 
 		if (nextLine.compare(firstChar, 2, "/*") == 0)
-			isInComment = true;
+		  isInComment_ = true;
 
-		if (isInComment)
+		if (isInComment_)
 		{
 			firstChar = nextLine.find("*/", firstChar);
 			if (firstChar == string::npos)
 				continue;
 			firstChar += 2;
-			isInComment = false;
+			isInComment_ = false;
 			firstChar = nextLine.find_first_not_of(" \t", firstChar);
 			if (firstChar == string::npos)
 				continue;
@@ -4369,7 +4369,7 @@ bool ASFormatter::isStructAccessModified(string  &firstLine, size_t index) const
 	string nextLine = firstLine.substr(index + 1);
 
 	// find the first non-blank text, bypassing all comments.
-	bool isInComment = false;
+	bool isInComment_ = false;
 	while (sourceIterator->hasMoreLines())
 	{
 		if (isFirstLine)
@@ -4385,8 +4385,8 @@ bool ASFormatter::isStructAccessModified(string  &firstLine, size_t index) const
 			if (isWhiteSpace(nextLine[i]))
 				continue;
 			if (nextLine.compare(i, 2, "/*") == 0)
-				isInComment = true;
-			if (isInComment)
+			  isInComment_ = true;
+			if (isInComment_)
 			{
 				i = nextLine.find("*/", i);
 				if (i == string::npos)
@@ -4395,7 +4395,7 @@ bool ASFormatter::isStructAccessModified(string  &firstLine, size_t index) const
 					continue;
 				}
 				i++;
-				isInComment = false;
+				isInComment_ = false;
 				continue;
 			}
 			if (nextLine.compare(i, 2, "//") == 0)
