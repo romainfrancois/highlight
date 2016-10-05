@@ -1,18 +1,20 @@
 Package: highlight
 Type: Package
 Title: Syntax Highlighter
-Description: Syntax highlighter for R code based 
-	on the results of the R parser. Rendering in HTML and latex 
-	markup. Custom Sweave driver performing syntax highlighting 
-	of R code chunks.
+Description: Syntax highlighter for R code based
+    on the results of the R parser. Rendering in HTML and latex
+    markup. Custom Sweave driver performing syntax highlighting
+    of R code chunks.
 Version: 0.4.8
 Authors@R: c( 
   person("Romain", "Francois",, "romain@r-enthusiasts.com", c("aut", "cre") ),
   person("Andre", "Simon",, "andre.simon1@gmx.de", "ctb" )
   )
 License: GPL (>= 3)
-Depends: R (>= 3.3.1)
-Imports: grDevices, tools
+Depends:
+    R (>= 3.3.1)
+Imports: utils, grDevices, tools
 SystemRequirements: C++11
 URL: https://github.com/romainfrancois/highlight
 BugReports: https://github.com/romainfrancois/highlight/issues
+RoxygenNote: 5.0.1

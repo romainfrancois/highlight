@@ -49,6 +49,7 @@
 #' @name highlight-package
 NULL
 	
+#' @importFrom utils getParseData
 subsetParseData <- function( p, i = 0, styles){
     data <- getParseData(p)
     data$styles <- rep("", nrow(data) )

@@ -18,16 +18,11 @@ w3c.colors <- list(
 	yellow  = "#FFFF00" 
 	)
 
-
+#' @importFrom grDevices col2rgb rgb colors
 css.parse.color <- function( txt, default = "#000000" ){
 	txt <- gsub( "\\s+", "", casefold( txt ), perl = TRUE )
 	
 	if( is.hex( txt ) ) return(txt)
-	
-	# css specs are from 0 to 255
-	rgb <- function( ... ){
-		grDevices::rgb( ..., maxColorValue = 255 )
-	}
 	
 	# first we try to match against w3c standard colors
 	if( !grepl( "[^a-z]", txt) ){
@@ -41,7 +36,7 @@ css.parse.color <- function( txt, default = "#000000" ){
 		R.colors <- colors()
 		res <- R.colors %in% txt
 		if( any( res ) ) {
-			return( rgb( t(col2rgb( R.colors[res] )) ) )
+			return( rgb( t(col2rgb( R.colors[res] )), maxColorValue = 255 ) )
 		}
 	}
 	

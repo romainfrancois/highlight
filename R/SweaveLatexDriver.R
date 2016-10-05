@@ -1,4 +1,5 @@
 
+#' @importFrom grDevices col2rgb
 latex_color <- function( name = col, col  = "white"){
 	sprintf( "\\definecolor{%s}{rgb}{%s}", name, paste(as.vector(col2rgb(col))/255, collapse = "," ) )
 }
@@ -58,6 +59,8 @@ HighlightWeaveLatexCheckOps <- function(options){
 #' file.copy( v, "grid.Snw" )
 #' Sweave( "grid.Snw", driver= HighlightWeaveLatex() )
 #' }
+#' @importFrom grDevices rgb
+#' @importFrom utils RweaveEvalWithOpt RweaveLatexFinish
 #' @export
 HighlightWeaveLatex <- function(boxes=FALSE, bg = rgb( 0.95,0.95,0.95, maxColorValue = 1 ), border = "black", 
 	highlight.options = list( boxes = boxes, bg = bg, border = border )
@@ -75,8 +78,12 @@ HighlightWeaveLatex <- function(boxes=FALSE, bg = rgb( 0.95,0.95,0.95, maxColorV
 # }}}
 
 # {{{ makeHighlightWeaveLatexCodeRunner
-makeHighlightWeaveLatexCodeRunner <- function(evalFunc=RweaveEvalWithOpt, highlight.options) {
-	
+#' @importFrom utils RweaveChunkPrefix RweaveEvalWithOpt
+makeHighlightWeaveLatexCodeRunner <- function(evalFunc, highlight.options) {
+	if( missing(evalFunc) )
+	  evalFunc <- RweaveEvalWithOpt
+  
+  
     ## Return a function suitable as the 'runcode' element
     ## of an Sweave driver.  evalFunc will be used for the
     ## actual evaluation of chunk code.
@@ -378,6 +385,7 @@ makeHighlightWeaveLatexCodeRunner <- function(evalFunc=RweaveEvalWithOpt, highli
 # }}} 
 
 # {{{ HighlightWeaveLatexWritedoc
+#' @importFrom utils RweaveChunkPrefix
 makeHighlightWeaveLatex_WriteDoc <- function( highlight.options ){
 	
 HighlightWeaveLatexWritedoc <- function(object, chunk) {
@@ -533,6 +541,7 @@ Hweave <- function (file, driver = HighlightWeaveLatex(), syntax = HweaveSyntaxN
     Sweave( file, driver = driver, syntax = syntax, encoding = encoding, ... )
 }
 
+#' @importFrom utils Rtangle
 HighlightTangle <- function(){
 	driver <- Rtangle()
 	runcode <- driver$runcode
