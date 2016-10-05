@@ -461,11 +461,7 @@ namespace highlight
 		for ( unsigned int i=0; i<langInfo.getRegexElements().size(); i++ )
 		{
 			RegexElement *regexElem = langInfo.getRegexElements() [i];
-#if __cplusplus >= 201103L
 			unique_ptr<Matcher> matcher ( regexElem->rePattern->createMatcher ( line ) );
-#else
-			auto_ptr<Matcher> matcher ( regexElem->rePattern->createMatcher ( line ) );
-#endif
 
 			while ( matcher->findNextMatch() )
 			{
@@ -1743,13 +1739,8 @@ namespace highlight
 			string res;
 			string replaceVar;
 
-#if __cplusplus >= 201103L
 			unique_ptr<Pattern> reDefPattern ( Pattern::compile ( "\\$[-\\w]+" ) );
 			unique_ptr<Matcher> m ( reDefPattern->createMatcher ( line.substr ( noParseCmd.size() +cmdPos ) ) );
-#else
-			auto_ptr<Pattern> reDefPattern ( Pattern::compile ( "\\$[-\\w]+" ) );
-			auto_ptr<Matcher> m ( reDefPattern->createMatcher ( line.substr ( noParseCmd.size() +cmdPos ) ) );
-#endif
 			while ( m.get() &&  m->findNextMatch() )
 			{
 				res+=line.substr ( noParseCmd.size() +cmdPos + pos ,
