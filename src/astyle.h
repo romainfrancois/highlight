@@ -769,13 +769,13 @@ class ASFormatter : public ASBeautifier
 		}
 
 		// call ASBase::findHeader for the current character
-		const string *findHeader(const vector<const string*>* headers) {
-			return ASBeautifier::findHeader(currentLine, charNum, headers);
+		const string *findHeader(const vector<const string*>* headers_) {
+			return ASBeautifier::findHeader(currentLine, charNum, headers_);
 		}
 
 		// call ASBase::findOperator for the current character
-		const string *findOperator(const vector<const string*>* headers) {
-			return ASBeautifier::findOperator(currentLine, charNum, headers);
+		const string *findOperator(const vector<const string*>* headers_) {
+			return ASBeautifier::findOperator(currentLine, charNum, headers_);
 		}
 };  // Class ASFormatter
 
