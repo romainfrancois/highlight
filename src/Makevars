@@ -1,2 +1,2 @@
+CXX_STD=C++11
 PKG_CXXFLAGS=-I.
-
