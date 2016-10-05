@@ -2501,7 +2501,7 @@ bool ASBeautifier::statementEndsWithComma(string &line, int index)
 	int parenCount = 0;
 	size_t lineLength = line.length();
 	size_t i = 0;
-	char quoteChar = ' ';
+	char quoteChar_ = ' ';
 
 	for (i = index + 1; i < lineLength; ++i)
 	{
@@ -2525,7 +2525,7 @@ bool ASBeautifier::statementEndsWithComma(string &line, int index)
 
 		if (isInQuote_)
 		{
-			if (ch == quoteChar)
+			if (ch == quoteChar_)
 				isInQuote = false;
 			continue;
 		}
@@ -2533,7 +2533,7 @@ bool ASBeautifier::statementEndsWithComma(string &line, int index)
 		if (ch == '"' || ch == '\'')
 		{
 			isInQuote = true;
-			quoteChar = ch;
+			quoteChar_ = ch;
 			continue;
 		}
 
