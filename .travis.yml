@@ -1,7 +1,8 @@
 # R for travis: see documentation at https://docs.travis-ci.com/user/languages/r
 
 language: R
-sudo: false
+sudo: required
+dist: trusty
 cache: packages
 r:
   - release
@@ -14,16 +15,3 @@ warnings_are_errors: false
 env:
   global:
     - _R_CHECK_FORCE_SUGGESTS_=false
-
-addons:
-  apt:
-    sources:
-    - ubuntu-toolchain-r-test
-    packages:
-    - gcc-4.8
-    - g++-4.8
-    
-before_install:
-  - export CXX="g++-4.8" CC="gcc-4.8"
-  - mkdir ~/.R
-  - echo 'CXX1X=g++-4.8 -std=c++11' > ~/.R/Makevars
