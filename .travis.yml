@@ -23,10 +23,5 @@ addons:
     - gcc-4.8
     - g++-4.8
     
-before_install:
-  - if [ "$CXX" = "g++" ]; then export CXX="g++-4.8" CC="gcc-4.8"; fi
-  - mkdir ~/.R
-  - echo 'CXX1X=g++-4.8 -std=c++11 -g -O2 -fPIC' > ~/.R/Makevars
-
 after_success:
-- Rscript -e 'covr::codecov()'
+  - Rscript -e 'covr::codecov()'
