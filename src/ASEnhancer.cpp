@@ -296,11 +296,11 @@ void ASEnhancer::enhance(string &line, bool isInSQL)
 size_t ASEnhancer::findCaseColon(string  &line, size_t caseIndex) const
 {
 	size_t i = caseIndex;
-	bool isInQuote = false;
-	char quoteChar = ' ';
+	bool isInQuote_ = false;
+	char quoteChar_ = ' ';
 	for (; i < line.length(); i++)
 	{
-		if (isInQuote)
+		if (isInQuote_)
 		{
 			if (line[i] == '\\')
 			{
@@ -309,8 +309,8 @@ size_t ASEnhancer::findCaseColon(string  &line, size_t caseIndex) const
 			}
 			else if (line[i] == quoteChar)          // check ending quote
 			{
-				isInQuote = false;
-				quoteChar = ' ';
+				isInQuote_ = false;
+				quoteChar_ = ' ';
 				continue;
 			}
 			else
@@ -320,8 +320,8 @@ size_t ASEnhancer::findCaseColon(string  &line, size_t caseIndex) const
 		}
 		if (line[i] == '\'' || line[i] == '\"')		// check opening quote
 		{
-			isInQuote = true;
-			quoteChar = line[i];
+			isInQuote_ = true;
+			quoteChar_ = line[i];
 			continue;
 		}
 		if (line[i] == ':')
