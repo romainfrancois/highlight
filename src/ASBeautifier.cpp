@@ -2497,7 +2497,7 @@ bool ASBeautifier::statementEndsWithComma(string &line, int index)
 	assert(line[index] == '=');
 
 	bool isInComment_ = false;
-	bool isInQuote = false;
+	bool isInQuote_ = false;
 	int parenCount = 0;
 	size_t lineLength = line.length();
 	size_t i = 0;
@@ -2523,7 +2523,7 @@ bool ASBeautifier::statementEndsWithComma(string &line, int index)
 			continue;
 		}
 
-		if (isInQuote)
+		if (isInQuote_)
 		{
 			if (ch == quoteChar)
 				isInQuote = false;
