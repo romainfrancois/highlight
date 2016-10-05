@@ -657,14 +657,14 @@ string ASFormatter::nextLine()
 			        i < currentLine.length();
 			        i++)
 			{
-				char currentChar = currentLine[i];
+				char currentChar_ = currentLine[i];
 
-				if (currentChar == '<')
+				if (currentChar_ == '<')
 				{
 					templateDepth++;
 					maxTemplateDepth++;
 				}
-				else if (currentChar == '>')
+				else if (currentChar_ == '>')
 				{
 					templateDepth--;
 					if (templateDepth == 0)
@@ -682,18 +682,18 @@ string ASFormatter::nextLine()
 					isInTemplate = false;
 					break;
 				}
-				else if (currentChar == ','       // comma,     e.g. A<int, char>
-				         || currentChar == '&'    // reference, e.g. A<int&>
-				         || currentChar == '*'    // pointer,   e.g. A<int*>
-				         || currentChar == ':'    // ::,        e.g. std::string
-				         || currentChar == '['    // []         e.g. string[]
-				         || currentChar == ']'    // []         e.g. string[]
-				         || currentChar == '('    // (...)      e.g. function definition
-				         || currentChar == ')')   // (...)      e.g. function definition
+				else if (currentChar_ == ','       // comma,     e.g. A<int, char>
+				         || currentChar_ == '&'    // reference, e.g. A<int&>
+				         || currentChar_ == '*'    // pointer,   e.g. A<int*>
+				         || currentChar_ == ':'    // ::,        e.g. std::string
+				         || currentChar_ == '['    // []         e.g. string[]
+				         || currentChar_ == ']'    // []         e.g. string[]
+				         || currentChar_ == '('    // (...)      e.g. function definition
+				         || currentChar_ == ')')   // (...)      e.g. function definition
 				{
 					continue;
 				}
-				else if (!isLegalNameChar(currentChar) && !isWhiteSpace(currentChar))
+				else if (!isLegalNameChar(currentChar_) && !isWhiteSpace(currentChar_))
 				{
 					// this is not a template -> leave...
 					isInTemplate = false;
