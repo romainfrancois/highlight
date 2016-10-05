@@ -1,3 +1,6 @@
+#' @useDynLib highlight
+NULL
+
 #' Syntax Highlighter for R
 #' 
 #' Syntax highlighter for R based on output from the R parser
