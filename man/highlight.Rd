@@ -38,9 +38,7 @@ with as many elements as there are tokens in the parser output}
 
 \item{expr}{In case we want to render only one expression and not the full parse
 tree, this argument can be used to specify which expression
-to render. The default (NULL) means render all expressions. This 
-feature is used by the sweave driver shipped with this package. See
-\code{\link{HighlightWeaveLatex}}}
+to render. The default (NULL) means render all expressions.}
 
 \item{final.newline}{logical. Indicates if a newline character is added after all tokens.}
 
@@ -75,8 +73,8 @@ of a detective.
 		renderer = renderer_html( document = TRUE ) )
 	highlight( file = tf, detective = simple_detective, 
 		renderer = renderer_latex( document = TRUE ) )
-	
-}
+	unlink(tf)
+	}
 }
 \seealso{
 \code{\link{renderer_html}} and \code{\link{renderer_latex}} are the

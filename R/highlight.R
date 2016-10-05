@@ -11,11 +11,6 @@
 #' 	detective to make sense of the results
 #' 	from the parser. The package ships a \code{\link{simple_detective}}. 
 #' 	
-#' 	The package also defines a custom sweave driver 
-#' 	(\code{\link{HighlightWeaveLatex}}) for latex based 
-#' 	on the standard sweave latex driver (\code{\link[utils]{RweaveLatex}})
-#' 	using \code{\link{highlight}} to perform syntax 
-#' 	highlighting of R code chunks. 
 #' @examples
 #' \dontrun{
 #' tf <- tempfile()
@@ -28,22 +23,6 @@
 #' # rendering in latex
 #' highlight( tf, output = stdout(), 
 #' 	renderer = renderer_latex() )
-#' 
-#' # Sweave driver using syntax highlighting
-#' if( require( grid ) ){
-#' 	v <- vignette( "grid", package = "grid" )$file
-#' 	file.copy( v, "grid.Snw" )
-#' 	Sweave( "grid.Snw", driver= HighlightWeaveLatex() )
-#' 	system( "pdflatex grid.tex" )
-#' 	if (.Platform$OS.type == "windows"){ 
-#' 		shell.exec( "grid.pdf" )
-#' 	} else {
-#' 		system(paste(shQuote(getOption("pdfviewer")), "grid.pdf" ), 
-#' 			wait = FALSE)
-#' 	}
-#' }
-#' 
-#' unlink( tf )
 #' }
 #' @docType package
 #' @name highlight-package
@@ -102,9 +81,7 @@ subsetParseData <- function( p, i = 0, styles){
 #' with as many elements as there are tokens in the parser output
 #' @param expr In case we want to render only one expression and not the full parse
 #' tree, this argument can be used to specify which expression
-#' to render. The default (NULL) means render all expressions. This 
-#' feature is used by the sweave driver shipped with this package. See
-#' \code{\link{HighlightWeaveLatex}}
+#' to render. The default (NULL) means render all expressions. 
 #' @param final.newline logical. Indicates if a newline character is added after all tokens.
 #' @param showPrompts if TRUE, the highlighted text will show standard and continue prompt
 #' @param prompt standard prompt
@@ -131,8 +108,8 @@ subsetParseData <- function( p, i = 0, styles){
 #' 		renderer = renderer_html( document = TRUE ) )
 #' 	highlight( file = tf, detective = simple_detective, 
 #' 		renderer = renderer_latex( document = TRUE ) )
-#' 	
-#' }
+#' 	unlink(tf)
+#' 	}
 #' @export
 highlight <- function( file, output = stdout(),
     detective = simple_detective, renderer, encoding = "unknown",
