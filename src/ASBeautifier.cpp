@@ -2496,7 +2496,7 @@ bool ASBeautifier::statementEndsWithComma(string &line, int index)
 {
 	assert(line[index] == '=');
 
-	bool isInComment = false;
+	bool isInComment_ = false;
 	bool isInQuote = false;
 	int parenCount = 0;
 	size_t lineLength = line.length();
@@ -2507,11 +2507,11 @@ bool ASBeautifier::statementEndsWithComma(string &line, int index)
 	{
 		char ch = line[i];
 
-		if (isInComment)
+		if (isInComment_)
 		{
 			if (line.compare(i, 2, "*/") == 0)
 			{
-				isInComment = false;
+			  isInComment_ = false;
 				++i;
 			}
 			continue;
@@ -2546,7 +2546,7 @@ bool ASBeautifier::statementEndsWithComma(string &line, int index)
 				break;
 			else
 			{
-				isInComment = true;
+			  isInComment_ = true;
 				++i;
 				continue;
 			}
@@ -2557,7 +2557,7 @@ bool ASBeautifier::statementEndsWithComma(string &line, int index)
 		if (ch == ')')
 			parenCount--;
 	}
-	if (isInComment
+	if (isInComment_
 	        || isInQuote
 	        || parenCount > 0)
 		return false;
