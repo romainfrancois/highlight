@@ -12,7 +12,7 @@ Authors@R: c(
 License: GPL (>= 3)
 Depends:
     R (>= 3.3.1)
-Imports: utils, grDevices, tools
+Imports: utils, grDevices
 SystemRequirements: C++11
 URL: https://github.com/romainfrancois/highlight
 BugReports: https://github.com/romainfrancois/highlight/issues
