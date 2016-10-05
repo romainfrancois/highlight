@@ -142,7 +142,6 @@ highlight <- function( file, output = stdout(),
         styles = data[, "styles"] )
 
     # useful to only render a given expression and not all of them.
-    # this is mainly used in the sweave driver
     startline <- if( !is.null( expr ) ) as.integer( data[1, "line1" ] ) else 1L
 
     line_numbers <- seq( startline, max(data$line2))

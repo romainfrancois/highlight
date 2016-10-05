@@ -508,14 +508,12 @@ col2latexrgb <- function( hex ){
 #' renderering and therefore does not depend on verbatim-like environments.
 #' 
 #' @param document logical. Should the renderer create the full document or only the code
-#'                 section, assuming the document is already created. Using FALSE 
-#'                 is used by the sweave driver shipped with this package.
+#'                 section, assuming the document is already created. 
 #' @param boxes  a function that returns definitions of latex boxes used for non standard
 #'               characters. The reason for using boxes is that some character need 
 #'               to be escaped to be rendered, and unfortunately, escaping turns
 #'               alltt off, which does not produce satisfying rendering. This argument
 #'               is used by the header function when the document argument is TRUE. 
-#'               It is also used in the sweave driver at the very beginning of the document
 #' @param translator translation of characters into latex markup. See \code{\link{translator_latex}} for details
 #' @param formatter latex formatter. Tokens are wrapped into a latex command related
 #'                  to the style they should honor.
