@@ -97,7 +97,7 @@ namespace highlight
 	RegexDef LanguageDefinition::extractRegex ( const string &paramValue )
 	{
 		RegexDef re_def;
-		auto_ptr<Matcher> m ( reDefPattern->createMatcher ( paramValue ) );
+	  unique_ptr<Matcher> m ( reDefPattern->createMatcher ( paramValue ) );
 		if ( m.get() && m->matches() )
 		{
 			re_def.reString = m->getGroup ( 1 );

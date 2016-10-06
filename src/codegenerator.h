@@ -118,7 +118,7 @@ namespace highlight
 			virtual ~CodeGenerator();
 
 			/**
-			  Get appropriate Codegenerator instance (should be used with auto_ptr)
+			  Get appropriate Codegenerator instance (should be used with unique_ptr)
 			  \param type Output file type (HTML, XHTML, RTF, LATEX, TEX, ANSI, XTERM256)
 			  \return CodeGenerator
 			*/
@@ -126,7 +126,7 @@ namespace highlight
 
 			/**
 			  Delete CodeGenerator instance (this is intended for SWIG integration only,
-			  in normal C++ code the result of getInstance() should be saved in an auto_ptr)
+			  in normal C++ code the result of getInstance() should be saved in an unique_ptr)
 			  \param CodeGenerator* CodeGenerator instance
 			*/
 			static void deleteInstance ( CodeGenerator* inst ) {if ( inst ) delete inst;}
