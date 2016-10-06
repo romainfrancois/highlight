@@ -1,18 +1,17 @@
-# travis config, based on https://github.com/craigcitro/r-travis
+# R for travis: see documentation at https://docs.travis-ci.com/user/languages/r
 
-language: c
-script: ./travis-tool.sh run_tests
-before_install:
-  - curl -OL http://raw.github.com/craigcitro/r-travis/master/scripts/travis-tool.sh
-  - chmod 755 ./travis-tool.sh
-  - ./travis-tool.sh bootstrap
-install:
-  - ./travis-tool.sh install_deps
-branches:
-  except:
-   - /-expt$/
-notifications:
-  email:
-    on_success: change
-    on_failure: change
+language: R
+sudo: required
+dist: trusty
+cache: packages
+r:
+  - release
+  - devel
 
+compiler:
+  - gcc
+
+warnings_are_errors: false
+env:
+  global:
+    - _R_CHECK_FORCE_SUGGESTS_=false
