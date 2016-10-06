@@ -75,6 +75,7 @@ highlight_type <- function(type = highlight_output_types() ){
 #' @return Nothing if \code{outfile} is given, with the side effect of writing into the file. 
 #' The result as a character vector if outfile is NULL
 #' @seealso \code{\link{highlight}} to highlight R code using the information from the parser
+#' @importFrom utils tail
 #' @export
 external_highlight <- function( file, 
     outfile = stdout(), 

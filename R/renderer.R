@@ -495,6 +495,7 @@ styler_assistant_latex <- function( x ){
 	sprintf( "\\newcommand{\\hl%s}[1]{%s}%%", names( x ), styles )
 }
 
+#' @importFrom grDevices col2rgb
 col2latexrgb <- function( hex ){
 	col <- col2rgb(hex)[,1] / 255
 	paste( col, collapse = "," )

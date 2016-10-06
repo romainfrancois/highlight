@@ -1,4 +1,5 @@
 
+#' @importFrom grDevices col2rgb
 latex_color <- function( name = col, col  = "white"){
 	sprintf( "\\definecolor{%s}{rgb}{%s}", name, paste(as.vector(col2rgb(col))/255, collapse = "," ) )
 }
@@ -7,6 +8,7 @@ should_use_external_highlight <- function(options){
 	any( c("lang", "file" ) %in% names(options) )	
 }
 
+#' @importFrom utils RweaveLatexOptions
 HighlightWeaveLatexCheckOps <- function(options){
 	if( should_use_external_highlight(options) ){
 		options
@@ -58,6 +60,7 @@ HighlightWeaveLatexCheckOps <- function(options){
 #' file.copy( v, "grid.Snw" )
 #' Sweave( "grid.Snw", driver= HighlightWeaveLatex() )
 #' }
+#' @importFrom utils RweaveLatexSetup RweaveEvalWithOpt RweaveLatexFinish
 #' @export
 HighlightWeaveLatex <- function(boxes=FALSE, bg = rgb( 0.95,0.95,0.95, maxColorValue = 1 ), border = "black", 
 	highlight.options = list( boxes = boxes, bg = bg, border = border )
@@ -75,7 +78,9 @@ HighlightWeaveLatex <- function(boxes=FALSE, bg = rgb( 0.95,0.95,0.95, maxColorV
 # }}}
 
 # {{{ makeHighlightWeaveLatexCodeRunner
-makeHighlightWeaveLatexCodeRunner <- function(evalFunc=RweaveEvalWithOpt, highlight.options) {
+#' @importFrom utils RweaveEvalWithOpt RweaveChunkPrefix SweaveHooks RweaveTryStop
+makeHighlightWeaveLatexCodeRunner <- function(evalFunc, highlight.options) {
+	if( missing(evalFunc)) evalFunc <- RweaveEvalWithOpt
 	
     ## Return a function suitable as the 'runcode' element
     ## of an Sweave driver.  evalFunc will be used for the
@@ -378,6 +383,7 @@ makeHighlightWeaveLatexCodeRunner <- function(evalFunc=RweaveEvalWithOpt, highli
 # }}} 
 
 # {{{ HighlightWeaveLatexWritedoc
+#' @importFrom utils RweaveChunkPrefix
 makeHighlightWeaveLatex_WriteDoc <- function( highlight.options ){
 	
 HighlightWeaveLatexWritedoc <- function(object, chunk) {
@@ -528,11 +534,13 @@ HweaveSyntaxNoweb$extension <- "\\.[hHrsRS]?nw$"
 #' @param \dots Further arguments passed to the driver's setup function.
 #' 
 #' @rdname Hweave
+#' @importFrom utils Sweave
 #' @export
 Hweave <- function (file, driver = HighlightWeaveLatex(), syntax = HweaveSyntaxNoweb, encoding = "", ...){
     Sweave( file, driver = driver, syntax = syntax, encoding = encoding, ... )
 }
 
+#' @importFrom utils Rtangle
 HighlightTangle <- function(){
 	driver <- Rtangle()
 	runcode <- driver$runcode
@@ -547,6 +555,7 @@ HighlightTangle <- function(){
 }
 
 #' @rdname Hweave
+#' @importFrom utils Sweave
 #' @export
 Htangle <- function (file, driver = HighlightTangle(), syntax = HweaveSyntaxNoweb, encoding = "", ...){
 	Sweave(file = file, driver = driver, encoding = encoding, ...)
