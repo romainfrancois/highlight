@@ -46,12 +46,6 @@ const unsigned long Pattern::DOT_MATCHES_ALL        = 0x04;
 const unsigned long Pattern::MULTILINE_MATCHING     = 0x08;
 const unsigned long Pattern::UNIX_LINE_MODE         = 0x10;
 
-#ifdef _WIN32
-  #define str_icmp stricmp
-#else
-  #define str_icmp strcasecmp
-#endif
-
 Pattern::Pattern(const std::string & rhs)
 {
   matcher = NULL;
@@ -1378,13 +1372,24 @@ int NFAQuoteNode::match(const std::string & str, Matcher * matcher, const int cu
   return next->match(str, matcher, curInd + qStr.size());
 }
 
-// NFACIQuoteNode
+int str_imatch(const std::string& a_, const std::string& b_){
+  unsigned int sz = a_.size();
+  if (b_.size() != sz)
+    return -1;
+  const char* a = a_.c_str() ;
+  const char* b = b_.c_str() ;
+  for (unsigned int i = 0; i < sz; ++i)
+    if (tolower(a[i]) != tolower(b[i]))
+      return -1;
+    return 0;
+}
 
+// NFACIQuoteNode
 NFACIQuoteNode::NFACIQuoteNode(const std::string & quoted) : qStr(quoted) { }
 int NFACIQuoteNode::match(const std::string & str, Matcher * matcher, const int curInd) const
 {
   if (curInd + qStr.size() > str.size()) return -1;
-  if (str_icmp(str.substr(curInd, qStr.size()).c_str(),  qStr.c_str())) return -1;
+  if (str_imatch(str.substr(curInd, qStr.size()),  qStr)) return -1;
   return next->match(str, matcher, qStr.size());
 }
 
