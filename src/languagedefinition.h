@@ -204,7 +204,7 @@ namespace highlight
 			allowNestedComments,
 
 			// single line comments have to start in coloumn 1 if set
-			fullLineComment,
+			// fullLineComment,
 
 			// code formatting is enabled if set
 			reformatCode;
