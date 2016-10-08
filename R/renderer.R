@@ -16,7 +16,6 @@
 # - generate a header, e.g write <html>, css definitions, <body>
 # - generate a footer, e.g write </body></html>
 
-# {{{ renderer interface
 #' highlight renderer
 #'
 #' The function builds a renderer, suitable for the renderer argument
@@ -76,10 +75,6 @@ renderer <- function( translator, formatter, space, newline, header, footer, ...
 		header = header, footer = footer, ... ), 
 		class = "renderer" )
 }
-# }}}
-
-# {{{ renderer implementations
-# {{{ html
 
 #' html formatter
 #' 
@@ -220,9 +215,7 @@ renderer_html <- function( document = TRUE,
 		stylesheet= stylesheet, 
 		... )
 }
-# }}}
 
-# {{{ latex 
 #' Latex formatter
 #' 
 #' Combines tokens and styles into a latex command
@@ -566,11 +559,7 @@ renderer_latex <- function( document = TRUE,
 		header = header, footer = footer, boxes = boxes, 
 		styles = styles, ... )
 }
-# }}}
 
-# }}}
-
-# {{{ getStyleFile
 #' helper function to get a style file
 #'
 #' @param name the name of the style file to look for
@@ -607,9 +596,7 @@ getStyleFile <- function( name = "default", extension = "css" ){
 	
 	invisible( NULL )
 }
-# }}}
 
-# {{{ styler
 #' Style definition generator
 #' 
 #' This generates style definitions either by including a language 
@@ -651,7 +638,3 @@ styler <- function( stylesheet, extension = "css", assistant ){
 		match.fun(assistant)( p )
 	}
 }
-# }}}
-
-# :tabSize=4:indentSize=4:noTabs=false:folding=explicit:collapseFolds=1:
-

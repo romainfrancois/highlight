@@ -19,7 +19,6 @@ HighlightWeaveLatexCheckOps <- function(options){
 	}
 }
 
-# {{{ HighlightWeaveLatex: driver
 #' Sweave driver performing syntax highlighting
 #' 
 #' Sweave driver using the highlight latex renderer to perform syntax 
@@ -75,9 +74,7 @@ HighlightWeaveLatex <- function(boxes=FALSE, bg = rgb( 0.95,0.95,0.95, maxColorV
          finish     = RweaveLatexFinish,
          checkopts  = HighlightWeaveLatexCheckOps )
 }
-# }}}
 
-# {{{ makeHighlightWeaveLatexCodeRunner
 #' @importFrom utils RweaveEvalWithOpt RweaveChunkPrefix SweaveHooks RweaveTryStop
 makeHighlightWeaveLatexCodeRunner <- function(evalFunc, highlight.options) {
 	if( missing(evalFunc)) evalFunc <- RweaveEvalWithOpt
@@ -380,9 +377,7 @@ makeHighlightWeaveLatexCodeRunner <- function(evalFunc, highlight.options) {
       }
     HighlightWeaveLatexRuncode
 }
-# }}} 
 
-# {{{ HighlightWeaveLatexWritedoc
 #' @importFrom utils RweaveChunkPrefix
 makeHighlightWeaveLatex_WriteDoc <- function( highlight.options ){
 	
@@ -499,9 +494,7 @@ latex_color("highlightBorder", highlight.options$border )
 }
 HighlightWeaveLatexWritedoc
 }
-# }}}
 
-# {{{ Hweave
 HweaveSyntaxNoweb <- SweaveSyntaxNoweb
 HweaveSyntaxNoweb$extension <- "\\.[hHrsRS]?nw$"
 
@@ -560,7 +553,3 @@ HighlightTangle <- function(){
 Htangle <- function (file, driver = HighlightTangle(), syntax = HweaveSyntaxNoweb, encoding = "", ...){
 	Sweave(file = file, driver = driver, encoding = encoding, ...)
 }
-# }}}
-
-# :tabSize=4:indentSize=4:noTabs=false:folding=explicit:collapseFolds=1:
-
