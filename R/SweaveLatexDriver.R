@@ -102,6 +102,7 @@ wrap_size_chunk <- function(tex, size){
 }
 
 #' runcode with external highlight (andre version)
+#' @noRd
 runcode_external <- function(object, chunk, options){
   if( "file" %in% names(options) ){
     chunkfile <- options[["file"]]
@@ -119,6 +120,7 @@ runcode_external <- function(object, chunk, options){
 }
 
 #' show some debug information
+#' @noRd
 runcode_debug <- function(options){
   if( !options$quiet ){
     cat(formatC(options$chunknr, width=2), ":")
@@ -160,6 +162,7 @@ runcode_output_strip_spaces <- function(output, strip.white){
 
 
 #' run the code by weaving (similar to standard driver)
+#' @noRd
 runcode_weave <- function(object, chunk, options){
   chunk <- handle_first_line(chunk)
   
