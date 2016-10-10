@@ -40,7 +40,7 @@ with as many elements as there are tokens in the parser output}
 tree, this argument can be used to specify which expression
 to render. The default (NULL) means render all expressions. This 
 feature is used by the sweave driver shipped with this package. See
-\code{\link{HighlightWeaveLatex}}}
+\code{\link{HWeaveLatex}}}
 
 \item{final.newline}{logical. Indicates if a newline character is added after all tokens.}
 

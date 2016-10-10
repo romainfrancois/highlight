@@ -5,7 +5,7 @@
 \alias{Hweave}
 \title{Weaving and Tangling with syntax highlighting}
 \usage{
-Hweave(file, driver = HighlightWeaveLatex(), syntax = HweaveSyntaxNoweb,
+Hweave(file, driver = HWeaveLatex(), syntax = HweaveSyntaxNoweb,
   encoding = "", ...)
 
 Htangle(file, driver = HighlightTangle(), syntax = HweaveSyntaxNoweb,

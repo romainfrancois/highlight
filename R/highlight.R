@@ -12,7 +12,7 @@
 #' 	from the parser. The package ships a \code{\link{simple_detective}}. 
 #' 	
 #' 	The package also defines a custom sweave driver 
-#' 	(\code{\link{HighlightWeaveLatex}}) for latex based 
+#' 	(\code{\link{HWeaveLatex}}) for latex based 
 #' 	on the standard sweave latex driver (\code{\link[utils]{RweaveLatex}})
 #' 	using \code{\link{highlight}} to perform syntax 
 #' 	highlighting of R code chunks. 
@@ -33,7 +33,7 @@
 #' if( require( grid ) ){
 #' 	v <- vignette( "grid", package = "grid" )$file
 #' 	file.copy( v, "grid.Snw" )
-#' 	Sweave( "grid.Snw", driver= HighlightWeaveLatex() )
+#' 	Sweave( "grid.Snw", driver= HWeaveLatex() )
 #' 	system( "pdflatex grid.tex" )
 #' 	if (.Platform$OS.type == "windows"){ 
 #' 		shell.exec( "grid.pdf" )
@@ -104,7 +104,7 @@ subsetParseData <- function( p, i = 0, styles){
 #' tree, this argument can be used to specify which expression
 #' to render. The default (NULL) means render all expressions. This 
 #' feature is used by the sweave driver shipped with this package. See
-#' \code{\link{HighlightWeaveLatex}}
+#' \code{\link{HWeaveLatex}}
 #' @param final.newline logical. Indicates if a newline character is added after all tokens.
 #' @param showPrompts if TRUE, the highlighted text will show standard and continue prompt
 #' @param prompt standard prompt
@@ -134,19 +134,21 @@ subsetParseData <- function( p, i = 0, styles){
 #' 	
 #' }
 #' @export
-highlight <- function( file, output = stdout(),
-    detective = simple_detective, renderer, encoding = "unknown",
-    parse.output = parse( file, encoding = encoding, keep.source = TRUE ),
-    styles = detective( parse.output ),
-    expr = NULL,
-    final.newline = FALSE,
-    showPrompts = FALSE,
-    prompt = getOption( "prompt" ) ,
-    continue = getOption( "continue"),
-    initial.spaces = TRUE,
-    size = NULL,
-    show_line_numbers = FALSE,
-    ... ){
+highlight <- function( 
+  file, output = stdout(),
+  detective = simple_detective, renderer, encoding = "unknown",
+  parse.output = parse( file, encoding = encoding, keep.source = TRUE ),
+  styles = detective( parse.output ),
+  expr = NULL,
+  final.newline = FALSE,
+  showPrompts = FALSE,
+  prompt = getOption( "prompt" ) ,
+  continue = getOption( "continue"),
+  initial.spaces = TRUE,
+  size = NULL,
+  show_line_numbers = FALSE,
+  ... 
+){
 
     size <- match.arg( size )
     # forcing the arguments in a certain order

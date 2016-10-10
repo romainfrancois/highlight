@@ -6,8 +6,8 @@
 #' @param tokens tokens to wrap
 #' @param styles styles to give to the tokens
 #' @param \dots ignored
-#' @seealso \code{\link{renderer_html}}
-#' @export
+#' 
+#' @noRd
 formatter_html <- function( tokens, styles, ... ){
   ifelse( styles == "", 
           tokens, 
@@ -15,8 +15,6 @@ formatter_html <- function( tokens, styles, ... ){
   )
 }
 
-#' @rdname renderer_html
-#' @export
 translator_html <- function( x, size ){
   x <- gsub( '[&]', "&amp;", x )
   x <- gsub( "[<]", "&lt;", x )
@@ -24,14 +22,10 @@ translator_html <- function( x, size ){
   x
 }
 
-#' @rdname renderer_html
-#' @export
 space_html <- function( ){
   " "
 }
 
-#' @rdname renderer_html
-#' @export
 newline_html <- function( ){
   "\n" 
 }
@@ -59,8 +53,7 @@ newline_html <- function( ){
 #' f()
 #' f <- footer_html( document = FALSE )
 #' f() 
-#' @rdname header_html 
-#' @export
+#' @noRd
 header_html <- function( document, stylesheet){
   if( document ){
     cssfile <- getStyleFile( stylesheet )
@@ -74,8 +67,6 @@ header_html <- function( document, stylesheet){
   }
 }
 
-#' @rdname header_html
-#' @export
 footer_html <- function( document ){
   if( document ){
     function() "\n</pre>\n</body>\n</html>\n"
@@ -97,14 +88,13 @@ footer_html <- function( document ){
 #'                   tag in that case. See \code{\link{getStyleFile}} for details
 #'                   on where the stylesheet can be located
 #' 
-#' @return  A renderer capable suitable for the \samp{renderer} argument of \code{\link{highlight}} 
-#' @seealso 	\code{\link{renderer}} for a description of the interface
+#' @return  A renderer suitable for the \samp{renderer} argument of \code{\link{highlight}} 
+#' @seealso \code{\link{renderer}} for a description of the interface
 #' 	this renderer is implementing. 
 #' 	
 #' 	\code{\link{highlight}} takes a renderer argument to which it delegates rendering.
 #' @export
 renderer_html <- function( document = TRUE, stylesheet = "default" ){
-  
   renderer( 
     translator = translator_html, formatter = formatter_html, 
     space = space_html, newline = newline_html, 

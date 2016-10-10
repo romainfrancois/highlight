@@ -9,7 +9,8 @@
 #' @seealso \code{\link{renderer_latex}}
 #' @examples
 #' formatter_latex( "hello world", "blue" )
-#' @export
+#' 
+#' @noRd
 formatter_latex <- function( tokens, styles, ... ){
   ifelse( styles == "", 
           tokens, 
@@ -68,17 +69,14 @@ formatter_latex <- function( tokens, styles, ... ){
 #' @param size font size
 #' @return  translated text
 #' @seealso the latex renderer: \code{\link{renderer_latex}} uses this translator.
-#' @export
+#' 
+#' @noRd
 translator_latex <- .translator_latex_maker()
 
-#' @rdname renderer_latex
-#' @export
 space_latex <- function( ){
   "{\\ }"
 }       
 
-#' @rdname renderer_latex
-#' @export
 newline_latex <- function( ){
   "\\hspace*{\\fill}\\\\\n\\hlstd{}" 
 }
@@ -94,10 +92,10 @@ newline_latex <- function( ){
 #' used by the latex renderer
 #' @seealso \code{\link{translator_latex}} translates text into markup that 
 #' makes use of these boxes
-#' @export
+#'
+#' @noRd
 boxes_latex <- function( ){
-  
-  
+
   boxes <- '
   \\newsavebox{\\hlboxclosebrace}%
   \\newsavebox{\\hlboxopenbrace}%
@@ -160,7 +158,7 @@ boxes_latex <- function( ){
          \\newcommand{\\hlkwd}[1]{\\textcolor[rgb]{0,0,0.51}{#1}}
          ' )
   
-         }
+}
 
 #' latex header and footer
 #' 
@@ -182,7 +180,8 @@ boxes_latex <- function( ){
 #' h()
 #' f <- footer_latex( document = FALSE )
 #' f()
-#' @export
+#' 
+#' @noRd
 header_latex <- function( document, styles, boxes, minipage = FALSE ){
   function( ){
     txt <- ""
@@ -209,8 +208,6 @@ header_latex <- function( document, styles, boxes, minipage = FALSE ){
   }
 }
 
-#' @rdname header_latex
-#' @export
 footer_latex <- function( document, minipage = FALSE ){
   extra <- if(isTRUE(minipage)) "\\end{minipage}}\\vspace{1em}" else "\n"
   if( document ) {
@@ -224,26 +221,15 @@ footer_latex <- function( document, minipage = FALSE ){
   }
 }
 
-#' latex styler assistant
-#' 
-#' This function takes the output of the \code{\link{css.parser}} and
-#' produces latex style definitions from it.
-#' 
-#' The function create a new latex command for each css declaration, i.e.
-#' each item of the list \samp{x} it is passed. 
-#' 
-#' The assistant currently honours the following css settings: color, 
-#' \samp{text-decoration:underline}, \samp{font-weight:bold[er]} and 
-#' \samp{font-style:italic}
-#' 
-#' @param x output from \code{\link{css.parser}}
-#' @return a vector of latex style definitions corresponding to (a subset of) the 
-#'         output of the parser
-#' @seealso \code{\link{styler}}
-#' @export
-styler_assistant_latex <- function( x ){
+latex_styler <- function(stylesheet){
+  f <- getStyleFile( stylesheet, extension )
+  if( !is.null( f ) ){
+    return( readLines( f ) )
+  }
+  f <- getStyleFile( stylesheet, "css" )
+  p <- css.parser( f )
   
-  styles <- sapply( x, function( declaration ) {
+  styles <- sapply( p, function( declaration ) {
     settings <- names( declaration )
     has <- function( setting, value ){
       setting %in% settings && grepl( value, declaration[[ setting ]] )
@@ -270,6 +256,7 @@ styler_assistant_latex <- function( x ){
   } )
   sprintf( "\\newcommand{\\hl%s}[1]{%s}%%", names( x ), styles )
 }
+
 
 #' @importFrom grDevices col2rgb
 col2latexrgb <- function( hex ){
@@ -310,7 +297,7 @@ renderer_latex <- function(
   boxes  <- boxes_latex()
   header <- header_latex( document, styles = styles, boxes = boxes, minipage = minipage )
   footer <- footer_latex( document, minipage = minipage)
-  styles <- styler( stylesheet, "sty", styler_assistant_latex )
+  styles <- latex_styler( stylesheet )
   
   renderer( 
     translator = translator_latex, formatter = formatter_latex, space = space_latex , 
