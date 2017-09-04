@@ -85,4 +85,3 @@ of a detective.
 	\code{\link{simple_detective}} is an example detective which does a very 
 	simple investigation.
 }
-

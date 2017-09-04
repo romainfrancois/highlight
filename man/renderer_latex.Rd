@@ -36,4 +36,3 @@ renderering and therefore does not depend on verbatim-like environments.
 	r$translator( "# the hash symbol gets a latex box" )
 }
 }
-

@@ -17,4 +17,4 @@ Imports: grDevices, tools, utils
 SystemRequirements: C++11
 URL: https://github.com/romainfrancois/highlight
 BugReports: https://github.com/romainfrancois/highlight/issues
-RoxygenNote: 5.0.1
+RoxygenNote: 6.0.1.9000

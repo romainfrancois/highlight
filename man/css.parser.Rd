@@ -51,4 +51,3 @@ The parser is very minimal and will only identify CSS declarations like
 
 	Other settings are not further parsed at present.
 }
-

@@ -44,12 +44,5 @@ The main function of the package is \code{\link{highlight}}.
 	\code{\link{renderer}}s, such as the \code{\link{renderer_latex}} 
 	or \code{\link{renderer_html}} and is helped by a
 	detective to make sense of the results
-	from the parser. The package ships a \code{\link{simple_detective}}. 
-	
-	The package also defines a custom sweave driver 
-	(\code{\link{HWeaveLatex}}) for latex based 
-	on the standard sweave latex driver (\code{\link[utils]{RweaveLatex}})
-	using \code{\link{highlight}} to perform syntax 
-	highlighting of R code chunks.
+	from the parser. The package ships a \code{\link{simple_detective}}.
 }
-

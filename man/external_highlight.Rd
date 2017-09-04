@@ -39,4 +39,3 @@ Multi-language source code highlighter
 \seealso{
 \code{\link{highlight}} to highlight R code using the information from the parser
 }
-

@@ -22,4 +22,3 @@ the search goes as follows: first the current working directory
 then the directory ~/.R/highlight, then the stylesheet directory
 in the installed package
 }
-

@@ -29,4 +29,3 @@ the information as a series of \samp{<span>} html tags
 	
 	\code{\link{highlight}} takes a renderer argument to which it delegates rendering.
 }
-

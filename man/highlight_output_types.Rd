@@ -12,4 +12,3 @@ A character vector with the list of supported types
 \description{
 List of available output types supported by \code{\link{external_highlight}}
 }
-

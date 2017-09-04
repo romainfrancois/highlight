@@ -12,4 +12,3 @@ A character vector with the names of the themes
 \description{
 List of themes supported by \code{\link{external_highlight}}
 }
-

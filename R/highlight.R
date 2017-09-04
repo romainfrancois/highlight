@@ -11,11 +11,6 @@
 #' 	detective to make sense of the results
 #' 	from the parser. The package ships a \code{\link{simple_detective}}. 
 #' 	
-#' 	The package also defines a custom sweave driver 
-#' 	(\code{\link{HWeaveLatex}}) for latex based 
-#' 	on the standard sweave latex driver (\code{\link[utils]{RweaveLatex}})
-#' 	using \code{\link{highlight}} to perform syntax 
-#' 	highlighting of R code chunks. 
 #' @examples
 #' \dontrun{
 #' tf <- tempfile()

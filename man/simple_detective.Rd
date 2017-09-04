@@ -25,4 +25,3 @@ p <- parse( text = deparse( jitter ), keep.source=TRUE )
 simple_detective( p )
 }
 }
-

@@ -67,4 +67,3 @@ The \code{\link{renderer_html}} implements a renderer using html markup,
 
 The \code{\link{renderer_latex}} implements a latex renderer.
 }
-
