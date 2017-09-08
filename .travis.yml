@@ -1,17 +1,5 @@
-# R for travis: see documentation at https://docs.travis-ci.com/user/languages/r
-
 language: R
-sudo: required
-dist: trusty
 cache: packages
 r:
   - release
   - devel
-
-compiler:
-  - gcc
-
-warnings_are_errors: false
-env:
-  global:
-    - _R_CHECK_FORCE_SUGGESTS_=false

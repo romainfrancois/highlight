@@ -17,5 +17,8 @@ Imports: glue,
     readr,
     tibble,
     tidyverse,
-    stringr
+    stringr,
+    dplyr,
+    magrittr,
+    htmltools
 Encoding: UTF-8
