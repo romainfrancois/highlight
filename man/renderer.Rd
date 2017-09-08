@@ -63,7 +63,5 @@ interface, but this is very likely to change.
 }
 \seealso{
 The \code{\link{renderer_html}} implements a renderer using html markup, 
-\samp{<span>} tags and CSS. 
-
-The \code{\link{renderer_latex}} implements a latex renderer.
+\samp{<span>} tags and CSS.
 }

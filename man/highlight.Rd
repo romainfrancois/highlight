@@ -24,8 +24,7 @@ is used to redirect the standard output to the output.}
 investigation on the results of the \code{\link[base]{parse}}}
 
 \item{renderer}{highlight delegates rendering the information to the renderer. This 
-package includes html and latex renderers. See \code{\link{renderer_html}}
-and \code{\link{renderer_latex}}}
+package includes html and latex renderers. See \code{\link{renderer_html}}.}
 
 \item{encoding}{encoding to assume for the file. the argument is directly passed 
 to the \code{\link[base]{parse}}.}
@@ -73,14 +72,11 @@ of a detective.
 	dump( "jitter", file = tf )
 	highlight( file = tf, detective = simple_detective, 
 		renderer = renderer_html( document = TRUE ) )
-	highlight( file = tf, detective = simple_detective, 
-		renderer = renderer_latex( document = TRUE ) )
 	
 }
 }
 \seealso{
-\code{\link{renderer_html}} and \code{\link{renderer_latex}} are the
-	two implementation of renderers currently available in this package. 
+\code{\link{renderer_html}} available in this package. 
 	
 	\code{\link{simple_detective}} is an example detective which does a very 
 	simple investigation.

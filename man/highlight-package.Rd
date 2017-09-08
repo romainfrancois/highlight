@@ -13,26 +13,7 @@ tf <- tempfile()
 dump( "glm" , file = tf )
 
 # rendering in html
-highlight( tf, output = stdout(), 
-	renderer = renderer_html() )
-
-# rendering in latex
-highlight( tf, output = stdout(), 
-	renderer = renderer_latex() )
-
-# Sweave driver using syntax highlighting
-if( require( grid ) ){
-	v <- vignette( "grid", package = "grid" )$file
-	file.copy( v, "grid.Snw" )
-	Sweave( "grid.Snw", driver= HWeaveLatex() )
-	system( "pdflatex grid.tex" )
-	if (.Platform$OS.type == "windows"){ 
-		shell.exec( "grid.pdf" )
-	} else {
-		system(paste(shQuote(getOption("pdfviewer")), "grid.pdf" ), 
-			wait = FALSE)
-	}
-}
+highlight( tf, renderer = renderer_html() )
 
 unlink( tf )
 }
@@ -41,8 +22,9 @@ unlink( tf )
 The main function of the package is \code{\link{highlight}}. 
 	
 	\code{\link{highlight}} delegates rendering the document to 
-	\code{\link{renderer}}s, such as the \code{\link{renderer_latex}} 
-	or \code{\link{renderer_html}} and is helped by a
-	detective to make sense of the results
-	from the parser. The package ships a \code{\link{simple_detective}}.
+	\code{\link{renderer}}s, such as the \code{\link{renderer_html}} 
+	and is helped by a detective to make sense of the results
+	from the parser. 
+	
+	The package ships a \code{\link{simple_detective}}.
 }

@@ -66,8 +66,6 @@
 #' @seealso The \code{\link{renderer_html}} implements a renderer using html markup, 
 #' \samp{<span>} tags and CSS. 
 #' 
-#' The \code{\link{renderer_latex}} implements a latex renderer.
-#' 
 #' @export
 renderer <- function( translator, formatter, space, newline, header, footer, ... ){
 	structure( list( translator = translator, 

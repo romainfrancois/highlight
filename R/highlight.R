@@ -6,10 +6,11 @@
 #' 	The main function of the package is \code{\link{highlight}}. 
 #' 	
 #' 	\code{\link{highlight}} delegates rendering the document to 
-#' 	\code{\link{renderer}}s, such as the \code{\link{renderer_latex}} 
-#' 	or \code{\link{renderer_html}} and is helped by a
-#' 	detective to make sense of the results
-#' 	from the parser. The package ships a \code{\link{simple_detective}}. 
+#' 	\code{\link{renderer}}s, such as the \code{\link{renderer_html}} 
+#' 	and is helped by a detective to make sense of the results
+#' 	from the parser. 
+#' 	
+#' 	The package ships a \code{\link{simple_detective}}. 
 #' 	
 #' @examples
 #' \dontrun{
@@ -17,26 +18,7 @@
 #' dump( "glm" , file = tf )
 #' 
 #' # rendering in html
-#' highlight( tf, output = stdout(), 
-#' 	renderer = renderer_html() )
-#' 
-#' # rendering in latex
-#' highlight( tf, output = stdout(), 
-#' 	renderer = renderer_latex() )
-#' 
-#' # Sweave driver using syntax highlighting
-#' if( require( grid ) ){
-#' 	v <- vignette( "grid", package = "grid" )$file
-#' 	file.copy( v, "grid.Snw" )
-#' 	Sweave( "grid.Snw", driver= HWeaveLatex() )
-#' 	system( "pdflatex grid.tex" )
-#' 	if (.Platform$OS.type == "windows"){ 
-#' 		shell.exec( "grid.pdf" )
-#' 	} else {
-#' 		system(paste(shQuote(getOption("pdfviewer")), "grid.pdf" ), 
-#' 			wait = FALSE)
-#' 	}
-#' }
+#' highlight( tf, renderer = renderer_html() )
 #' 
 #' unlink( tf )
 #' }
@@ -87,8 +69,7 @@ subsetParseData <- function( p, i = 0, styles){
 #' @param detective the detective chooses the style to apply to each token, basing its 
 #' investigation on the results of the \code{\link[base]{parse}}
 #' @param renderer highlight delegates rendering the information to the renderer. This 
-#' package includes html and latex renderers. See \code{\link{renderer_html}}
-#' and \code{\link{renderer_latex}}
+#' package includes html and latex renderers. See \code{\link{renderer_html}}. 
 #' @param encoding encoding to assume for the file. the argument is directly passed 
 #' to the \code{\link[base]{parse}}.
 #' @param parse.output output from the \code{\link[base]{parse}}. If this is given, the 
@@ -112,8 +93,7 @@ subsetParseData <- function( p, i = 0, styles){
 #' @return The resulting formatted text is returned invisibly. It is also 
 #' written to the output if the output is not \code{NULL}
 #' @seealso 
-#' 	\code{\link{renderer_html}} and \code{\link{renderer_latex}} are the
-#' 	two implementation of renderers currently available in this package. 
+#' 	\code{\link{renderer_html}} available in this package. 
 #' 	
 #' 	\code{\link{simple_detective}} is an example detective which does a very 
 #' 	simple investigation.
@@ -124,8 +104,6 @@ subsetParseData <- function( p, i = 0, styles){
 #' 	dump( "jitter", file = tf )
 #' 	highlight( file = tf, detective = simple_detective, 
 #' 		renderer = renderer_html( document = TRUE ) )
-#' 	highlight( file = tf, detective = simple_detective, 
-#' 		renderer = renderer_latex( document = TRUE ) )
 #' 	
 #' }
 #' @export
