@@ -76,31 +76,27 @@ renderer <- function( translator, formatter, space, newline, header, footer, ...
 
 #' helper function to get a style file
 #'
-#' @param name the name of the style file to look for
-#' @param extension the file extension (css, sty, or xterm)
+#' @param file name of
 #' 
 #' @details
-#' the search goes as follows: first the current working directory
-#' then the directory ~/.R/highlight, then the stylesheet directory
-#' in the installed package
+#' the search goes as follows: 
+#' - absolutely or relative to the working directory
+#' - then the directory ~/.R/highlight
+#' - then the stylesheet directory in the installed package
 #' 
-#' @return the name of the first file that is found, or NULL
-getStyleFile <- function( name = "default", extension = "css" ){
+#' @return the name of the first file that is found
+#' 
+#' @export
+#' @importFrom glue glue
+css_file <- function( filename = "default.css" ){
 	
-	filename <- if( grepl( sprintf( "%s$", extension, ignore.case = TRUE), name ) ){
-		name
-	} else { 
-		sprintf( "%s.%s", name, extension )
-	}
-	
-	f <- filename
-	if( file.exists( f ) ){
-		return(f)
+	if( file.exists(filename) ){
+		return(normalizePath(filename))
 	}
 	
 	f <- file.path( Sys.getenv("HOME"), ".R", "highlight", filename )
-	if( file.exists( f ) ){
-		return( f )
+	if( file.exists(f) ){
+		return(f)
 	}
 
 	f <- system.file( "stylesheet", filename , package = "highlight" )
@@ -108,5 +104,5 @@ getStyleFile <- function( name = "default", extension = "css" ){
 		return( f) 
 	}
 	
-	invisible( NULL )
+	stop( glue("file not found: '{filename}'") )
 }

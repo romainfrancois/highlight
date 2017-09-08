@@ -39,7 +39,7 @@ newline_html <- function( ){
 #'                 functions will return the beginning and end 
 #'                 of a full html document. If \code{FALSE}, the built functions will 
 #'                 only return the opening and closing \samp{<pre>} tags.  
-#' @param stylesheet  stylesheet to use. See \code{getStyleFile} for details 
+#' @param css  stylesheet to use. See \code{getStyleFile} for details 
 #'                    on where the stylesheet can be located.
 #' @return header and footer functions.
 #' @seealso \code{\link{renderer_html}} uses these functions to create a renderer
@@ -47,16 +47,16 @@ newline_html <- function( ){
 #' @examples
 #' h <- header_html( document = FALSE )
 #' h()
-#' h <- header_html( document = TRUE, stylesheet = "default") 
+#' h <- header_html( document = TRUE, css = "default.css") 
 #' h()
 #' f <- footer_html( document = TRUE )
 #' f()
 #' f <- footer_html( document = FALSE )
 #' f() 
 #' @noRd
-header_html <- function( document, stylesheet){
+header_html <- function( document, css ){
   if( document ){
-    cssfile <- getStyleFile( stylesheet )
+    cssfile <- css_file( css )
     function(){
       c( '<html>\n<head>\n<style type="text/css">\n', 
          if( !is.null(cssfile) ) paste( readLines(cssfile), "\n", sep = "") , 
