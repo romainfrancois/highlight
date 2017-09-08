@@ -58,12 +58,11 @@ highlight <- function(
     filter(terminal) %>% 
     mutate( text = htmlEscape(text) )
   
-  res <- .Call( "get_highlighted_text", 
+  res <- .Call(get_highlighted_text, 
     data, min(data$line1), max(data$line2) , 
     data$line1, data$col1, 
     data$line2, data$col2,
-    data$text, data$class, data$style, 
-    PACKAGE = "highlight"
+    data$text, data$class, data$style
   )
  c( header, res, footer )
 }

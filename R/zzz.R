@@ -1,2 +1,2 @@
-#' @useDynLib highlight
+#' @useDynLib highlight, .registration = TRUE
 NULL
