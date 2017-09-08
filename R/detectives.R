@@ -21,6 +21,7 @@
 #' @importFrom tidyverse tidyverse_packages
 #' @importFrom dplyr case_when pull
 #' @importFrom stringr str_detect
+#' @importFrom utils installed.packages
 #' @export
 lestrade <- function( data ){
 	

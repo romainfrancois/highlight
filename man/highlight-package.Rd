@@ -9,22 +9,10 @@ Syntax highlighter for R based on output from the R parser
 }
 \examples{
 \dontrun{
-tf <- tempfile()
-dump( "glm" , file = tf )
+highlight( "rnorm(10)" )
 
-# rendering in html
-highlight( tf, renderer = renderer_html() )
-
-unlink( tf )
 }
 }
 \seealso{
-The main function of the package is \code{\link{highlight}}. 
-	
-	\code{\link{highlight}} delegates rendering the document to 
-	\code{\link{renderer}}s, such as the \code{\link{renderer_html}} 
-	and is helped by a detective to make sense of the results
-	from the parser. 
-	
-	The package ships a \code{\link{simple_detective}}.
+The main function of the package is \code{\link{highlight}}.
 }

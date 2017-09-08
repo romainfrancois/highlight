@@ -5,22 +5,10 @@
 #' @seealso
 #' 	The main function of the package is \code{\link{highlight}}. 
 #' 	
-#' 	\code{\link{highlight}} delegates rendering the document to 
-#' 	\code{\link{renderer}}s, such as the \code{\link{renderer_html}} 
-#' 	and is helped by a detective to make sense of the results
-#' 	from the parser. 
-#' 	
-#' 	The package ships a \code{\link{simple_detective}}. 
-#' 	
 #' @examples
 #' \dontrun{
-#' tf <- tempfile()
-#' dump( "glm" , file = tf )
+#' highlight( "rnorm(10)" )
 #' 
-#' # rendering in html
-#' highlight( tf, renderer = renderer_html() )
-#' 
-#' unlink( tf )
 #' }
 #' @docType package
 #' @name highlight-package
@@ -81,4 +69,4 @@ highlight <- function(
 }
 
 #' @importFrom utils globalVariables
-globalVariables( c("terminal", "text" ) )
+globalVariables( c("terminal", "text", "Priority", "Package" ) )
