@@ -4,7 +4,7 @@
 \alias{renderer}
 \title{highlight renderer}
 \usage{
-renderer(translator, formatter, space, newline, header, footer, ...)
+renderer(translator, formatter, header, footer, ...)
 }
 \arguments{
 \item{translator}{This argument should be a function with one argument. The translator 
@@ -18,15 +18,6 @@ tokens and styles into the target markup language.
 For example, the formatter used by the html renderer makes 
 a \samp{<span>} tag of \samp{class} given by the \samp{styles} 
 and content given by the \samp{token}.}
-
-\item{space}{This should be a function with no argument. The output of this function
-should be a character vector of length one giving the representation
-of a space character in the target language. For example, in the 
-latex renderer, the function returns \samp{"{\\ }"}.}
-
-\item{newline}{This should be a function with no argument. The output of the function
-is a character vector of length one giving the representation of a newline
-character in the target language.}
 
 \item{header}{This should be a function with no argument. The output of this function
 is a character vector of arbitrary length. The elements of the output 

@@ -38,13 +38,6 @@
 #' For example, the formatter used by the html renderer makes 
 #' a \samp{<span>} tag of \samp{class} given by the \samp{styles} 
 #' and content given by the \samp{token}.
-#' @param space This should be a function with no argument. The output of this function
-#' should be a character vector of length one giving the representation
-#' of a space character in the target language. For example, in the 
-#' latex renderer, the function returns \samp{"{\\ }"}.
-#' @param newline This should be a function with no argument. The output of the function
-#' is a character vector of length one giving the representation of a newline
-#' character in the target language.
 #' @param header This should be a function with no argument. The output of this function
 #' is a character vector of arbitrary length. The elements of the output 
 #' are written before the highlighted content. headers and footers are used 
@@ -67,7 +60,7 @@
 #' \samp{<span>} tags and CSS. 
 #' 
 #' @export
-renderer <- function( translator, formatter, space, newline, header, footer, ... ){
+renderer <- function( translator, formatter, header, footer, ... ){
 	structure( list( translator = translator, 
 		formatter = formatter, space = space, newline = newline, 
 		header = header, footer = footer, ... ), 

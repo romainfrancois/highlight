@@ -22,14 +22,6 @@ translator_html <- function( x, size ){
   x
 }
 
-space_html <- function( ){
-  " "
-}
-
-newline_html <- function( ){
-  "\n" 
-}
-
 #' html renderer header and footer
 #' 
 #' these functions build the header function and the footer function 
@@ -94,10 +86,9 @@ footer_html <- function( document ){
 #' 	
 #' 	\code{\link{highlight}} takes a renderer argument to which it delegates rendering.
 #' @export
-renderer_html <- function( document = TRUE, stylesheet = "default" ){
+renderer_html <- function( document = TRUE, stylesheet = "default.css" ){
   renderer( 
     translator = translator_html, formatter = formatter_html, 
-    space = space_html, newline = newline_html, 
     header = header_html( document, stylesheet ), footer = footer_html( document ), 
     stylesheet= stylesheet
   )

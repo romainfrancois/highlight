@@ -4,15 +4,18 @@ Title: Syntax Highlighter
 Description: Syntax highlighter for R code based on the results of the R parser. 
 Version: 0.5.0
 Authors@R: c( 
-    person("Romain", "François", email = "romain@thinkr.fr", c("aut", "cre") )
+    person("Romain", "François", email = "romain@thinkr.fr", role = c("aut", "cre") )
   )
 License: MIT + file LICENSE
 Depends:
     R (>= 3.3.1)
-SystemRequirements: C++11
 URL: https://github.com/romainfrancois/highlight
 BugReports: https://github.com/romainfrancois/highlight/issues
 RoxygenNote: 6.0.1.9000
 Imports: glue,
-    utils
+    utils,
+    readr,
+    tibble,
+    tidyverse,
+    stringr
 Encoding: UTF-8

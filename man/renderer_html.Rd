@@ -4,7 +4,7 @@
 \alias{renderer_html}
 \title{html renderer using span tags and CSS}
 \usage{
-renderer_html(document = TRUE, stylesheet = "default")
+renderer_html(document = TRUE, stylesheet = "default.css")
 }
 \arguments{
 \item{document}{logical. Indicates if the renderer should render a full document

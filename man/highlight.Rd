@@ -2,64 +2,26 @@
 % Please edit documentation in R/highlight.R
 \name{highlight}
 \alias{highlight}
-\title{syntax highlighting based on the R parser}
+\title{Syntax highlighting based on the R parser}
 \usage{
-highlight(file, output = stdout(), detective = simple_detective, renderer,
-  encoding = "unknown", parse.output = parse(file, encoding = encoding,
-  keep.source = TRUE), styles = detective(parse.output), expr = NULL,
-  final.newline = FALSE, showPrompts = FALSE,
-  prompt = getOption("prompt"), continue = getOption("continue"),
-  initial.spaces = TRUE, size = c("normalsize", "tiny", "scriptsize",
-  "footnotesize", "small", "large", "Large", "LARGE", "huge", "Huge"),
-  show_line_numbers = FALSE, ...)
+highlight(code = read_file(file), detective = lestrade, file,
+  header = "<pre>", footer = "</pre>", ...)
 }
 \arguments{
-\item{file}{code file to parse. This is only used if the \code{parse.output} is given}
+\item{code}{code to highlight. Read from `file` if supplied}
 
-\item{output}{where to write the rendered text. If this is anything else than the 
-default (standard output), the \code{\link{sink}} function
-is used to redirect the standard output to the output.}
+\item{detective}{function used to assign styles to tokens}
 
-\item{detective}{the detective chooses the style to apply to each token, basing its 
-investigation on the results of the \code{\link[base]{parse}}}
+\item{file}{code file}
 
-\item{renderer}{highlight delegates rendering the information to the renderer. This 
-package includes html and latex renderers. See \code{\link{renderer_html}}.}
+\item{header}{header}
 
-\item{encoding}{encoding to assume for the file. the argument is directly passed 
-to the \code{\link[base]{parse}}.}
+\item{footer}{footer}
 
-\item{parse.output}{output from the \code{\link[base]{parse}}. If this is given, the 
-arguments \code{file} and \code{encoding} are not used}
-
-\item{styles}{result of the detective investigation. A character vector 
-with as many elements as there are tokens in the parser output}
-
-\item{expr}{In case we want to render only one expression and not the full parse
-tree, this argument can be used to specify which expression
-to render. The default (NULL) means render all expressions. This 
-feature is used by the sweave driver shipped with this package. See
-\code{\link{HWeaveLatex}}}
-
-\item{final.newline}{logical. Indicates if a newline character is added after all tokens.}
-
-\item{showPrompts}{if TRUE, the highlighted text will show standard and continue prompt}
-
-\item{prompt}{standard prompt}
-
-\item{continue}{continue prompt}
-
-\item{initial.spaces}{should initial spaces be displayed or skipped.}
-
-\item{size}{font size. only respected by the latex renderer so far.}
-
-\item{show_line_numbers}{logical. When TRUE, line numbers are shown in the output.}
-
-\item{\dots}{additional arguments, currently ignored.}
+\item{...}{extra parameters for the detective}
 }
 \value{
-The resulting formatted text is returned invisibly. It is also 
-written to the output if the output is not \code{NULL}
+The formatted text, surrounded by `header` and `footer`
 }
 \description{
 The \code{highlight} function performs syntax highlighting based on the 
@@ -68,16 +30,12 @@ of a detective.
 }
 \examples{
 \dontrun{
-	tf <- tempfile()
-	dump( "jitter", file = tf )
-	highlight( file = tf, detective = simple_detective, 
-		renderer = renderer_html( document = TRUE ) )
+	highlight( code = "rnorm(10) + 1", lestrade )
+	highlight( code = "rnorm(10) + 1", sherlock )
 	
 }
+
 }
 \seealso{
-\code{\link{renderer_html}} available in this package. 
-	
-	\code{\link{simple_detective}} is an example detective which does a very 
-	simple investigation.
+[lestrade()] and [sherlock()] for examples of detectives
 }
