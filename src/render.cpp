@@ -26,7 +26,7 @@ extern "C" SEXP get_highlighted_text(
     SEXP line_numbers_, SEXP show_line_numbers_  
     ){
 
-    /* the current line */
+  /* the current line */
 	std::string current_line ;
 	current_line.reserve( 512 ) ; /* should be more than enough */
 	
@@ -65,7 +65,7 @@ extern "C" SEXP get_highlighted_text(
 	}
 	for( i=0; i<n; i++){
 		
-	    /* move down as many lines as needed */
+    /* move down as many lines as needed */
 		if( line < line1[i] ){
 			for( ; line < line1[i]; line++ ){
 				if( !initial  || initial_spaces ){

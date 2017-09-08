@@ -173,6 +173,3 @@ highlight <- function(
     }
     invisible( highlighted_text )
 }
-fm <- formals(highlight)
-fm[[ which( names(fm) == "size") ]] <- LATEX_SIZES
-formals( highlight ) <- fm
