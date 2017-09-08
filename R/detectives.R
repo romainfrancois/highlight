@@ -18,7 +18,6 @@
 #' @importFrom utils getParseData
 #' 
 #' @importFrom tibble as_tibble
-#' @importFrom tidyverse tidyverse_packages
 #' @importFrom dplyr case_when pull
 #' @importFrom stringr str_detect
 #' @importFrom utils installed.packages
@@ -60,7 +59,7 @@ lestrade <- function( data ){
         token %in% c("SYMBOL_SUB", "EQ_SUB" )  ~ "argument",
         token == "SYMBOL_PACKAGE" & text %in% base_packages  ~ "base_package package",
         token == "SYMBOL_PACKAGE" & text %in% recommended_packages  ~ "recommended_package package",
-        token == "SYMBOL_PACKAGE" & text %in% tidyverse_packages()  ~ "tidyverse_package package",
+        token == "SYMBOL_PACKAGE" & text %in% tidyverse  ~ "tidyverse_package package",
         token == "SYMBOL_PACKAGE" ~ "package",
         token == "SYMBOL_FORMALS"              ~ "formalargs",
         token == "EQ_FORMALS"                  ~ "eqformalargs",
