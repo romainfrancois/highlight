@@ -44,7 +44,11 @@ lestrade <- function( data ){
     pull(Package)
   
   data %>% 
-    mutate( 
+    mutate(
+      token = case_when( 
+        token == "COMMENT" & grepl( "^#'", text) ~ "ROXYGENCOMMENT",
+        TRUE ~ token  
+      ),
       class = case_when(
         !terminal ~ "", 
         text %in% magrittr_pipes               ~ "magrittr_pipe special",
@@ -100,5 +104,3 @@ sherlock <- function(data, palette = muted_colors ){
       )  
     )
 }
-
-
