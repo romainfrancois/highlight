@@ -4,6 +4,7 @@
 #include <Rinternals.h>
 
 #include <string>   
+#include <limits>
 
 #define LINE_NUMBERS(i) CHAR(STRING_ELT(line_numbers_, i))
 #define SET_RES(i,s) SET_STRING_ELT(res,i, Rf_mkChar(s.c_str()) )
@@ -114,12 +115,17 @@ extern "C" SEXP get_highlighted_text(
 	return( res ) ;
 }
 
+inline double size_t_max(){
+  return (double) std::numeric_limits< typename std::hash<std::string>::result_type  >::max() ;
+}
+
 extern "C" SEXP hash_strings( SEXP s ){
-  double max = (double) std::numeric_limits<size_t>::max() ;
+  std::hash<std::string> hash_fn;
+  
+  double max = size_t_max() ;
   int n = Rf_length(s) ;
   SEXP res = PROTECT(Rf_allocVector(REALSXP, n)) ;
   double* p = REAL(res) ;
-  std::hash<std::string> hash_fn;
   
   for(int i=0 ;i<n; i++){
     p[i] = hash_fn( CHAR(STRING_ELT(s, i)) ) / max ;
