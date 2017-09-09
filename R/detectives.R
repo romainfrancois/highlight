@@ -148,6 +148,7 @@ mycroft <- function(assistant = lestrade){
 #' moriarty
 #' 
 #' @param assistant initial detective
+#' @param char the replacement character. 
 #' 
 #' This starts by the investigation of the assistant, then replaces tokens
 #' by a character.  

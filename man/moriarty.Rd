@@ -7,7 +7,9 @@
 moriarty(assistant = lestrade, char = "▪️")
 }
 \arguments{
-\item{assistant}{initial detective
+\item{assistant}{initial detective}
+
+\item{char}{the replacement character. 
 
 This starts by the investigation of the assistant, then replaces tokens
 by a character.}
