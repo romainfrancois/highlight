@@ -133,7 +133,7 @@ mycroft <- function(assistant = lestrade){
       data <- data %>% 
         mutate( 
           class = case_when( 
-            text %in% functions  ~ paste( class, " focus"), 
+            text %in% functions & token == "SYMBOL_FUNCTION_CALL" ~ paste( class, " focus"), 
             TRUE                 ~ class
           )  
         )  
@@ -143,6 +143,43 @@ mycroft <- function(assistant = lestrade){
   }
   
 }
-  
 
+
+#' moriarty
+#' 
+#' @param assistant initial detective
+#' 
+#' This starts by the investigation of the assistant, then replaces tokens
+#' by a character.  
+#' 
+#' @importFrom purrr map_chr
+#' @export  
+moriarty <- function(assistant = lestrade, char = "\u25aa\ufe0f" ){
+  function(data, hide_packages = NULL, hide_functions = NULL, ...){
+    data <- assistant(data, ...)
+    
+    if( !is.null(hide_packages) && is.character(hide_packages) ){
+      
+      pos <- paste0("package:", hide_packages)
+      f <- map( pos , ~possibly(ls, NULL)(.) ) %>% 
+        flatten_chr()
+      
+      hide_functions <- c(hide_functions, f)
+    }
+    
+    if( !is.null(hide_functions) ){
+      
+      data <- data %>% 
+        mutate( 
+          text = case_when( 
+            text %in% hide_functions & token == "SYMBOL_FUNCTION_CALL"  ~ map_chr( nchar(text), ~ paste0(rep( char, .), collapse = "") ), 
+            TRUE                      ~ text
+          )  
+        )  
+    }
+    
+    data
+    
+  }
+}
 
