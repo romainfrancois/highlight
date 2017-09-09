@@ -4,14 +4,10 @@
 \alias{sherlock}
 \title{Sherlock Holmes, highlighting detective}
 \usage{
-sherlock(data, palette = muted_colors, ...)
+sherlock(assistant = lestrade)
 }
 \arguments{
-\item{data}{data frame, typically coming from [utils::getParseData()]}
-
-\item{palette}{a function converting numbers from 0 to 1 into a color}
-
-\item{...}{additional parameters}
+\item{assistant}{initial detective}
 }
 \description{
 Sherlock Holmes, highlighting detective

@@ -1,4 +1,15 @@
 
+#' simplest detective
+#' 
+#' @param data data frame, typically coming from [utils::getParseData()]
+#' @param ... ignored
+#' 
+#' @export
+clueless <- function(data, ...){
+  data %>% 
+    mutate( class = "", style = "" )
+}
+
 #' lestrade
 #' 
 #' basic investigation, only involving syntax. 
@@ -92,19 +103,19 @@ muted_colors <- function(x){
 
 #' Sherlock Holmes, highlighting detective 
 #' 
-#' @param data data frame, typically coming from [utils::getParseData()]
-#' @param palette a function converting numbers from 0 to 1 into a color
-#' @param ... additional parameters
+#' @param assistant initial detective
 #'
 #' @export
-sherlock <- function(data, palette = muted_colors, ... ){
-  data <- lestrade(data, ... ) %>% 
-    mutate( 
-      style = case_when( 
-        class %in% c("functioncall", "symbol", "symbol_argument", "symbol_formalargs") ~ sherlock_colors(text, palette = palette),
-        TRUE ~ ""
-      )  
-    )
+sherlock <- function(assistant = lestrade){
+  function(data, palette = muted_colors, ... ){
+    data <- assistant(data, ... ) %>% 
+      mutate( 
+        style = case_when( 
+          class %in% c("functioncall", "symbol", "symbol_argument", "symbol_formalargs") ~ sherlock_colors(text, palette = palette),
+          TRUE ~ ""
+        )  
+      )
+  }
 }
 
 #' mycroft
