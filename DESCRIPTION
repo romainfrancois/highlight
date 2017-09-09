@@ -20,7 +20,8 @@ Imports: glue,
     dplyr,
     magrittr,
     htmltools,
-    grDevices
+    grDevices,
+    purrr
 Encoding: UTF-8
 SystemRequirements: C++11
 Suggests: knitr,

@@ -98,7 +98,7 @@ muted_colors <- function(x){
 #'
 #' @export
 sherlock <- function(data, palette = muted_colors, ... ){
-  lestrade(data) %>% 
+  data <- lestrade(data, ... ) %>% 
     mutate( 
       style = case_when( 
         class %in% c("functioncall", "symbol", "symbol_argument", "symbol_formalargs") ~ sherlock_colors(text, palette = palette),
@@ -106,3 +106,43 @@ sherlock <- function(data, palette = muted_colors, ... ){
       )  
     )
 }
+
+#' mycroft
+#' 
+#' @param assistant initial detective
+#' 
+#' This starts by the investigation of the assistant, then adds the css class "focus" to 
+#' tokens depending on the `packages` and `functions` options. 
+#' 
+#' @importFrom purrr map_chr
+#' @export
+mycroft <- function(assistant = lestrade){
+  function(data, packages = NULL, functions = NULL, ...){
+    data <- assistant(data, ...)
+    
+    if( !is.null(packages) && is.character(packages) ){
+      
+      pos <- paste0("package:", packages)
+      f <- map( pos , ~possibly(ls, NULL)(.) ) %>% 
+        flatten_chr()
+      
+      functions <- c(functions, f)
+    }
+    
+    if( !is.null(functions) ){
+      data <- data %>% 
+        mutate( 
+          class = case_when( 
+            text %in% functions  ~ paste( class, " focus"), 
+            TRUE                 ~ class
+          )  
+        )  
+    }
+    
+    data
+  }
+  
+}
+  
+
+

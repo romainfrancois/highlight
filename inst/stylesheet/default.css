@@ -71,3 +71,7 @@
 .line{
     color: gray ;   
 }
+
+.focus{
+  background-color: yellow ;
+}
