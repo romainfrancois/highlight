@@ -48,6 +48,7 @@ lestrade <- function( data ){
       class = case_when(
         !terminal ~ "", 
         text %in% magrittr_pipes               ~ "magrittr_pipe special",
+        text == "return"                       ~ "keyword",
         token == "SPECIAL"                     ~ "special",
         str_detect(token, "^'.*?'$")           ~ "keyword",
         token == "COMMENT"                     ~ "comment",
@@ -56,12 +57,13 @@ lestrade <- function( data ){
         token == "STR_CONST"                   ~ "string",
         token == "NUM_CONST"                   ~ "number",
         token == "SYMBOL_FUNCTION_CALL"        ~ "functioncall",
-        token %in% c("SYMBOL_SUB", "EQ_SUB" )  ~ "argument",
+        token == "SYMBOL_SUB"                  ~ "symbol_argument", 
+        token == "EQ_SUB"                      ~ "argument",
         token == "SYMBOL_PACKAGE" & text %in% base_packages  ~ "base_package package",
         token == "SYMBOL_PACKAGE" & text %in% recommended_packages  ~ "recommended_package package",
         token == "SYMBOL_PACKAGE" & text %in% tidyverse  ~ "tidyverse_package package",
         token == "SYMBOL_PACKAGE" ~ "package",
-        token == "SYMBOL_FORMALS"              ~ "formalargs",
+        token == "SYMBOL_FORMALS"              ~ "symbol_formalargs",
         token == "EQ_FORMALS"                  ~ "eqformalargs",
         token %in% assigns                     ~ "assignment",
         token == "SYMBOL"                      ~ "symbol",
@@ -72,13 +74,31 @@ lestrade <- function( data ){
   
 }
 
+#' @importFrom grDevices hsv
+sherlock_colors <- function(colors, palette){
+  values <- .Call( hash_strings, colors )
+  col <- palette( values )
+  unclass(glue( 'color: {col} ; font-weight: bolder' ))
+}
+
+muted_colors <- function(x){
+  hsv( .2 + x * .8, s = .5, v = .8 )
+}
+
 #' Sherlock Holmes, highlighting detective 
 #' 
 #' @param data data frame, typically coming from [utils::getParseData()]
+#' @param palette a function converting numbers from 0 to 1 into a color
 #'
 #' @export
-sherlock <- function(data){
-  lestrade(data)
+sherlock <- function(data, palette = muted_colors ){
+  lestrade(data) %>% 
+    mutate( 
+      style = case_when( 
+        class %in% c("functioncall", "symbol", "symbol_argument", "symbol_formalargs") ~ sherlock_colors(text, palette = palette),
+        TRUE ~ ""
+      )  
+    )
 }
 
 

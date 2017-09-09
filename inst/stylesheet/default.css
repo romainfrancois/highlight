@@ -22,20 +22,26 @@
 	color: black;
 }
 
+.symbol_argument{
+	color: rgb( 177,63,5) ;
+	font-weight: bold ;
+}
+
 .argument{
 	color: rgb( 177,63,5) ;
 }
 
 .comment{
-	color: rgb( 204,204,204) ;
+	color: rgb( 190, 190, 190) ;
 }
 
 .roxygencomment{
 	color: rgb(0,151,255);
 }
 
-.formalargs{
+.symbol_formalargs{
 	color: rgb(18,182,18);
+	font-style: italic;
 }
 
 .eqformalargs{

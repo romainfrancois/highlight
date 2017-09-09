@@ -19,6 +19,7 @@ Imports: glue,
     stringr,
     dplyr,
     magrittr,
-    htmltools
+    htmltools,
+    grDevices
 Encoding: UTF-8
 SystemRequirements: C++11
