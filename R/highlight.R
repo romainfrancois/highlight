@@ -47,7 +47,7 @@ highlight <- function(
   code = read_file(file), 
   detective = lestrade, 
   file,
-  header = "<pre>", 
+  header = "<pre class='rcode'>", 
   footer = "</pre>",
   ...
   
