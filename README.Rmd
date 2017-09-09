@@ -45,25 +45,7 @@ highlight( file = "css_file.R", detective = lestrade )
 
 This will look like this: 
 
-```{r, detective = lestrade}
-css_file <- function( filename = "default.css" ){
-  if( file.exists(filename) ){
-    return(normalizePath(filename))
-  }
-	
-  f <- file.path( Sys.getenv("HOME"), ".R", "highlight", filename )
-  if( file.exists(f) ){
-    return(f)
-  }
-
-  f <- system.file( "stylesheet", filename , package = "highlight" )
-  if( file.exists( f )){
-    return( f) 
-  }
-	
-  stop( glue("file not found: '{filename}'") )
-}
-```
+![](img/lestrade.png)
 
 This differentiates <span class="functioncall">function calls</span>, 
 <span class="symbol_formalargs">formal arguments</span>,  <span class="symbol_argument">used arguments</span> ... 
@@ -79,32 +61,14 @@ every symbol gets a different color.
 highlight( file = "css_file.R", detective = sherlock )
 ```
 
-```{r, detective=sherlock}
-css_file <- function( filename = "default.css" ){
-  if( file.exists(filename) ){
-    return(normalizePath(filename))
-  }
-	
-  f <- file.path( Sys.getenv("HOME"), ".R", "highlight", filename )
-  if( file.exists(f) ){
-    return(f)
-  }
+![](img/sherlock.png)
 
-  f <- system.file( "stylesheet", filename , package = "highlight" )
-  if( file.exists( f )){
-    return( f) 
-  }
-	
-  stop( glue("file not found: '{filename}'") )
-}
-```
 
 With this we can quickly skim through the file and see e.g. the different uses of `filename`. 
 
 ## In rmarkdown
 
-To use in `rmarkdown` you can use the `hl_hook_source` and `hl_hook_document` hooks. For 
-example this document has these:
+To use in `rmarkdown` you can use the `hl_hook_source` and `hl_hook_document` hooks. 
 
 ```{r eval=FALSE}
 knitr::knit_hooks$set( 
