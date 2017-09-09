@@ -117,17 +117,8 @@ sherlock <- function(data, palette = muted_colors, ... ){
 #' @importFrom purrr map_chr
 #' @export
 mycroft <- function(assistant = lestrade){
-  function(data, focus_packages = NULL, focus_functions = NULL, ...){
+  function(data, focus_functions = NULL, ...){
     data <- assistant(data, ...)
-    
-    if( !is.null(focus_packages) && is.character(focus_packages) ){
-      
-      pos <- paste0("package:", focus_packages)
-      f <- map( pos , ~possibly(ls, NULL)(.) ) %>% 
-        flatten_chr()
-      
-      focus_functions <- c(focus_functions, f)
-    }
     
     if( !is.null(focus_functions) ){
       data <- data %>% 
@@ -153,20 +144,11 @@ mycroft <- function(assistant = lestrade){
 #' This starts by the investigation of the assistant, then replaces tokens
 #' by a character.  
 #' 
-#' @importFrom purrr map_chr map possibly flatten_chr
+#' @importFrom purrr map_chr map
 #' @export  
 moriarty <- function(assistant = lestrade, char = "\u25aa\ufe0f" ){
-  function(data, hide_packages = NULL, hide_functions = NULL, ...){
+  function(data, hide_functions = NULL, ...){
     data <- assistant(data, ...)
-    
-    if( !is.null(hide_packages) && is.character(hide_packages) ){
-      
-      pos <- paste0("package:", hide_packages)
-      f <- map( pos , ~possibly(ls, NULL)(.) ) %>% 
-        flatten_chr()
-      
-      hide_functions <- c(hide_functions, f)
-    }
     
     if( !is.null(hide_functions) ){
       
