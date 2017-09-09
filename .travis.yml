@@ -3,3 +3,7 @@ cache: packages
 r:
   - release
   - devel
+
+email:
+  on_success: change
+  on_failure: change
