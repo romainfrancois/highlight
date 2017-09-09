@@ -10,6 +10,8 @@ sherlock(data, palette = muted_colors, ...)
 \item{data}{data frame, typically coming from [utils::getParseData()]}
 
 \item{palette}{a function converting numbers from 0 to 1 into a color}
+
+\item{...}{additional parameters}
 }
 \description{
 Sherlock Holmes, highlighting detective

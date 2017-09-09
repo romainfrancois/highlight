@@ -58,7 +58,8 @@ With this we can quickly skim through the file and see e.g. the different uses o
 
 ## In rmarkdown
 
-To use in `rmarkdown` you can use the `hl_hook_source` and `hl_hook_document` hooks. 
+To use in `rmarkdown` you can use the `hl_hook_source` and `hl_hook_document` hooks. Unfortunately this 
+does not work for README on github so this document uses screenshots. 
 
 ```r
 knitr::knit_hooks$set( 

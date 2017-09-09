@@ -6,6 +6,7 @@
 #' @seealso [sherlock()] for more investigation
 #' 
 #' @param data data frame, typically coming from [utils::getParseData()]
+#' @param ... additional parameters
 #' 
 #' @return data with the additional columns
 #'  - `class` which simplifies the `token` column from [utils::getParseData()]
@@ -93,6 +94,7 @@ muted_colors <- function(x){
 #' 
 #' @param data data frame, typically coming from [utils::getParseData()]
 #' @param palette a function converting numbers from 0 to 1 into a color
+#' @param ... additional parameters
 #'
 #' @export
 sherlock <- function(data, palette = muted_colors, ... ){

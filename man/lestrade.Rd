@@ -8,6 +8,8 @@ lestrade(data, ...)
 }
 \arguments{
 \item{data}{data frame, typically coming from [utils::getParseData()]}
+
+\item{...}{additional parameters}
 }
 \value{
 data with the additional columns
