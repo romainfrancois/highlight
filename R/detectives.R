@@ -146,6 +146,9 @@ mycroft <- function(assistant = lestrade){
   
 }
 
+obfuscate <- function(text, char){
+  map_chr( nchar(text), ~ paste0(rep( char, .), collapse = "") )
+}
 
 #' moriarty
 #' 
@@ -158,15 +161,24 @@ mycroft <- function(assistant = lestrade){
 #' @importFrom purrr map_chr map
 #' @export  
 moriarty <- function(assistant = lestrade, char = "\u25aa\ufe0f" ){
-  function(data, hide_functions = NULL, ...){
+  function(data, hide_functions = NULL, hide_all = FALSE, ...){
     data <- assistant(data, ...)
     
-    if( !is.null(hide_functions) ){
+    if( isTRUE(hide_all) ){
+      data <- data %>% 
+        mutate( 
+          text = case_when( 
+            token == "SYMBOL_FUNCTION_CALL"  ~ obfuscate(text, char), 
+            TRUE                             ~ text
+          )  
+        )
+      
+    } else if( !is.null(hide_functions) ){
       
       data <- data %>% 
         mutate( 
           text = case_when( 
-            text %in% hide_functions & token == "SYMBOL_FUNCTION_CALL"  ~ map_chr( nchar(text), ~ paste0(rep( char, .), collapse = "") ), 
+            text %in% hide_functions & token == "SYMBOL_FUNCTION_CALL"  ~ obfuscate(text, char), 
             TRUE                      ~ text
           )  
         )  
