@@ -9,17 +9,7 @@ knitr::opts_chunk$set(
   comment = "#>",
   fig.path = "README-"
 )
-knitr::knit_hooks$set( 
-  source = hl_hook_source, 
-  document = hl_hook_css
-)
 ```
-
-<style type="text/css">
-pre {
-  border: 1px solid black ;
-}
-</style>
 
 # highlight
 
@@ -29,7 +19,7 @@ highlight is a syntax highlighter for R code.
 
 You can install highlight from github with:
 
-```{r gh-installation, eval = FALSE}
+```r
 # install.packages("devtools")
 devtools::install_github("romainfrancois/highlight")
 ```
@@ -39,7 +29,7 @@ devtools::install_github("romainfrancois/highlight")
 Typical syntax highlighting is only interested in whether a token is a function 
 call, a keyword, a string, ... this is what the `lestrade` detective does:
 
-```{r eval=FALSE}
+```r
 highlight( file = "css_file.R", detective = lestrade )
 ```
 
@@ -57,7 +47,7 @@ Traditional highlighting only reveals the obvious, so the package also benefits 
 the investigation of `sherlock` for semantic highlighting. In semantic highlighting, 
 every symbol gets a different color. 
 
-```{r eval=FALSE}
+```r
 highlight( file = "css_file.R", detective = sherlock )
 ```
 
@@ -70,7 +60,7 @@ With this we can quickly skim through the file and see e.g. the different uses o
 
 To use in `rmarkdown` you can use the `hl_hook_source` and `hl_hook_document` hooks. 
 
-```{r eval=FALSE}
+```r
 knitr::knit_hooks$set( 
   source = hl_hook_source, 
   document = hl_hook_css
