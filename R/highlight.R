@@ -69,3 +69,23 @@ highlight <- function(
 
 #' @importFrom utils globalVariables
 globalVariables( c("terminal", "text", "Priority", "Package" ) )
+
+#' header and footer for full document
+#' @param css css file, see [css_file()]
+#' 
+#' @rdname document
+#' @export
+document_header <- function(css = "default.css"){
+  c( 
+    "<html>\n<head>\n<style text='text/css'>", 
+    read_file( css_file(css) ), 
+    "\n</style>\n<head>\n<body>\n<div><pre class='rcode'>"
+  )
+}
+
+#' @rdname document
+#' @export
+document_footer <- function(){
+  '</pre></div>\n</body>\n</html>'
+}
+
