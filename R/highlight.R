@@ -89,3 +89,19 @@ document_footer <- function(){
   '</pre></div>\n</body>\n</html>'
 }
 
+#' knitr hooks
+#' 
+#' @param x the code
+#' @param options chunk options
+#' 
+#' @rdname hooks
+#' @export
+hl_hook_source <- function(x, options){
+  do.call(highlight, options )
+}
+
+#' @rdname hooks
+#' @export
+hl_hook_css <- function(x){
+  c( paste0( '<style type="text/css">', read_file( css_file() ), "</style>"), x )
+}

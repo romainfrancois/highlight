@@ -4,7 +4,7 @@
 \alias{sherlock}
 \title{Sherlock Holmes, highlighting detective}
 \usage{
-sherlock(data, palette = muted_colors)
+sherlock(data, palette = muted_colors, ...)
 }
 \arguments{
 \item{data}{data frame, typically coming from [utils::getParseData()]}

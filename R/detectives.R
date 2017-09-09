@@ -22,7 +22,7 @@
 #' @importFrom stringr str_detect
 #' @importFrom utils installed.packages
 #' @export
-lestrade <- function( data ){
+lestrade <- function( data, ... ){
 	
   keywords <- c( "FUNCTION", "FOR", "IN", "IF",
     "ELSE", "WHILE", "NEXT", "BREAK", "REPEAT",
@@ -82,7 +82,7 @@ lestrade <- function( data ){
 sherlock_colors <- function(colors, palette){
   values <- .Call( hash_strings, colors )
   col <- palette( values )
-  unclass(glue( 'color: {col} ; font-weight: bolder' ))
+  unclass(glue( 'color: {col} ; ' ))
 }
 
 muted_colors <- function(x){
@@ -95,7 +95,7 @@ muted_colors <- function(x){
 #' @param palette a function converting numbers from 0 to 1 into a color
 #'
 #' @export
-sherlock <- function(data, palette = muted_colors ){
+sherlock <- function(data, palette = muted_colors, ... ){
   lestrade(data) %>% 
     mutate( 
       style = case_when( 

@@ -4,7 +4,7 @@
 \alias{lestrade}
 \title{lestrade}
 \usage{
-lestrade(data)
+lestrade(data, ...)
 }
 \arguments{
 \item{data}{data frame, typically coming from [utils::getParseData()]}
