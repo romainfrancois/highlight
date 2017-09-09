@@ -114,3 +114,21 @@ extern "C" SEXP get_highlighted_text(
 	return( res ) ;
 }
 
+extern "C" SEXP hash_strings( SEXP s ){
+  double max = (double) std::numeric_limits<size_t>::max() ;
+  int n = Rf_length(s) ;
+  SEXP res = PROTECT(Rf_allocVector(REALSXP, n)) ;
+  double* p = REAL(res) ;
+  std::hash<std::string> hash_fn;
+  
+  for(int i=0 ;i<n; i++){
+    p[i] = hash_fn( CHAR(STRING_ELT(s, i)) ) / max ;
+  }
+  
+  UNPROTECT(1) ;
+  return res ;
+}
+
+
+
+

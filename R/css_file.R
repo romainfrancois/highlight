@@ -14,20 +14,19 @@
 #' @export
 #' @importFrom glue glue
 css_file <- function( filename = "default.css" ){
+  if( file.exists(filename) ){
+    return(normalizePath(filename))
+  }
 	
-	if( file.exists(filename) ){
-		return(normalizePath(filename))
-	}
-	
-	f <- file.path( Sys.getenv("HOME"), ".R", "highlight", filename )
-	if( file.exists(f) ){
-		return(f)
-	}
+  f <- file.path( Sys.getenv("HOME"), ".R", "highlight", filename )
+  if( file.exists(f) ){
+    return(f)
+  }
 
-	f <- system.file( "stylesheet", filename , package = "highlight" )
-	if( file.exists( f )){
-		return( f) 
-	}
+  f <- system.file( "stylesheet", filename , package = "highlight" )
+  if( file.exists( f )){
+    return( f) 
+  }
 	
-	stop( glue("file not found: '{filename}'") )
+  stop( glue("file not found: '{filename}'") )
 }

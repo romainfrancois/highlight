@@ -21,3 +21,4 @@ Imports: glue,
     magrittr,
     htmltools
 Encoding: UTF-8
+SystemRequirements: C++11

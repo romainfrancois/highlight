@@ -5,9 +5,11 @@
 
 /* .Call calls */
 extern SEXP get_highlighted_text(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP);
+extern SEXP hash_strings(SEXP);
 
 static const R_CallMethodDef CallEntries[] = {
     {"get_highlighted_text", (DL_FUNC) &get_highlighted_text, 10},
+    {"hash_strings", (DL_FUNC) &hash_strings, 1},
     {NULL, NULL, 0}
 };
 
