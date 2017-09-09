@@ -117,24 +117,24 @@ sherlock <- function(data, palette = muted_colors, ... ){
 #' @importFrom purrr map_chr
 #' @export
 mycroft <- function(assistant = lestrade){
-  function(data, packages = NULL, functions = NULL, ...){
+  function(data, focus_packages = NULL, focus_functions = NULL, ...){
     data <- assistant(data, ...)
     
-    if( !is.null(packages) && is.character(packages) ){
+    if( !is.null(focus_packages) && is.character(focus_packages) ){
       
-      pos <- paste0("package:", packages)
+      pos <- paste0("package:", focus_packages)
       f <- map( pos , ~possibly(ls, NULL)(.) ) %>% 
         flatten_chr()
       
-      functions <- c(functions, f)
+      focus_functions <- c(focus_functions, f)
     }
     
-    if( !is.null(functions) ){
+    if( !is.null(focus_functions) ){
       data <- data %>% 
         mutate( 
           class = case_when( 
-            text %in% functions & token == "SYMBOL_FUNCTION_CALL" ~ paste( class, " focus"), 
-            TRUE                 ~ class
+            text %in% focus_functions & token == "SYMBOL_FUNCTION_CALL" ~ paste( class, " focus"), 
+            TRUE                                                        ~ class
           )  
         )  
     }
@@ -153,7 +153,7 @@ mycroft <- function(assistant = lestrade){
 #' This starts by the investigation of the assistant, then replaces tokens
 #' by a character.  
 #' 
-#' @importFrom purrr map_chr
+#' @importFrom purrr map_chr map possibly flatten_chr
 #' @export  
 moriarty <- function(assistant = lestrade, char = "\u25aa\ufe0f" ){
   function(data, hide_packages = NULL, hide_functions = NULL, ...){
