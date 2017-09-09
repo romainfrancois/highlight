@@ -8,3 +8,5 @@ src/*.dll
 *.Rproj
 .DS_Store
 inst/doc
+README-source.*
+
