@@ -160,7 +160,7 @@ obfuscate <- function(text, char){
 #' 
 #' @importFrom purrr map_chr map
 #' @export  
-moriarty <- function(assistant = lestrade, char = "\u25aa\ufe0f" ){
+moriarty <- function(assistant = lestrade, char = "-" ){
   function(data, hide_functions = NULL, hide_all = FALSE, ...){
     data <- assistant(data, ...)
     

@@ -4,7 +4,7 @@
 \alias{moriarty}
 \title{moriarty}
 \usage{
-moriarty(assistant = lestrade, char = "▪️")
+moriarty(assistant = lestrade, char = "-")
 }
 \arguments{
 \item{assistant}{initial detective}
