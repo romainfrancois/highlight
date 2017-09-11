@@ -5,7 +5,7 @@
 \title{Syntax highlighting based on the R parser}
 \usage{
 highlight(code = read_file(file), detective = lestrade, file,
-  header = "<pre>", footer = "</pre>", ...)
+  header = "<pre class='rcode'>", footer = "</pre>", ...)
 }
 \arguments{
 \item{code}{code to highlight. Read from `file` if supplied}
