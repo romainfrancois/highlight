@@ -33,8 +33,8 @@ NULL
 #' 
 #' @examples
 #' \dontrun{
-#' 	highlight( code = "rnorm(10) + 1", lestrade )
-#' 	highlight( code = "rnorm(10) + 1", sherlock )
+#' 	highlight( "rnorm(10) + 1", lestrade )
+#' 	highlight( "rnorm(10) + 1", sherlock )
 #' 	
 #' }
 #' 
@@ -44,7 +44,7 @@ NULL
 #' @importFrom htmltools htmlEscape
 #' @export
 highlight <- function(
-  code = read_file(file), 
+  x = read_file(file), 
   detective = lestrade, 
   file,
   header = "<pre class='rcode'>", 
@@ -53,7 +53,7 @@ highlight <- function(
   
 ){
 
-  data <- getParseData( parse( text = code, keep.source = TRUE) ) %>% 
+  data <- getParseData( parse( text = x, keep.source = TRUE) ) %>% 
     detective(...) %>% 
     filter(terminal) %>% 
     mutate( text = htmlEscape(text) )
@@ -97,7 +97,7 @@ document_footer <- function(){
 #' @rdname hooks
 #' @export
 hl_hook_source <- function(x, options){
-  do.call(highlight, options )
+  do.call(highlight, append( list(x = x), options ))
 }
 
 #' @rdname hooks

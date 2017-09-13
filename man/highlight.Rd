@@ -4,12 +4,10 @@
 \alias{highlight}
 \title{Syntax highlighting based on the R parser}
 \usage{
-highlight(code = read_file(file), detective = lestrade, file,
+highlight(x = read_file(file), detective = lestrade, file,
   header = "<pre class='rcode'>", footer = "</pre>", ...)
 }
 \arguments{
-\item{code}{code to highlight. Read from `file` if supplied}
-
 \item{detective}{function used to assign styles to tokens}
 
 \item{file}{code file}
@@ -19,6 +17,8 @@ highlight(code = read_file(file), detective = lestrade, file,
 \item{footer}{footer}
 
 \item{...}{extra parameters for the detective}
+
+\item{code}{code to highlight. Read from `file` if supplied}
 }
 \value{
 The formatted text, surrounded by `header` and `footer`
@@ -30,8 +30,8 @@ of a detective.
 }
 \examples{
 \dontrun{
-	highlight( code = "rnorm(10) + 1", lestrade )
-	highlight( code = "rnorm(10) + 1", sherlock )
+	highlight( "rnorm(10) + 1", lestrade )
+	highlight( "rnorm(10) + 1", sherlock )
 	
 }
 
