@@ -8,6 +8,8 @@ highlight(x = read_file(file), detective = lestrade, file,
   header = "<pre class='rcode'>", footer = "</pre>", ...)
 }
 \arguments{
+\item{x}{code to highlight. Read from `file` if supplied}
+
 \item{detective}{function used to assign styles to tokens}
 
 \item{file}{code file}
@@ -17,8 +19,6 @@ highlight(x = read_file(file), detective = lestrade, file,
 \item{footer}{footer}
 
 \item{...}{extra parameters for the detective}
-
-\item{code}{code to highlight. Read from `file` if supplied}
 }
 \value{
 The formatted text, surrounded by `header` and `footer`
@@ -32,7 +32,6 @@ of a detective.
 \dontrun{
 	highlight( "rnorm(10) + 1", lestrade )
 	highlight( "rnorm(10) + 1", sherlock )
-	
 }
 
 }

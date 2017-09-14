@@ -20,7 +20,7 @@ NULL
 #' results of the \code{\link[base]{parse}} and the investigation
 #' of a detective.
 #' 
-#' @param code code to highlight. Read from `file` if supplied
+#' @param x code to highlight. Read from `file` if supplied
 #' @param detective function used to assign styles to tokens
 #' @param file code file
 #' @param header header
@@ -35,7 +35,6 @@ NULL
 #' \dontrun{
 #' 	highlight( "rnorm(10) + 1", lestrade )
 #' 	highlight( "rnorm(10) + 1", sherlock )
-#' 	
 #' }
 #' 
 #' @importFrom readr read_file
