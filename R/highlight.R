@@ -61,7 +61,7 @@ highlight <- function(
     data, min(data$line1), max(data$line2) , 
     data$line1, data$col1, 
     data$line2, data$col2,
-    data$text, data$class, data$style
+    data$text, data$class, data$style, data$href
   )
  c( header, res, footer )
 }

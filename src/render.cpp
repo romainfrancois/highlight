@@ -12,22 +12,23 @@
 #define GET_CSS_CLASS(i) CHAR(STRING_ELT(css, i))
 #define GET_STYLE(i) CHAR(STRING_ELT(style, i))
 
+inline const char* get_href(SEXP href, int i){
+  if( Rf_isNull(href) ) return "" ;
+  SEXP s = STRING_ELT(href, i) ;
+  return ( s == NA_STRING ) ? "" : CHAR(s) ;
+}
+
 /** 
  * get the highlighted text as a character vector
  *
  * @param data result from parser (data frame)
- * @param startline the first line
- * @param space_ what to write instead of a space
- * @param newline_ what to write instead of a newline
- * @param prompt_ the command prompt
- * @param continuePrompt_ the continue prompt
  */
 extern "C" SEXP get_highlighted_text( 
     SEXP data, SEXP start_, SEXP end_, 
     
     SEXP line1_, SEXP col1_,
     SEXP line2_, SEXP col2_, 
-    SEXP tokens, SEXP css, SEXP style
+    SEXP tokens, SEXP css, SEXP style, SEXP href
 ){
 
   /* the current line */
@@ -82,8 +83,17 @@ extern "C" SEXP get_highlighted_text(
 		
 		std::string css_class = GET_CSS_CLASS(i) ;
 		std::string style_text = GET_STYLE(i) ;
+		std::string href_text = get_href(href, i) ;
 		if( css_class == "" && style_text == ""){
+		  if( href_text.size() ){
+		    current_line += "<a href='" ;
+		    current_line += href_text ;
+		    current_line += "'>" ;
+		  }
 		  current_line += GET_TOKEN(i) ;  
+		  if( href_text.size() ){
+		    current_line += "</a>" ;  
+		  }
 		} else {
 		  current_line += "<span" ;
 		  if( css_class != ""){
@@ -98,10 +108,17 @@ extern "C" SEXP get_highlighted_text(
 		    current_line += "'" ;
 		  }
 		  current_line += ">"  ;
+		  if( href_text.size() ){
+		    current_line += "<a href='" ;
+		    current_line += href_text ;
+		    current_line += "'>" ;
+		  }
 		  current_line += GET_TOKEN(i) ;
+		  if( href_text.size() ){
+		    current_line += "</a>" ;  
+		  }
 		  current_line += "</span>" ;
 		}
-		
 		
 		/* set the current positions */ 
 		col  = col2[i]+1;

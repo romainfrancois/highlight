@@ -2,9 +2,9 @@ Package: highlight
 Type: Package
 Title: Syntax Highlighter
 Description: Syntax highlighter for R code based on the results of the R parser. 
-Version: 0.5.0
+Version: 0.5.0.9000
 Authors@R: c( 
-    person("Romain", "François", email = "romain@thinkr.fr", role = c("aut", "cre") )
+    person("Romain", "François", email = "romain@purrple.cat", role = c("aut", "cre") )
   )
 License: MIT + file LICENSE
 Depends:
