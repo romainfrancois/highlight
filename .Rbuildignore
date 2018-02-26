@@ -1,5 +1,5 @@
 .travis.yml
-
+img
 ^.*\.Rproj$
 ^\.Rproj\.user$
 ^appveyor\.yml$
