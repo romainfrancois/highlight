@@ -21,6 +21,18 @@ detective does:
 ``` r
 library(highlight)
 highlight( file = "css_file.R", detective = lestrade )
+# Generate html file to preview externally 
+tmp_page <- tempfile(pattern = "highlight_preview", fileext = ".html")
+capture.output(cat(
+    highlight(
+        file = "./R/css_file.R",
+        detective = lestrade,
+        header = document_header()
+    )
+),
+file = tmp_page)
+# Open in RStudio
+rstudioapi::viewer(tmp_page, height = NULL)
 ```
 
 This will look like this:
