@@ -1,11 +1,9 @@
 
-highlight
-=========
+# highlight
 
 highlight is a syntax highlighter for R code.
 
-Installation
-------------
+## Installation
 
 You can install highlight from github with:
 
@@ -14,25 +12,43 @@ You can install highlight from github with:
 devtools::install_github("romainfrancois/highlight")
 ```
 
-Typical highlighting (lestrade)
--------------------------------
+## Typical highlighting (lestrade)
 
-Typical syntax highlighting is only interested in whether a token is a function call, a keyword, a string, ... this is what the `lestrade` detective does:
+Typical syntax highlighting is only interested in whether a token is a
+function call, a keyword, a string, … this is what the `lestrade`
+detective does:
 
 ``` r
+library(highlight)
 highlight( file = "css_file.R", detective = lestrade )
+# Generate html file to preview externally 
+tmp_page <- tempfile(pattern = "highlight_preview", fileext = ".html")
+capture.output(cat(
+    highlight(
+        file = "./R/css_file.R",
+        detective = lestrade,
+        header = document_header()
+    )
+),
+file = tmp_page)
+# Open in RStudio
+rstudioapi::viewer(tmp_page, height = NULL)
 ```
 
 This will look like this:
 
 ![](img/lestrade.png)
 
-This differentiates <span class="functioncall">function calls</span>, <span class="symbol_formalargs">formal arguments</span>, <span class="symbol_argument">used arguments</span> ... because `lestrade` identified these tokens as such.
+This differentiates <span class="functioncall">function calls</span>,
+<span class="symbol_formalargs">formal arguments</span>,
+<span class="symbol_argument">used arguments</span> … because `lestrade`
+identified these tokens as such.
 
-semantic highlighting (sherlock)
---------------------------------
+## semantic highlighting (sherlock)
 
-Traditional highlighting only reveals the obvious, so the package also benefits from the investigation of `sherlock` for semantic highlighting. In semantic highlighting, every symbol gets a different color.
+Traditional highlighting only reveals the obvious, so the package also
+benefits from the investigation of `sherlock` for semantic highlighting.
+In semantic highlighting, every symbol gets a different color.
 
 ``` r
 highlight( file = "css_file.R", detective = sherlock )
@@ -40,12 +56,14 @@ highlight( file = "css_file.R", detective = sherlock )
 
 ![](img/sherlock.png)
 
-With this we can quickly skim through the file and see e.g. the different uses of `filename`.
+With this we can quickly skim through the file and see e.g. the
+different uses of `filename`.
 
-In rmarkdown
-------------
+## In rmarkdown
 
-To use in `rmarkdown` you can use the `hl_hook_source` and `hl_hook_document` hooks. Unfortunately this does not work for README on github so this document uses screenshots.
+To use in `rmarkdown` you can use the `hl_hook_source` and
+`hl_hook_document` hooks. Unfortunately this does not work for README on
+github so this document uses screenshots.
 
 ``` r
 knitr::knit_hooks$set( 
