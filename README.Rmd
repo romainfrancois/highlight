@@ -30,6 +30,7 @@ Typical syntax highlighting is only interested in whether a token is a function
 call, a keyword, a string, ... this is what the `lestrade` detective does:
 
 ```r
+library(highlight)
 highlight( file = "css_file.R", detective = lestrade )
 ```
 
