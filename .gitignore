@@ -9,4 +9,5 @@ src/*.dll
 .DS_Store
 inst/doc
 README-source.*
+sessionInfoLog
 
